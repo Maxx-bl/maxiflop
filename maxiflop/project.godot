@@ -11,8 +11,14 @@ config_version=5
 [application]
 
 config/name="maxiflop"
+run/main_scene="uid://cjl6rw0gioiki"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+NetworkManager="*res://scripts/network/network_manager.gd"
+MainMenu="*res://scripts/main_menu.gd"
 
 [dotnet]
 
