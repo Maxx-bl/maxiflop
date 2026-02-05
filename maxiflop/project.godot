@@ -11,9 +11,14 @@ config_version=5
 [application]
 
 config/name="maxiflop"
+run/main_scene="uid://3qvhb10kjx27"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
 [dotnet]
 
 project/assembly_name="maxiflop"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=0

@@ -1,3 +1,44 @@
-[gd_scene format=3 uid="uid://3qvhb10kjx27"]
+[gd_scene load_steps=5 format=4 uid="uid://3qvhb10kjx27"]
 
-[node name="Node2D" type="Node2D"]
+[ext_resource type="PackedScene" uid="uid://bgvchkja2phto" path="res://scenes/player.tscn" id="1_o5qli"]
+[ext_resource type="Texture2D" uid="uid://x8div0teo4a3" path="res://assets/plateforme.png" id="2_0wfyh"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_sugp2"]
+texture = ExtResource("2_0wfyh")
+0:2/0 = 0
+0:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:2/0 = 0
+1:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-2.98176, -8, 8, -8, 8, 3.05111, -3.05311, 3.05311)
+2:2/0 = 0
+2:2/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 3.05111, -8, 2.97483)
+0:3/0 = 0
+0:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+1:3/0 = 0
+1:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+2:3/0 = 0
+2:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+3:3/0 = 0
+3:3/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
+
+[sub_resource type="TileSet" id="TileSet_jyhfs"]
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("TileSetAtlasSource_sugp2")
+
+[node name="Game" type="Node2D"]
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("1_o5qli")]
+position = Vector2(0, -9)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(20, 0)
+zoom = Vector2(4, 4)
+
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = SubResource("TileSet_jyhfs")
+format = 2
+
+[node name="Layer1" type="TileMapLayer" parent="TileMap"]
+use_parent_material = true
+position = Vector2(-3, 14)
+tile_map_data = PackedByteArray("AAD8/wAAAAAAAAMAAAD9/wAAAAAAAAMAAAD+/wAAAAAAAAMAAAD//wAAAAAAAAMAAAAEAAAAAAACAAMAAAAFAAAAAAAAAAMAAAAGAAAAAAAAAAMAAAAHAAAAAAAAAAMAAAAHAP//AAAAAAMAAAAHAP7/AAAAAAMAAAAHAP3/AAACAAMAAAAIAP3/AAAAAAMAAAAIAP7/AAAAAAMAAAAIAP//AAAAAAMAAAAIAAAAAAAAAAMAAAAJAP3/AAAAAAMAAAAJAP7/AAAAAAMAAAAJAP//AAAAAAMAAAAJAAAAAAAAAAMAAAAKAP3/AAADAAMAAAAKAP7/AAAAAAMAAAAKAP//AAAAAAMAAAAKAAAAAAAAAAMAAAALAAAAAAAAAAMAAAAMAAAAAAAAAAMAAAANAAAAAAAAAAMAAAAOAAAAAAAAAAMAAAAPAAAAAAAAAAMAAAAQAAAAAAAAAAMAAAAMAP7/AAACAAIAAAANAP7/AAACAAIAAAAOAP7/AAACAAIAAAAPAP7/AAACAAIAAAANAPz/AAACAAIAAAAOAPz/AAACAAIAAAAPAPz/AAACAAIAAAAAAAAAAAAAAAMAAAABAAAAAAADAAMAAAA=")
+tile_set = SubResource("TileSet_jyhfs")
