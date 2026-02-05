@@ -25,9 +25,9 @@ func _physics_process(delta):
 
 	move_and_slide()
 	animate(direction)
-	handle_direction(direction)
 
 func animate(direction): 
+	handle_direction(direction)
 	if not is_on_floor(): 
 		sprite.play("jump")
 	elif velocity.x != 0:
