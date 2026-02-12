@@ -1,0 +1,56 @@
+[gd_scene load_steps=2 format=3 uid="uid://cu17jadk4pkoh"]
+
+[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1_l6cm7"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 736.0
+offset_top = 434.0
+offset_right = 417.0
+offset_bottom = 248.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_l6cm7")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Panel" type="Panel" parent="."]
+layout_mode = 0
+offset_left = -736.0
+offset_top = -434.0
+offset_right = 416.0
+offset_bottom = 214.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
+layout_mode = 0
+offset_left = 101.0
+offset_top = 87.0
+offset_right = 280.0
+offset_bottom = 165.0
+
+[node name="HostGame" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+text = "Host Game
+"
+
+[node name="JoinGame" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "Join Game
+"
+
+[node name="Test" type="Button" parent="Panel/VBoxContainer"]
+layout_mode = 2
+toggle_mode = true
+text = "Test
+"
+
+[connection signal="pressed" from="Panel/VBoxContainer/HostGame" to="." method="_on_host_game_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/JoinGame" to="." method="_on_join_game_pressed"]
+[connection signal="pressed" from="Panel/VBoxContainer/Test" to="." method="_on_test_pressed"]
