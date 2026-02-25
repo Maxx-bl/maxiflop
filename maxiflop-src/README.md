@@ -59,6 +59,9 @@ maxiflop/
 3. Assigner le stream audio
 4. Adapter `song_duration` dans le script `GameScreen.gd`
 
+
+
+
 ## Mode multijoueur (host PC + manettes smartphone)
 
 ### 1) Lancer le serveur
