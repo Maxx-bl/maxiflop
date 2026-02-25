@@ -11,6 +11,8 @@
   "author": "Florence",
   "license": "ISC",
   "dependencies": {
+    "express": "^5.2.1",
+    "socket.io": "^4.8.3",
     "websocket": "^1.0.35"
   }
 }
