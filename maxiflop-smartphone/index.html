@@ -1,34 +1,43 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Maxiflop</title>
-        <link rel="stylesheet" href="./style.css">
-    </head>
-    <body>
-        <section id="login" class="écran">
-            <h1 class="page principal">Bienvenue sur Maxiflop</h1>
-            <div class="formulaire-participation">
-                <input type="text" id="ajout-pseudo" placeholder="Entrez votre pseudo..." maxlength="15">
-                <div class="groupe-boutons">
-                    <button type="button" id="btnQuit" class="btnSec">QUITTER</button>
-                    <button type="button" id="btnPart" class="btnPrem">PARTICIPER</button>
-                </div>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maxiflop</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <section id="login" class="écran">
+        <h1 class="page principal">Bienvenue sur Maxiflop</h1>
+        <div class="formulaire-participation">
+            <input type="text" id="ajout-pseudo" placeholder="Entrez votre pseudo..." maxlength="15">
+            <div class="groupe-boutons">
+                <button type="button" id="btnQuit" class="btnSec">QUITTER</button>
+                <button type="button" id="btnPart" class="btnPrem">PARTICIPER</button>
             </div>
-        </section>
-        <section id="attente" class="écran arriere">
-            <p>En attente du début de la partie...</p>
-            <div class="chargement"></div>
-        </section>
-        <section id="jeu" class="écran arriere">
-            <div class="bouton">
-                <button class="btn Bleu"></button>
-                <button class="btn Jaune"></button>
-                <button class="btn rouge"></button>
-            </div>
-            <div id="go">PRÊT ?</div>
-        </section>
-        <script src="./script.js"></script>
-    </body>
+        </div>
+    </section>
+    <section id="attente" class="écran arriere">
+        <p>En attente du début de la partie...</p>
+        <div class="chargement"></div>
+    </section>
+    <section id="jeu" class="écran arriere">
+        <div class="bouton">
+            <button class="btn Bleu"></button>
+            <button class="btn Jaune"></button>
+            <button class="btn rouge"></button>
+        </div>
+        <div id="go">PRÊT ?</div>
+    </section>
+    <script src="./script.js"></script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+    </script>
+
+</body>
+
 </html>
