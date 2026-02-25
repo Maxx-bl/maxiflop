@@ -3,6 +3,4 @@
 /android/
 .vscode/
 *.uid
-*.zip
-*.import
-node_modules/
+**/node_modules/
