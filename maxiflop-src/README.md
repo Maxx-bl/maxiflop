@@ -59,9 +59,35 @@ maxiflop/
 3. Assigner le stream audio
 4. Adapter `song_duration` dans le script `GameScreen.gd`
 
+
+
+
 ## Prochaines étapes (multijoueur)
 
-- Serveur Node.js + Socket.io
-- Manette HTML/CSS pour mobile
+- Manette HTML/CSS pour mobile (Gwen)
 - Équipes et leaderboard global
 - Beatmaps depuis fichiers JSON
+
+# Back-end - Florence
+
+## Terminé
+- Initialisation Serveur : Serveur Node.js (configuré et init)
+- Communication : Socket.io (installé)
+- Sécurité : .gitignore mis à jour
+
+## En cours et à faire
+
+### Manette / Gestion Joueurs
+- Récupération du pseudo : Ecouter l'évènement émis par le client, stocker les pseudos coté serveur
+- Suivi des connexions
+- Recevoir et valider les signaux envoyés par les téléphones
+
+### API
+- API manette (en cours)
+- API Leaderboard : Route GET pour renvoyer le top 5
+- API musique
+
+### Synchro
+- Transmettre les inputs reçus à Godot
+- envoi d'un signal au serveur quand un utilisateur clique sur un bouton
+
