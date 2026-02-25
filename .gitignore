@@ -5,3 +5,5 @@
 *.uid
 **/node_modules/
 .env
+.exe
+.apk
