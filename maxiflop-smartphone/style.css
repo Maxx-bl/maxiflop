@@ -1,126 +1,187 @@
-:root {
-    --bg-color: #F8FBF8;    
-    --mauve: #C89BFF;       
-    --blue: #5FCDE4;        
-    --red: #FF7081;         
-    --yellow: #F0D722;
-    --black: #1a1717;      
-}
+    :root {
+        --bg-color: #F8FBF8;    
+        --mauve: #C89BFF;       
+        --blue: #5FCDE4;        
+        --red: #FF7081;         
+        --yellow: #F0D722;
+        --black: #1a1717;      
+    }
 
-body {
-    background-color: var(--bg-color);
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-}
+    body {
+        background-color: var(--bg-color);
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+    }
 
-.écran {
-    text-align: center;
-    width: 90%;
-    color: var(--mauve);
-}
+    .ecran {
+        text-align: center;
+        width: 90%;
+        color: var(--mauve);
+    }
 
-.arriere {
-    display: none;
-}
+    .arriere {
+        display: none;
+    }
 
-.bouton {
-    display: flex;
-    flex-direction: column; 
-    gap: 20px;
-}
+    .bouton {
+        display: flex;
+        flex-direction: row; 
+        gap: 100px;
+        justify-content: center;
+    }
 
-.btn {
-    height: 100px;
-    border: none;
-    border-radius: 50px;
-}
+    .btn {
+        height: 150px;
+        width: 150px;
+        border: none;
+        border-radius: 100px;
+    }
 
-h1 {
-    color: var(--mauve);
-    font-size: 2rem;
-    margin-bottom: 20px;
-}
+    h1 {
+        color: var(--mauve);
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
 
-p {
-    color: var(--mauve);
-    font-size: 2rem;
-    margin-bottom: 20px;
-}
+    p {
+        color: var(--mauve);
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
 
-/*Style de l'input*/
-input {
-    text-align: center;
-    margin-top: 1rem;
-    font-weight: 600;
-    color: #2d3436;
-    background-color: white;
-    border-radius: 15px;
-    padding: 1rem;
-    width: 100%;
-    max-width: 200px;
-}
+    /*Style de l'input*/
+    input {
+        text-align: center;
+        margin-top: 1rem;
+        font-weight: 600;
+        color: #2d3436;
+        background-color: white;
+        border-radius: 15px;
+        padding: 1rem;
+        width: 100%;
+        max-width: 200px;
+    }
 
-/*Style des boutons pages principales*/
-.groupe-boutons {
-    display: flex;        
-    justify-content: center; 
-    gap: 30px;           
-    margin-top: 20px;      
-}
+    /*Style des boutons pages principales*/
+    .groupe-boutons {
+        display: flex;        
+        justify-content: center; 
+        gap: 30px;           
+        margin-top: 20px;      
+    }
 
-.btnPrem {
-    padding: 15px 15px;
-    border-radius: 10px;
-    border: 50px;
-    background-color: var(--blue);
-    letter-spacing: 1.5px;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    box-shadow: rgb(46, 116, 201) 0px 10px 0px 0px;
-    color: hsl(0, 0%, 100%);
-    cursor: pointer;
-}
+    .btnPrem, .btnSec {
+        padding: 15px;
+        border-radius: 10px;
+        border: none;
+        letter-spacing: 1.5px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        color: hsl(0, 0%, 100%);
+        cursor: pointer;
+    }
 
-.btnPrem:hover {
-  box-shadow: rgb(46, 116, 201) 0px 10px 0px 0px;
-}
+    .btnPrem {
+        background-color: var(--blue);
+        box-shadow: rgb(46, 116, 201) 0px 10px 0px 0px;
+    }
 
-.btnPrem:active {
-  background-color: var(--blue);
-  box-shadow: rgb(46, 116, 201) 0px 10px 0px 0px;
-  transform: translateY(5px);
-  transition: 200ms;
-}
+    .btnPrem:hover {
+        box-shadow: rgb(46, 116, 201) 0px 7px 0px 0px;
+    }
 
-.btnSec {
-    padding: 15px 15px;
-    border-radius: 10px;
-    border: 50px;
-    background-color: var(--red);
-    letter-spacing: 1.5px;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    box-shadow: rgb(201, 46, 70) 0px 10px 0px 0px;
-    color: hsl(0, 0%, 100%);
-    cursor: pointer;
-}
+    .btnPrem:active {
+        box-shadow: rgb(46, 116, 201) 0px 0px 0px 0px;
+        transform: translateY(5px);
+        transition: 200ms;
+    }
 
-.btnSec:hover {
-  box-shadow: rgb(201, 46, 70) 0px 7px 0px 0px;
-}
+    .btnSec {
+        background-color: var(--red);
+        box-shadow: rgb(201, 46, 70) 0px 10px 0px 0px;
+    }
 
-.btnSec:active {
-  background-color: rgb(255, 56, 86);
-  box-shadow: rgb(201, 46, 70) 0px 0px 0px 0px;
-  transform: translateY(5px);
-  transition: 200ms;
-}
+    .btnSec:hover {
+        box-shadow: rgb(201, 46, 70) 0px 7px 0px 0px;
+    }
 
-.blue { background-color: var(--blue); }
-.yellow { background-color: var(--yellow); }
-.red { background-color: var(--red); }
+    .btnSec:active {
+        box-shadow: rgb(201, 46, 70) 0px 0px 0px 0px;
+        transform: translateY(5px);
+        transition: 200ms;
+    }
+
+    /*Bouton des équipes bleu, jaune, rouge*/
+    .bouton-equipe{
+        display: flex;
+        justify-content: center;
+        gap: 70px;
+        margin-top: 50px;
+    }
+
+    .un, .deux, .trois{
+        padding: 25px 25px;
+        border-radius: 10px;
+        border: none;
+        letter-spacing: 1.5px;
+        font-size: 15px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        color: hsl(0, 0%, 100%);
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .un{
+        background-color: var(--blue);
+        box-shadow: rgb(46, 116, 201) 0px 10px 0px 0px;
+    }
+
+    .deux{
+        background-color: var(--yellow);
+        box-shadow: rgb(219, 151, 14) 0px 10px 0px 0px;
+    }
+
+    .trois{
+        background-color: var(--red);
+        box-shadow: rgb(201, 46, 70) 0px 10px 0px 0px;
+    }
+
+    .un:hover{
+        box-shadow: rgb(46, 116, 201) 0px 7px 0px 0px;
+    }
+
+    .deux:hover{
+        box-shadow: rgb(219, 151, 14) 0px 7px 0px 0px;
+    }
+
+    .trois:hover{
+        box-shadow: rgb(201, 46, 70) 0px 7px 0px 0px;
+    }
+
+    .un:active{
+        box-shadow: rgb(46, 116, 201) 0px 0px 0px 0px;
+        transform: translateY(5px);
+        transition: 200ms;
+    }
+
+    .deux:active{
+        box-shadow: rgb(219, 151, 14) 0px 0px 0px 0px;
+        transform: translateY(5px);
+        transition: 200ms;
+    }
+
+    .trois:active{
+        box-shadow: rgb(201, 46, 70) 0px 0px 0px 0px;
+        transform: translateY(5px);
+        transition: 200ms;
+    }
+    
+    .blue { background-color: var(--blue); }
+    .yellow { background-color: var(--yellow); }
+    .red { background-color: var(--red); }
