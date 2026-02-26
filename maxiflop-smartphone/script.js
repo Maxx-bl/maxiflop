@@ -146,9 +146,9 @@ document.querySelectorAll(".btn").forEach((btn) => {
 // Feedback visuel + haptique selon le résultat
 const resultStyles = {
 	"PERFECT": { bg: "#84FFC9", vibrate: [60, 30, 60], textColor: "#0a2a1a" },
-	"GOOD":    { bg: "#AAB2FF", vibrate: [30],          textColor: "#0a0a2a" },
-	"BAD":     { bg: "#F0E040", vibrate: [20],          textColor: "#1a1800" },
-	"MISS":    { bg: "#FF7081", vibrate: [80],          textColor: "#1a0005" },
+	"GOOD": { bg: "#AAB2FF", vibrate: [30], textColor: "#0a0a2a" },
+	"BAD": { bg: "#F0E040", vibrate: [20], textColor: "#1a1800" },
+	"MISS": { bg: "#FF7081", vibrate: [80], textColor: "#1a0005" },
 };
 
 let flashTimeout = null;
