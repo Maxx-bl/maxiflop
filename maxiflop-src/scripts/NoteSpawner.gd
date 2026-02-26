@@ -111,7 +111,7 @@ func get_notes_near_hit(col: int, hit_y_pos: float) -> Array:
 			continue
 		if note.color == col:
 			var dist = abs(note.position.y - hit_y_pos)
-			if dist <= 80:
+			if dist <= 50:
 				result.append(note)
 	result.sort_custom(func(a, b): return abs(a.position.y - hit_y_pos) < abs(b.position.y - hit_y_pos))
 	return result

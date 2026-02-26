@@ -57,7 +57,7 @@ func _try_hit(col: int, btn: Node) -> void:
 		return
 
 	var closest_note = notes_nearby[0]
-	var timing_error: float = abs(closest_note.position.y - hit_y) / closest_note.fall_speed
+	var timing_error: float = abs(closest_note.position.y - hit_y) / 560.0
 	var result := GameManager.register_hit(timing_error, true)
 	closest_note.hit_animation(result)
 

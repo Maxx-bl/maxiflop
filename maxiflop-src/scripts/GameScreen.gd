@@ -13,7 +13,7 @@ extends Node2D
 @onready var count_down: Label = $HUD/CountdownLabel
 @onready var result_panel: Control = $HUD/ResultPanel
 
-@export var song_duration: float = 10.0
+@export var song_duration: float = 30.0
 
 var countdown_time: float = 3.0
 var is_counting_down: bool = true
@@ -89,16 +89,16 @@ func _on_note_hit(result: String) -> void:
 
 	match result:
 		"PERFECT":
-			feedback_label.text = "✦ PERFECT ✦"
+			feedback_label.text = "PERFECT !!"
 			feedback_label.modulate = Color("#84FFC9")
 		"GOOD":
-			feedback_label.text = "GOOD"
+			feedback_label.text = "GOOD :)"
 			feedback_label.modulate = Color("#AAB2FF")
 		"BAD":
-			feedback_label.text = "BAD"
+			feedback_label.text = "BAD :/"
 			feedback_label.modulate = Color("#F0E040")
 		"MISS":
-			feedback_label.text = "MISS"
+			feedback_label.text = "MISS :("
 			feedback_label.modulate = Color("#FF7081")
 
 	var tween := create_tween()
@@ -118,15 +118,8 @@ func _on_game_over() -> void:
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not event.pressed:
 		return
-	match event.keycode:
-		KEY_A:
-			hit_zone.press_button(0)
-		KEY_S:
-			hit_zone.press_button(1)
-		KEY_D:
-			hit_zone.press_button(2)
-		KEY_ESCAPE:
-			get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+	if event.keycode == KEY_ESCAPE:
+		get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
 func _on_btn_blue_pressed() -> void: hit_zone.press_button(0)
 func _on_btn_yellow_pressed() -> void: hit_zone.press_button(1)

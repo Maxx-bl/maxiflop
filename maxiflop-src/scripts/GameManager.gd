@@ -11,7 +11,7 @@ const SCORE_GOOD := 100
 const SCORE_BAD := 50
 const SCORE_MISS := 0
 
-const WINDOW_PERFECT := 0.08
+const WINDOW_PERFECT := 0.05
 const WINDOW_GOOD := 0.15
 const WINDOW_BAD := 0.25
 
