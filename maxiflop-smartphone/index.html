@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="./style.css">
     </head>
     <body>
-        <section id="login" class="écran">
+        <section id="login" class="ecran">
             <h1 class="page principal">Bienvenue sur Maxiflop</h1>
             <div class="formulaire-participation">
                 <input type="text" id="ajout-pseudo" placeholder="Entrez votre pseudo..." maxlength="15">
@@ -17,17 +17,24 @@
                 </div>
             </div>
         </section>
-        <section id="attente" class="écran arriere">
+        <section id="equipe" class="ecran arriere">
+            <h1>Choisis ton équipe</h1>
+            <div class="bouton-equipe">
+                <button type="button" class="select-equip un" id="equip1" data-team="1">ÉQUIPE 1(<span id="cpt-1">0</span>)</button>
+                <button type="button" class="select-equip deux" id="equip2" data-team="2">ÉQUIPE 2 (<span id="cpt-2">0</span>)</button>
+                <button type="button" class="select-equip trois" id="equip3" data-team="3">ÉQUIPE 3 (<span id="cpt-3">0</span>)</button>
+            </div>
+        </section>
+        <section id="attente" class="ecran arriere">
             <p>En attente du début de la partie...</p>
             <div class="chargement"></div>
         </section>
-        <section id="jeu" class="écran arriere">
+        <section id="jeu" class="ecran arriere">
             <div class="bouton">
                 <button class="btn Bleu"></button>
                 <button class="btn Jaune"></button>
                 <button class="btn rouge"></button>
             </div>
-            <div id="go">PRÊT ?</div>
         </section>
         <script src="./script.js"></script>
     </body>
