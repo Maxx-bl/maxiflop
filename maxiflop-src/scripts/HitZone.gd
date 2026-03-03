@@ -65,7 +65,7 @@ func _flash_button(btn: Node, col: int) -> void:
 	if btn == null:
 		return
 	col = col
-	var original_scale = btn.scale
+	btn.scale = Vector2(1.0, 1.0)
 	var tween := create_tween()
-	tween.tween_property(btn, "scale", original_scale * 1.15, 0.05)
-	tween.tween_property(btn, "scale", original_scale, 0.1)
+	tween.tween_property(btn, "scale", Vector2(1.15, 1.15), 0.05)
+	tween.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.1)
