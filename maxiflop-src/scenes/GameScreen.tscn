@@ -53,7 +53,7 @@ note_scene = ExtResource("4")
 
 [node name="HitPlatform" type="ColorRect" parent="PlayField"]
 offset_left = 30.0
-offset_top = 595.0
+offset_top = 503.0
 offset_right = 830.0
 offset_bottom = 615.0
 color = Color(0.15, 0.15, 0.3, 0.9)
