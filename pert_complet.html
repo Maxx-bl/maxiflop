@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PERT — Rhythm Game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #f7f6f2;
+  --white: #ffffff;
+  --border: #e0ddd6;
+  --border-light: #ece9e3;
+  --godot: #2d6a4f;
+  --backend: #b5451b;
+  --frontend: #1a4f7a;
+  --critical: #c0392b;
+  --text: #1a1a1a;
+  --muted: #8a8680;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 1.75rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.logo h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.logo p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+}
+
+.stats { display: flex; gap: 3rem; }
+.stat { display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem; }
+.stat .val { font-family: 'DM Mono', monospace; font-size: 1.3rem; font-weight: 500; color: var(--text); }
+.stat .lbl { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.8rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  flex-wrap: wrap;
+}
+
+.legend { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+.li { display: flex; align-items: center; gap: 0.45rem; font-size: 0.72rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+.lc { width: 10px; height: 10px; border-radius: 2px; }
+.ll { width: 20px; height: 1.5px; }
+.sep { width: 1px; height: 18px; background: var(--border); }
+
+.filters { display: flex; gap: 0.35rem; margin-left: auto; }
+.flt {
+  padding: 0.3rem 0.8rem;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.65rem;
+  font-family: 'DM Mono', monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.flt:hover { border-color: var(--text); color: var(--text); }
+.flt.active { background: var(--text); color: var(--white); border-color: var(--text); }
+.flt.active.godot    { background: var(--godot);    border-color: var(--godot); }
+.flt.active.backend  { background: var(--backend);  border-color: var(--backend); }
+.flt.active.frontend { background: var(--frontend); border-color: var(--frontend); }
+
+#wrap { flex: 1; position: relative; overflow: hidden; cursor: grab; background: var(--bg); }
+#wrap:active { cursor: grabbing; }
+canvas { display: block; }
+
+.tooltip {
+  position: fixed;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1rem 1.1rem;
+  max-width: 290px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+  z-index: 999;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+.tooltip.show { opacity: 1; }
+.tt-title { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.82rem; color: var(--text); margin-bottom: 0.6rem; line-height: 1.4; }
+.tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.2rem 1rem; margin-bottom: 0.5rem; }
+.tt-k { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); }
+.tt-v { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--text); font-weight: 500; }
+.tt-desc { color: var(--muted); font-size: 0.68rem; line-height: 1.5; border-top: 1px solid var(--border-light); padding-top: 0.5rem; margin-top: 0.3rem; }
+
+.zoom-ctrl { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.3rem; z-index: 100; }
+.zb {
+  width: 30px; height: 30px;
+  background: var(--white); border: 1px solid var(--border); border-radius: 3px;
+  color: var(--text); font-size: 0.9rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.15s; font-family: 'DM Mono', monospace;
+}
+.zb:hover { border-color: var(--text); }
+
+.minimap {
+  position: fixed; bottom: 1.5rem; left: 1.5rem;
+  width: 150px; height: 84px;
+  background: var(--white); border: 1px solid var(--border); border-radius: 3px; z-index: 100; overflow: hidden;
+}
+#mini { display: block; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Diagramme PERT</h1>
+    <p>Rhythm Game — Godot · Back-end · Front-end</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="val" id="s-dur">—</span><span class="lbl">Durée critique</span></div>
+    <div class="stat"><span class="val" id="s-tasks">—</span><span class="lbl">Tâches</span></div>
+    <div class="stat"><span class="val" id="s-crit">—</span><span class="lbl">Chemin critique</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="legend">
+    <div class="li"><div class="lc" style="background:var(--godot)"></div>Godot</div>
+    <div class="li"><div class="lc" style="background:var(--backend)"></div>Back-end</div>
+    <div class="li"><div class="lc" style="background:var(--frontend)"></div>Front-end</div>
+    <div class="sep"></div>
+    <div class="li"><div class="ll" style="background:var(--critical)"></div>Chemin critique</div>
+    <div class="li"><div class="ll" style="background:#d0ccc5"></div>Lien normal</div>
+  </div>
+  <div class="filters">
+    <button class="flt all active" onclick="setFilter('all')">Tout</button>
+    <button class="flt godot" onclick="setFilter('godot')">Godot</button>
+    <button class="flt backend" onclick="setFilter('backend')">Backend</button>
+    <button class="flt frontend" onclick="setFilter('frontend')">Frontend</button>
+  </div>
+</div>
+
+<div id="wrap"><canvas id="c"></canvas></div>
+
+<div class="minimap"><canvas id="mini"></canvas></div>
+
+<div class="tooltip" id="tip">
+  <div class="tt-title" id="tip-title"></div>
+  <div class="tt-grid">
+    <span class="tt-k">Durée</span><span class="tt-v" id="tip-dur"></span>
+    <span class="tt-k">Module</span><span class="tt-v" id="tip-mod"></span>
+    <span class="tt-k">Début tôt</span><span class="tt-v" id="tip-es"></span>
+    <span class="tt-k">Fin tôt</span><span class="tt-v" id="tip-ef"></span>
+    <span class="tt-k">Début tard</span><span class="tt-v" id="tip-ls"></span>
+    <span class="tt-k">Fin tard</span><span class="tt-v" id="tip-lf"></span>
+    <span class="tt-k">Marge</span><span class="tt-v" id="tip-fl"></span>
+    <span class="tt-k">Statut</span><span class="tt-v" id="tip-st"></span>
+  </div>
+  <div class="tt-desc" id="tip-desc"></div>
+</div>
+
+<div class="zoom-ctrl">
+  <button class="zb" id="zi">+</button>
+  <button class="zb" id="zo">−</button>
+  <button class="zb" id="zr">⌂</button>
+</div>
+
+<script>
+const H = h => Math.round(h * 10);
+const raw = [
+  {id:'G1', name:'Scènes notes R/B/J',               dur:H(2),    deps:[],              mod:'godot',   desc:'Créer les scènes Godot pour les notes rouges, bleues et jaunes en respectant la charte graphique.'},
+  {id:'G2', name:'Script mouvement linéaire',         dur:H(0.5),  deps:['G1'],          mod:'godot',   desc:'Coder le script de mouvement linéaire du haut vers le bas de l\'écran.'},
+  {id:'G3', name:'Note Manager',                      dur:H(1),    deps:['G2'],          mod:'godot',   desc:'Développer le Note Manager pour instancier les notes selon le rythme de la musique.'},
+  {id:'G4', name:'Parser JSON (FileAccess)',           dur:H(2),    deps:[],              mod:'godot',   desc:'Définir la structure JSON, lire via FileAccess Godot 4.4, convertir en file d\'attente pour le spawner.'},
+  {id:'G5', name:'Ligne de collision',                dur:H(0.5),  deps:['G1'],          mod:'godot',   desc:'Positionner visuellement la ligne de collision en bas de la partie gauche de l\'écran.'},
+  {id:'G6', name:'Détection zone & feedback',         dur:H(0.5),  deps:['G5','G3','G4'],mod:'godot',   desc:'Implémenter la détection de zone de frappe et ajouter un feedback visuel sur le récepteur.'},
+  {id:'G7', name:'Signaux WebSocket',                 dur:H(1.5),  deps:['G6'],          mod:'godot',   desc:'Connecter les signaux WebSocket de Node.js pour intercepter les appuis, comparer couleur, gérer suppression.'},
+  {id:'G8', name:'Fenêtres Perfect/Great/Late',       dur:H(0.5),  deps:['G7'],          mod:'godot',   desc:'Définir les fenêtres temporelles en ms pour les rangs Perfect, Great et Late, attribuer des points.'},
+  {id:'G9', name:'Streak & multiplicateurs',          dur:H(0.5),  deps:['G8'],          mod:'godot',   desc:'Créer un compteur de notes consécutives réussies et implémenter les paliers de multiplicateurs.'},
+  {id:'G10',name:'Score global équipe',               dur:H(1),    deps:['G8'],          mod:'godot',   desc:'Associer chaque score à l\'ID d\'équipe et synchroniser les totaux pour faire progresser les jauges.'},
+  {id:'G11',name:'Layout spectateur gauche',          dur:H(0.5),  deps:['G9','G10'],    mod:'godot',   desc:'Configurer le layout de l\'écran principal pour la zone gauche et les effets visuels de validation.'},
+  {id:'G12',name:'Barres progression équipes',        dur:H(1),    deps:['G10'],         mod:'godot',   desc:'Afficher les barres de progression pour chaque équipe et animer les curseurs.'},
+  {id:'G13',name:'Top 5 dynamique',                   dur:H(1),    deps:['G11','G12'],   mod:'godot',   desc:'Extraire les 5 meilleurs scores depuis le Global State Manager et mettre à jour en temps réel.'},
+  {id:'B1', name:'Serveur Express + Socket.io',       dur:H(2),    deps:[],              mod:'backend', desc:'Mettre en place le serveur HTTP avec Express, intégrer Socket.io et configurer les options CORS.'},
+  {id:'B2', name:'Distribution fichiers statiques',   dur:H(0.5),  deps:['B1'],          mod:'backend', desc:'Configurer Express pour servir automatiquement les fichiers HTML/CSS/JS du dossier public.'},
+  {id:'B3', name:'join-game + lobby',                 dur:H(1),    deps:['B1'],          mod:'backend', desc:'Enregistrer pseudo + socket ID dans le gameState, broadcaster la mise à jour du lobby.'},
+  {id:'B4', name:'3 équipes dans le gameState',       dur:H(0.5),  deps:['B1'],          mod:'backend', desc:'Initialiser le gameState avec trois équipes (rouge, bleue, jaune) prêtes dès le démarrage.'},
+  {id:'B5', name:'Événement join-team',               dur:H(1),    deps:['B3','B4'],     mod:'backend', desc:'Gérer la demande de rejoindre une équipe, mettre à jour le gameState, notifier tous les clients.'},
+  {id:'B6', name:'Disconnect en lobby',               dur:H(1),    deps:['B5'],          mod:'backend', desc:'Détecter la déconnexion en lobby, retirer le joueur, broadcaster l\'état mis à jour.'},
+  {id:'B7', name:'Fonction lancerPartie',             dur:H(1.5),  deps:['B6'],          mod:'backend', desc:'Vérifier l\'équilibre des équipes avant d\'émettre le signal de lancement à tous les clients.'},
+  {id:'B8', name:'Corriger package.json',             dur:H(0.08), deps:['B1'],          mod:'backend', desc:'Vérifier et corriger les dépendances manquantes ou versions incompatibles.'},
+  {id:'B9', name:'Bloquer join-team si écart > 3',    dur:H(1),    deps:['B5'],          mod:'backend', desc:'Refuser l\'affectation si rejoindre l\'équipe crée un déséquilibre de plus de 3 joueurs.'},
+  {id:'B10',name:'Corriger condition timer',          dur:H(0.75), deps:['B7'],          mod:'backend', desc:'Corriger le bug dans la logique du timer de countdown.'},
+  {id:'B11',name:'Gérer déconnexion en partie',       dur:H(1.5),  deps:['B7'],          mod:'backend', desc:'Retrait du joueur, recalcul des scores d\'équipe et notification des autres clients.'},
+  {id:'B12',name:'Générer QR Code',                   dur:H(1.5),  deps:['B2'],          mod:'backend', desc:'Générer dynamiquement un QR Code pointant vers l\'URL du serveur pour l\'écran spectateur.'},
+  {id:'B13',name:'Transitions lobby→playing→results', dur:H(3),    deps:['B10','B11'],   mod:'backend', desc:'Implémenter la machine d\'états du serveur avec les événements Socket.io à chaque transition.'},
+  {id:'B14',name:'Broadcaster timestamp départ',      dur:H(0.75), deps:['B13'],         mod:'backend', desc:'Émettre un timestamp Unix de référence pour synchroniser Godot et les téléphones.'},
+  {id:'B15',name:'Réception inputs téléphones',       dur:H(1),    deps:['B13'],         mod:'backend', desc:'Écouter l\'événement Socket.io émis par le front mobile à chaque appui bouton.'},
+  {id:'B16',name:'Relayer inputs vers Godot',         dur:H(1),    deps:['B15'],         mod:'backend', desc:'Faire suivre chaque input vers le socket Godot Host avec les métadonnées nécessaires.'},
+  {id:'B17',name:'Réception feedback Godot',          dur:H(1),    deps:['B16'],         mod:'backend', desc:'Écouter les messages de feedback Godot (PERFECT, GOOD, MISS) et parser le rang de précision.'},
+  {id:'B18',name:'Renvoyer feedback → téléphone',     dur:H(1),    deps:['B17'],         mod:'backend', desc:'Retrouver le socket ID du joueur et lui émettre exclusivement le résultat de sa frappe.'},
+  {id:'B19',name:'Mettre à jour scores individuels',  dur:H(2),    deps:['B18'],         mod:'backend', desc:'Calculer et accumuler les points en appliquant les multiplicateurs de streak.'},
+  {id:'B20',name:'Score global équipe',               dur:H(1),    deps:['B19'],         mod:'backend', desc:'Agréger les scores individuels par équipe et émettre les totaux vers l\'écran spectateur.'},
+  {id:'B21',name:'Émettre Top 5 vers Godot',          dur:H(1.5),  deps:['B20'],         mod:'backend', desc:'Trier les scores, extraire les 5 meilleurs et les diffuser vers Godot via Socket.io.'},
+  {id:'F1', name:'Page accueil + pseudo',             dur:H(1.5),  deps:['B2'],          mod:'frontend',desc:'Créer l\'écran d\'accueil avec le champ pseudo, les boutons Participer et Quitter.'},
+  {id:'F2', name:'Navigation entre pages',            dur:H(2),    deps:['F1'],          mod:'frontend',desc:'Implémenter la navigation entre vues sans rechargement de page.'},
+  {id:'F3', name:'Compteur joueurs par équipe',       dur:H(1),    deps:['F2','B3'],     mod:'frontend',desc:'Souscrire à update-lobby et afficher en temps réel le compteur par équipe.'},
+  {id:'F4', name:'Blocage si écart > 3',              dur:H(2),    deps:['F3','B9'],     mod:'frontend',desc:'Désactiver visuellement le bouton d\'une équipe si rejoindre créerait un déséquilibre > 3.'},
+  {id:'F5', name:'Interface choix équipes R/B/J',     dur:H(1.5),  deps:['F2'],          mod:'frontend',desc:'Concevoir l\'écran de sélection d\'équipe avec les trois boutons colorés et les effectifs.'},
+  {id:'F6', name:'Page d\'attente',                   dur:H(1),    deps:['F5'],          mod:'frontend',desc:'Afficher un écran d\'attente animé jusqu\'à réception du signal serveur de démarrage.'},
+  {id:'F7', name:'Interface mobile 3 boutons',        dur:H(2),    deps:['F6'],          mod:'frontend',desc:'Intégrer l\'écran de jeu mobile avec les grands boutons Rouge, Bleu et Jaune.'},
+  {id:'F8', name:'Bouton Quitter',                    dur:H(0.5),  deps:['F2'],          mod:'frontend',desc:'Déconnexion propre du socket, nettoyage de l\'état local et retour à l\'accueil.'},
+  {id:'F9', name:'Zone score',                        dur:H(1),    deps:['F7'],          mod:'frontend',desc:'Ajouter le composant d\'affichage du score individuel mis à jour à chaque feedback.'},
+  {id:'F10',name:'Zone feedback PERFECT/LATE/MISS',   dur:H(0.75), deps:['F7'],          mod:'frontend',desc:'Afficher temporairement le rang de précision avec texte animé et code couleur.'},
+  {id:'F11',name:'Couleur fond selon équipe',         dur:H(1),    deps:['F5'],          mod:'frontend',desc:'Adapter dynamiquement la couleur dominante de l\'interface selon l\'équipe rejointe.'},
+  {id:'F12',name:'Envoi pseudo (join-game)',           dur:H(1.5),  deps:['F1','B3'],     mod:'frontend',desc:'Émettre join-game avec le pseudo saisi et gérer les cas d\'erreur.'},
+  {id:'F13',name:'Transition attente → jeu',          dur:H(1.5),  deps:['F6','B14'],    mod:'frontend',desc:'Écouter l\'événement de démarrage serveur et déclencher la transition synchronisée.'},
+  {id:'F14',name:'Envoi clic bouton → serveur',       dur:H(1.5),  deps:['F7','B15'],    mod:'frontend',desc:'Émettre la couleur du bouton et un timestamp local à chaque appui.'},
+  {id:'F15',name:'Affichage score temps réel',        dur:H(1.5),  deps:['F9','B19'],    mod:'frontend',desc:'Souscrire à l\'événement score et mettre à jour le compteur avec animation.'},
+  {id:'F16',name:'Affichage feedback temps réel',     dur:H(1.5),  deps:['F10','B18'],   mod:'frontend',desc:'Écouter l\'événement feedback ciblé et déclencher l\'animation du rang sur l\'écran.'},
+];
+
+const byId={};
+raw.forEach(t=>{t.es=0;t.ef=0;byId[t.id]=t;});
+let changed=true;
+while(changed){changed=false;raw.forEach(t=>{const es=t.deps.length?Math.max(...t.deps.map(d=>byId[d].ef)):0;const ef=es+t.dur;if(es!==t.es||ef!==t.ef){t.es=es;t.ef=ef;changed=true;}});}
+const PE=Math.max(...raw.map(t=>t.ef));
+raw.forEach(t=>{t.lf=PE;t.ls=PE-t.dur;});
+changed=true;
+while(changed){changed=false;raw.forEach(t=>{const succ=raw.filter(s=>s.deps.includes(t.id));const lf=succ.length?Math.min(...succ.map(s=>s.ls)):PE;const ls=lf-t.dur;if(lf!==t.lf||ls!==t.ls){t.lf=lf;t.ls=ls;changed=true;}});}
+raw.forEach(t=>{t.float=t.ls-t.es;t.critical=t.float<0.001;});
+
+const NW=158,NH=60,GX=52,GY=18;
+const modOrder=['godot','backend','frontend'];
+const modColors={godot:'#2d6a4f',backend:'#b5451b',frontend:'#1a4f7a'};
+const modLabels={godot:'Godot',backend:'Back-end',frontend:'Front-end'};
+
+function hLabel(u){const h=u/10;if(h<0.1)return'5min';if(h<1)return`${Math.round(h*60)}min`;if(Number.isInteger(h))return`${h}h`;return`${Math.floor(h)}h${Math.round((h%1)*60)}`;}
+
+function layoutAll(){
+  let globalY=44;
+  modOrder.forEach(mod=>{
+    const mt=raw.filter(t=>t.mod===mod);
+    const esVals=[...new Set(mt.map(t=>t.es))].sort((a,b)=>a-b);
+    const colX={};let curX=44;
+    esVals.forEach(es=>{colX[es]=curX;curX+=NW+GX;});
+    mt.forEach(t=>{const sibs=mt.filter(s=>s.es===t.es);t.x=colX[t.es];t.y=globalY+sibs.indexOf(t)*(NH+GY);});
+    const maxRows=Math.max(...esVals.map(es=>mt.filter(t=>t.es===es).length));
+    globalY+=maxRows*(NH+GY)+56;
+  });
+}
+layoutAll();
+
+const TW=Math.max(...raw.map(t=>t.x))+NW+80;
+const TH=Math.max(...raw.map(t=>t.y))+NH+80;
+
+const wrap=document.getElementById('wrap');
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const mini=document.getElementById('mini');
+const mctx=mini.getContext('2d');
+let scale=1,ox=0,oy=0,drag=false,lx=0,ly=0,filter='all';
+
+function resize(){canvas.width=wrap.clientWidth;canvas.height=wrap.clientHeight;mini.width=150;mini.height=84;draw();}
+window.addEventListener('resize',resize);
+
+function setFilter(f){
+  filter=f;
+  document.querySelectorAll('.flt').forEach(b=>{
+    b.classList.remove('active');
+    if((f==='all'&&b.classList.contains('all'))||(f!=='all'&&b.classList.contains(f)))b.classList.add('active');
+  });
+  draw();
+}
+
+function isVis(t){return filter==='all'||t.mod===filter;}
+
+function draw(){
+  const c=ctx;
+  c.clearRect(0,0,canvas.width,canvas.height);
+  c.save();c.translate(ox,oy);c.scale(scale,scale);
+
+  // module bands
+  modOrder.forEach(mod=>{
+    if(filter!=='all'&&filter!==mod)return;
+    const mt=raw.filter(t=>t.mod===mod);
+    const mx=Math.min(...mt.map(t=>t.x))-18;
+    const MX=Math.max(...mt.map(t=>t.x))+NW+18;
+    const my=Math.min(...mt.map(t=>t.y))-30;
+    const MY=Math.max(...mt.map(t=>t.y))+NH+14;
+    const col=modColors[mod];
+    c.save();
+    c.globalAlpha=0.025;c.fillStyle=col;
+    c.beginPath();c.roundRect(mx,my,MX-mx,MY-my,4);c.fill();
+    c.globalAlpha=1;
+    c.fillStyle=col;c.fillRect(mx,my+20,2.5,MY-my-20);
+    c.font='500 9px DM Sans,sans-serif';c.fillStyle=col;c.textAlign='left';
+    c.fillText(modLabels[mod].toUpperCase(),mx+10,my+14);
+    c.restore();
+  });
+
+  // edges
+  raw.forEach(t=>{
+    if(!isVis(t))return;
+    t.deps.forEach(depId=>{
+      const dep=byId[depId];
+      if(!isVis(dep))return;
+      const isCrit=t.critical&&dep.critical;
+      const x1=dep.x+NW,y1=dep.y+NH/2,x2=t.x,y2=t.y+NH/2,mx=(x1+x2)/2;
+      c.beginPath();c.moveTo(x1,y1);c.bezierCurveTo(mx,y1,mx,y2,x2,y2);
+      c.strokeStyle=isCrit?'#c0392b':'#ccc8c1';c.lineWidth=isCrit?1.8:1;c.stroke();
+      const ang=Math.atan2(y2-y1,x2-x1);
+      c.save();c.translate(x2,y2);c.rotate(ang);
+      c.beginPath();c.moveTo(0,0);c.lineTo(-8,-3.5);c.lineTo(-8,3.5);c.closePath();
+      c.fillStyle=isCrit?'#c0392b':'#c5c1ba';c.fill();c.restore();
+    });
+  });
+
+  // nodes
+  raw.forEach(t=>{
+    if(!isVis(t))return;
+    const col=modColors[t.mod],crit='#c0392b',x=t.x,y=t.y;
+    c.save();
+    c.beginPath();c.roundRect(x,y,NW,NH,3);
+    c.fillStyle='#ffffff';
+    c.shadowColor='rgba(0,0,0,0.06)';c.shadowBlur=6;c.shadowOffsetY=2;
+    c.fill();c.shadowBlur=0;c.shadowOffsetY=0;
+    c.strokeStyle=t.critical?crit:col+'44';c.lineWidth=t.critical?1.5:1;c.stroke();
+    // top accent
+    c.fillStyle=t.critical?crit:col;c.fillRect(x,y,NW,3);
+    // ID
+    c.font='500 8px DM Mono,monospace';c.fillStyle=t.critical?crit:col;c.textAlign='left';
+    c.fillText(t.id,x+7,y+14);
+    // duration
+    c.font='400 8px DM Mono,monospace';c.fillStyle='#9a9590';c.textAlign='right';
+    c.fillText(hLabel(t.dur),x+NW-7,y+14);
+    // critique tag
+    if(t.critical){c.font='500 7px DM Mono,monospace';c.fillStyle=crit;c.textAlign='center';c.fillText('critique',x+NW/2,y+14);}
+    // name
+    c.fillStyle='#1a1a1a';c.textAlign='left';c.font='500 9.5px DM Sans,sans-serif';
+    const words=t.name.split(' ');let line='',lines=[];
+    words.forEach(w=>{const test=line+(line?' ':'')+w;if(c.measureText(test).width>NW-14&&line){lines.push(line);line=w;}else line=test;});
+    lines.push(line);
+    const lh=11,sy=y+22+(NH-22-Math.min(lines.length,3)*lh)/2;
+    lines.slice(0,3).forEach((l,i)=>c.fillText(i===2&&lines.length>3?l+'…':l,x+7,sy+i*lh));
+    // bottom ES/EF
+    c.font='7px DM Mono,monospace';c.fillStyle='#b8b4ae';
+    c.textAlign='left';c.fillText(hLabel(t.es),x+7,y+NH-5);
+    c.textAlign='right';c.fillText(hLabel(t.ef),x+NW-7,y+NH-5);
+    c.restore();
+  });
+
+  c.restore();
+  drawMini();
+}
+
+function drawMini(){
+  mctx.clearRect(0,0,150,84);mctx.fillStyle='#f7f6f2';mctx.fillRect(0,0,150,84);
+  const s=Math.min(150/TW,84/TH)*0.88;
+  raw.forEach(t=>{if(!isVis(t))return;mctx.fillStyle=t.critical?'#c0392b':modColors[t.mod];mctx.globalAlpha=0.45;mctx.fillRect(t.x*s+3,t.y*s+3,NW*s,NH*s);});
+  mctx.globalAlpha=0.3;mctx.strokeStyle='#1a1a1a';mctx.lineWidth=1;
+  mctx.strokeRect(-ox*s/scale+3,-oy*s/scale+3,canvas.width*s/scale,canvas.height*s/scale);
+}
+
+const tip=document.getElementById('tip');
+canvas.addEventListener('mousemove',e=>{
+  const r=canvas.getBoundingClientRect();
+  const mx=(e.clientX-r.left-ox)/scale,my=(e.clientY-r.top-oy)/scale;
+  const hit=raw.find(t=>isVis(t)&&mx>=t.x&&mx<=t.x+NW&&my>=t.y&&my<=t.y+NH);
+  if(hit){
+    document.getElementById('tip-title').textContent=`${hit.id} — ${hit.name}`;
+    document.getElementById('tip-dur').textContent=hLabel(hit.dur);
+    document.getElementById('tip-mod').textContent=modLabels[hit.mod];
+    document.getElementById('tip-es').textContent=hLabel(hit.es);
+    document.getElementById('tip-ef').textContent=hLabel(hit.ef);
+    document.getElementById('tip-ls').textContent=hLabel(hit.ls);
+    document.getElementById('tip-lf').textContent=hLabel(hit.lf);
+    document.getElementById('tip-fl').textContent=hLabel(hit.float);
+    document.getElementById('tip-st').textContent=hit.critical?'⚑ Critique':'–';
+    document.getElementById('tip-desc').textContent=hit.desc;
+    tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-10)+'px';
+    tip.className='tooltip show';
+  } else tip.className='tooltip';
+});
+canvas.addEventListener('mouseleave',()=>tip.className='tooltip');
+canvas.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+window.addEventListener('mouseup',()=>drag=false);
+window.addEventListener('mousemove',e=>{if(!drag)return;ox+=e.clientX-lx;oy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;draw();});
+canvas.addEventListener('wheel',e=>{e.preventDefault();scale=Math.min(3,Math.max(0.2,scale*(e.deltaY<0?1.1:0.9)));draw();},{passive:false});
+document.getElementById('zi').onclick=()=>{scale=Math.min(3,scale*1.2);draw();};
+document.getElementById('zo').onclick=()=>{scale=Math.max(0.2,scale*0.85);draw();};
+document.getElementById('zr').onclick=()=>{scale=1;ox=0;oy=0;draw();};
+
+document.getElementById('s-dur').textContent=hLabel(PE);
+document.getElementById('s-tasks').textContent=raw.length;
+document.getElementById('s-crit').textContent=raw.filter(t=>t.critical).length;
+resize();
+</script>
+</body>
+</html>

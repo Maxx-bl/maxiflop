@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PERT — Rhythm Game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #f7f6f2;
+  --white: #ffffff;
+  --border: #e0ddd6;
+  --border-light: #ece9e3;
+  --godot: #2d6a4f;
+  --backend: #b5451b;
+  --frontend: #1a4f7a;
+  --critical: #c0392b;
+  --text: #1a1a1a;
+  --muted: #8a8680;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 1.5rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.logo h1 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 600; color: var(--text); }
+.logo p { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.14em; margin-top: 0.2rem; text-transform: uppercase; }
+.stats { display: flex; gap: 2.5rem; }
+.stat { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; }
+.stat .val { font-family: 'DM Mono', monospace; font-size: 1.2rem; font-weight: 500; color: var(--text); }
+.stat .lbl { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+.toolbar {
+  display: flex; align-items: center; gap: 1.5rem;
+  padding: 0.7rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  flex-wrap: wrap;
+}
+
+.legend { display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
+.li { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+.lc { width: 9px; height: 9px; border-radius: 2px; }
+.ll { width: 18px; height: 1.5px; }
+.sep { width: 1px; height: 16px; background: var(--border); }
+
+.filters { display: flex; gap: 0.3rem; margin-left: auto; }
+.flt {
+  padding: 0.25rem 0.7rem; border-radius: 3px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); font-size: 0.62rem;
+  font-family: 'DM Mono', monospace; cursor: pointer; transition: all 0.15s;
+  letter-spacing: 0.07em; text-transform: uppercase;
+}
+.flt:hover { border-color: var(--text); color: var(--text); }
+.flt.active { background: var(--text); color: var(--white); border-color: var(--text); }
+.flt.active.godot    { background: var(--godot);    border-color: var(--godot); }
+.flt.active.backend  { background: var(--backend);  border-color: var(--backend); }
+.flt.active.frontend { background: var(--frontend); border-color: var(--frontend); }
+
+#wrap { flex: 1; position: relative; overflow: hidden; cursor: grab; }
+#wrap:active { cursor: grabbing; }
+canvas { display: block; }
+
+.tooltip {
+  position: fixed; background: var(--white); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.9rem 1rem; max-width: 300px;
+  pointer-events: none; opacity: 0; transition: opacity 0.12s;
+  z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.tooltip.show { opacity: 1; }
+.tt-title { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 0.8rem; color: var(--text); margin-bottom: 0.5rem; line-height: 1.4; }
+.tt-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 0.6rem; padding: 0.1rem 0.4rem; border-radius: 2px; margin-bottom: 0.5rem; }
+.tt-tasks { font-size: 0.68rem; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--border-light); padding-top: 0.45rem; margin-top: 0.3rem; }
+.tt-tasks li { list-style: none; padding-left: 0.8rem; position: relative; }
+.tt-tasks li::before { content: '·'; position: absolute; left: 0; }
+.tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.18rem 0.8rem; margin-bottom: 0.4rem; }
+.tt-k { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+.tt-v { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--text); font-weight: 500; }
+
+.zoom-ctrl { position: fixed; bottom: 1.5rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.3rem; z-index: 100; }
+.zb { width: 28px; height: 28px; background: var(--white); border: 1px solid var(--border); border-radius: 3px; color: var(--text); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s; font-family: 'DM Mono', monospace; }
+.zb:hover { border-color: var(--text); }
+
+.minimap { position: fixed; bottom: 1.5rem; left: 1.5rem; width: 140px; height: 78px; background: var(--white); border: 1px solid var(--border); border-radius: 3px; z-index: 100; overflow: hidden; }
+#mini { display: block; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Diagramme PERT</h1>
+    <p>Rhythm Game — Godot · Back-end · Front-end</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="val" id="s-dur">—</span><span class="lbl">Durée critique</span></div>
+    <div class="stat"><span class="val" id="s-groups">—</span><span class="lbl">Groupes</span></div>
+    <div class="stat"><span class="val" id="s-tasks">—</span><span class="lbl">Tâches totales</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="legend">
+    <div class="li"><div class="lc" style="background:var(--godot)"></div>Godot</div>
+    <div class="li"><div class="lc" style="background:var(--backend)"></div>Back-end</div>
+    <div class="li"><div class="lc" style="background:var(--frontend)"></div>Front-end</div>
+    <div class="sep"></div>
+    <div class="li"><div class="ll" style="background:var(--critical)"></div>Chemin critique</div>
+    <div class="li"><div class="ll" style="background:#ccc8c1"></div>Lien normal</div>
+  </div>
+  <div class="filters">
+    <button class="flt all active" onclick="setFilter('all')">Tout</button>
+    <button class="flt godot" onclick="setFilter('godot')">Godot</button>
+    <button class="flt backend" onclick="setFilter('backend')">Backend</button>
+    <button class="flt frontend" onclick="setFilter('frontend')">Frontend</button>
+  </div>
+</div>
+
+<div id="wrap"><canvas id="c"></canvas></div>
+<div class="minimap"><canvas id="mini"></canvas></div>
+
+<div class="tooltip" id="tip">
+  <div class="tt-title" id="tip-title"></div>
+  <div class="tt-grid">
+    <span class="tt-k">Durée totale</span><span class="tt-v" id="tip-dur"></span>
+    <span class="tt-k">Module</span><span class="tt-v" id="tip-mod"></span>
+    <span class="tt-k">Début tôt</span><span class="tt-v" id="tip-es"></span>
+    <span class="tt-k">Fin tôt</span><span class="tt-v" id="tip-ef"></span>
+    <span class="tt-k">Début tard</span><span class="tt-v" id="tip-ls"></span>
+    <span class="tt-k">Fin tard</span><span class="tt-v" id="tip-lf"></span>
+    <span class="tt-k">Marge</span><span class="tt-v" id="tip-fl"></span>
+    <span class="tt-k">Statut</span><span class="tt-v" id="tip-st"></span>
+  </div>
+  <ul class="tt-tasks" id="tip-tasks"></ul>
+</div>
+
+<div class="zoom-ctrl">
+  <button class="zb" id="zi">+</button>
+  <button class="zb" id="zo">−</button>
+  <button class="zb" id="zr">⌂</button>
+</div>
+
+<script>
+const H = h => Math.round(h * 10);
+
+// ── Grouped nodes
+// deps = group IDs
+const groups = [
+  // ── GODOT
+  {
+    id: 'GA', mod: 'godot', name: 'Système de notes',
+    deps: [],
+    dur: H(2) + H(0.5) + H(1),
+    tasks: [
+      'Scènes Godot notes R/B/J — 2h',
+      'Script mouvement linéaire — 30min',
+      'Note Manager (instanciation) — 1h',
+    ]
+  },
+  {
+    id: 'GB', mod: 'godot', name: 'Parser JSON + Zone cible',
+    deps: ['GA'],
+    dur: H(2) + H(0.5) + H(0.5),
+    tasks: [
+      'Parser JSON via FileAccess — 2h',
+      'Ligne de collision visuelle — 30min',
+      'Détection zone & feedback visuel — 30min',
+    ]
+  },
+  {
+    id: 'GC', mod: 'godot', name: 'Input & Validation WebSocket',
+    deps: ['GB'],
+    dur: H(1.5) + H(0.5),
+    tasks: [
+      'Signaux WebSocket (inputs mobiles) — 1h30',
+      'Fenêtres timing Perfect/Great/Late — 30min',
+    ]
+  },
+  {
+    id: 'GD', mod: 'godot', name: 'Score & Affichage spectateur',
+    deps: ['GC'],
+    dur: H(0.5) + H(1) + H(0.5) + H(1) + H(1),
+    tasks: [
+      'Streak & multiplicateurs — 30min',
+      'Score global équipe — 1h',
+      'Layout zone gauche spectateur — 30min',
+      'Barres de progression équipes — 1h',
+      'Top 5 dynamique temps réel — 1h',
+    ]
+  },
+
+  // ── BACKEND
+  {
+    id: 'BA', mod: 'backend', name: 'Initialisation serveur',
+    deps: [],
+    dur: H(2) + H(0.5) + H(0.08),
+    tasks: [
+      'Serveur Express + Socket.io — 2h',
+      'Distribution fichiers statiques — 30min',
+      'Corriger package.json — 5min',
+    ]
+  },
+  {
+    id: 'BB', mod: 'backend', name: 'Lobby & Connexions',
+    deps: ['BA'],
+    dur: H(1) + H(0.5) + H(1) + H(1),
+    tasks: [
+      'Événement join-game + broadcast lobby — 1h',
+      '3 équipes dans le gameState — 30min',
+      'Événement join-team — 1h',
+      'Disconnect en lobby — 1h',
+    ]
+  },
+  {
+    id: 'BC', mod: 'backend', name: 'Lancement & Corrections',
+    deps: ['BB'],
+    dur: H(1.5) + H(1) + H(0.75) + H(1.5),
+    tasks: [
+      'Fonction lancerPartie (vérif. équilibre) — 1h30',
+      'Bloquer join-team si écart > 3 — 1h',
+      'Corriger condition timer — 45min',
+      'Gérer déconnexion en cours de partie — 1h30',
+    ]
+  },
+  {
+    id: 'BD', mod: 'backend', name: 'Synchronisation & État de jeu',
+    deps: ['BC'],
+    dur: H(3) + H(0.75) + H(1.5),
+    tasks: [
+      'Transitions lobby → countdown → playing → results — 3h',
+      'Broadcaster timestamp de départ — 45min',
+      'Générer QR Code — 1h30',
+    ]
+  },
+  {
+    id: 'BE', mod: 'backend', name: 'Pipeline inputs / feedback',
+    deps: ['BD'],
+    dur: H(1) + H(1) + H(1) + H(1),
+    tasks: [
+      'Réception inputs boutons téléphones — 1h',
+      'Relayer inputs vers Godot Host — 1h',
+      'Réception feedback Godot (PERFECT/MISS) — 1h',
+      'Renvoyer feedback ciblé vers téléphone — 1h',
+    ]
+  },
+  {
+    id: 'BF', mod: 'backend', name: 'Scores & Classement',
+    deps: ['BE'],
+    dur: H(2) + H(1) + H(1.5),
+    tasks: [
+      'Mettre à jour scores individuels — 2h',
+      'Calculer score global équipe — 1h',
+      'Émettre Top 5 vers Godot en temps réel — 1h30',
+    ]
+  },
+
+  // ── FRONTEND
+  {
+    id: 'FA', mod: 'frontend', name: 'Structure & Navigation',
+    deps: ['BA'],
+    dur: H(1.5) + H(2) + H(0.5),
+    tasks: [
+      'Page d\'accueil + insertion pseudo — 1h30',
+      'Système de navigation entre pages — 2h',
+      'Comportement bouton Quitter — 30min',
+    ]
+  },
+  {
+    id: 'FB', mod: 'frontend', name: 'Lobby front-end',
+    deps: ['FA', 'BB'],
+    dur: H(1.5) + H(1) + H(2) + H(1),
+    tasks: [
+      'Interface choix équipes R/B/J — 1h30',
+      'Compteur joueurs par équipe — 1h',
+      'Blocage si écart > 3 joueurs — 2h',
+      'Couleur de fond selon équipe — 1h',
+    ]
+  },
+  {
+    id: 'FC', mod: 'frontend', name: 'Attente & Synchronisation',
+    deps: ['FB', 'BD'],
+    dur: H(1) + H(1.5) + H(1.5),
+    tasks: [
+      'Page d\'attente connexion serveur — 1h',
+      'Envoi pseudo au serveur (join-game) — 1h30',
+      'Transition attente → jeu (signal serveur) — 1h30',
+    ]
+  },
+  {
+    id: 'FD', mod: 'frontend', name: 'Interface de jeu',
+    deps: ['FC', 'BE'],
+    dur: H(2) + H(0.75) + H(1) + H(1.5),
+    tasks: [
+      'Interface mobile 3 boutons colorés — 2h',
+      'Zone feedback PERFECT / LATE / MISS — 45min',
+      'Zone score — 1h',
+      'Envoi événement clic vers serveur — 1h30',
+    ]
+  },
+  {
+    id: 'FE', mod: 'frontend', name: 'Temps réel joueur',
+    deps: ['FD', 'BF'],
+    dur: H(1.5) + H(1.5),
+    tasks: [
+      'Réception & affichage score individuel — 1h30',
+      'Réception & affichage feedback précision — 1h30',
+    ]
+  },
+];
+
+// ── CPM
+const byId = {};
+groups.forEach(g => { g.es=0; g.ef=0; byId[g.id]=g; });
+let changed = true;
+while (changed) {
+  changed = false;
+  groups.forEach(g => {
+    const es = g.deps.length ? Math.max(...g.deps.map(d => byId[d].ef)) : 0;
+    const ef = es + g.dur;
+    if (es!==g.es||ef!==g.ef){g.es=es;g.ef=ef;changed=true;}
+  });
+}
+const PE = Math.max(...groups.map(g=>g.ef));
+groups.forEach(g=>{g.lf=PE;g.ls=PE-g.dur;});
+changed=true;
+while(changed){
+  changed=false;
+  groups.forEach(g=>{
+    const succ=groups.filter(s=>s.deps.includes(g.id));
+    const lf=succ.length?Math.min(...succ.map(s=>s.ls)):PE;
+    const ls=lf-g.dur;
+    if(lf!==g.lf||ls!==g.ls){g.lf=lf;g.ls=ls;changed=true;}
+  });
+}
+groups.forEach(g=>{g.float=g.ls-g.es;g.critical=g.float<0.001;});
+
+// ── Layout
+const NW = 172, NH = 74, GX = 56, GY = 22;
+const modOrder = ['godot','backend','frontend'];
+const modColors = {godot:'#2d6a4f', backend:'#b5451b', frontend:'#1a4f7a'};
+const modLabels = {godot:'Godot', backend:'Back-end', frontend:'Front-end'};
+
+function hLabel(u){
+  const h=u/10;
+  if(h<0.1)return'5min';
+  if(h<1)return`${Math.round(h*60)}min`;
+  if(Number.isInteger(h))return`${h}h`;
+  return`${Math.floor(h)}h${Math.round((h%1)*60)}`;
+}
+
+function totalTasks(){return groups.reduce((s,g)=>s+g.tasks.length,0);}
+
+function layoutAll(){
+  let globalY = 44;
+  modOrder.forEach(mod => {
+    const mt = groups.filter(g=>g.mod===mod);
+    const esVals = [...new Set(mt.map(g=>g.es))].sort((a,b)=>a-b);
+    const colX = {}; let curX = 44;
+    esVals.forEach(es=>{colX[es]=curX; curX+=NW+GX;});
+    mt.forEach(g=>{
+      const sibs = mt.filter(s=>s.es===g.es);
+      g.x = colX[g.es];
+      g.y = globalY + sibs.indexOf(g)*(NH+GY);
+    });
+    const maxRows = Math.max(...esVals.map(es=>mt.filter(g=>g.es===es).length));
+    globalY += maxRows*(NH+GY) + 52;
+  });
+}
+layoutAll();
+
+const TW = Math.max(...groups.map(g=>g.x))+NW+80;
+const TH = Math.max(...groups.map(g=>g.y))+NH+80;
+
+const wrap=document.getElementById('wrap');
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const mini=document.getElementById('mini');
+const mctx=mini.getContext('2d');
+let scale=1,ox=0,oy=0,drag=false,lx=0,ly=0,filter='all';
+
+function resize(){canvas.width=wrap.clientWidth;canvas.height=wrap.clientHeight;mini.width=140;mini.height=78;draw();}
+window.addEventListener('resize',resize);
+
+function setFilter(f){
+  filter=f;
+  document.querySelectorAll('.flt').forEach(b=>{
+    b.classList.remove('active');
+    if((f==='all'&&b.classList.contains('all'))||(f!=='all'&&b.classList.contains(f)))b.classList.add('active');
+  });
+  draw();
+}
+function isVis(g){return filter==='all'||g.mod===filter;}
+
+function draw(){
+  const c=ctx;
+  c.clearRect(0,0,canvas.width,canvas.height);
+  c.save();c.translate(ox,oy);c.scale(scale,scale);
+
+  // bg
+  c.fillStyle='#f7f6f2';c.fillRect(-ox/scale,-oy/scale,canvas.width/scale,canvas.height/scale);
+
+  // module bands
+  modOrder.forEach(mod=>{
+    if(filter!=='all'&&filter!==mod)return;
+    const mt=groups.filter(g=>g.mod===mod);
+    const mx=Math.min(...mt.map(g=>g.x))-20;
+    const MX=Math.max(...mt.map(g=>g.x))+NW+20;
+    const my=Math.min(...mt.map(g=>g.y))-32;
+    const MY=Math.max(...mt.map(g=>g.y))+NH+16;
+    const col=modColors[mod];
+    c.save();
+    c.globalAlpha=0.03;c.fillStyle=col;
+    c.beginPath();c.roundRect(mx,my,MX-mx,MY-my,4);c.fill();
+    c.globalAlpha=1;
+    c.fillStyle=col;c.fillRect(mx,my+22,2.5,MY-my-22);
+    c.font='500 9px DM Sans,sans-serif';c.fillStyle=col;c.textAlign='left';
+    c.fillText(modLabels[mod].toUpperCase(),mx+10,my+15);
+    c.restore();
+  });
+
+  // edges
+  groups.forEach(g=>{
+    if(!isVis(g))return;
+    g.deps.forEach(depId=>{
+      const dep=byId[depId];
+      if(!isVis(dep))return;
+      const isCrit=g.critical&&dep.critical;
+      const x1=dep.x+NW, y1=dep.y+NH/2;
+      const x2=g.x, y2=g.y+NH/2;
+      const mx=(x1+x2)/2;
+      c.beginPath();c.moveTo(x1,y1);c.bezierCurveTo(mx,y1,mx,y2,x2,y2);
+      c.strokeStyle=isCrit?'#c0392b':'#ccc8c1';
+      c.lineWidth=isCrit?2:1;c.stroke();
+      const ang=Math.atan2(y2-y1,x2-x1);
+      c.save();c.translate(x2,y2);c.rotate(ang);
+      c.beginPath();c.moveTo(0,0);c.lineTo(-8,-3.5);c.lineTo(-8,3.5);c.closePath();
+      c.fillStyle=isCrit?'#c0392b':'#c5c1ba';c.fill();c.restore();
+    });
+  });
+
+  // nodes
+  groups.forEach(g=>{
+    if(!isVis(g))return;
+    const col=modColors[g.mod], crit='#c0392b';
+    const x=g.x, y=g.y;
+
+    c.save();
+    // card
+    c.beginPath();c.roundRect(x,y,NW,NH,4);
+    c.fillStyle='#ffffff';
+    c.shadowColor='rgba(0,0,0,0.07)';c.shadowBlur=7;c.shadowOffsetY=2;
+    c.fill();c.shadowBlur=0;c.shadowOffsetY=0;
+    c.strokeStyle=g.critical?crit:col+'44';c.lineWidth=g.critical?1.5:1;c.stroke();
+
+    // top accent bar
+    c.fillStyle=g.critical?crit:col;c.fillRect(x,y,NW,3);
+
+    // ID tag
+    c.font='500 7.5px DM Mono,monospace';
+    c.fillStyle=g.critical?crit:col;
+    c.textAlign='left';
+    c.fillText(g.id,x+7,y+14);
+
+    // task count pill
+    const cnt=g.tasks.length;
+    const pill=`${cnt} tâche${cnt>1?'s':''}`;
+    c.font='400 7px DM Mono,monospace';
+    c.fillStyle='#b8b4ae';
+    c.textAlign='right';
+    c.fillText(pill,x+NW-7,y+14);
+
+    // critique badge
+    if(g.critical){
+      c.font='500 6.5px DM Mono,monospace';
+      c.fillStyle=crit;
+      c.textAlign='center';
+      c.fillText('critique',x+NW/2,y+14);
+    }
+
+    // name
+    c.fillStyle='#1a1a1a';c.textAlign='left';
+    c.font='600 10px DM Sans,sans-serif';
+    const words=g.name.split(' ');let line='',lines=[];
+    words.forEach(w=>{
+      const test=line+(line?' ':'')+w;
+      if(c.measureText(test).width>NW-14&&line){lines.push(line);line=w;}else line=test;
+    });
+    lines.push(line);
+    const lh=12, textH=Math.min(lines.length,2)*lh;
+    const sy=y+20+(NH-20-textH-10)/2+lh*0.8;
+    lines.slice(0,2).forEach((l,i)=>c.fillText(i===1&&lines.length>2?l+'…':l,x+7,sy+i*lh));
+
+    // duration
+    c.font='500 8px DM Mono,monospace';c.fillStyle=g.critical?crit:col+'cc';
+    c.textAlign='left';c.fillText(hLabel(g.dur),x+7,y+NH-6);
+
+    // ES / EF
+    c.font='7px DM Mono,monospace';c.fillStyle='#c0bbb5';
+    c.textAlign='right';c.fillText(`${hLabel(g.es)} → ${hLabel(g.ef)}`,x+NW-7,y+NH-6);
+
+    c.restore();
+  });
+
+  c.restore();
+  drawMini();
+}
+
+function drawMini(){
+  mctx.clearRect(0,0,140,78);mctx.fillStyle='#f7f6f2';mctx.fillRect(0,0,140,78);
+  const s=Math.min(140/TW,78/TH)*0.88;
+  groups.forEach(g=>{
+    if(!isVis(g))return;
+    mctx.fillStyle=g.critical?'#c0392b':modColors[g.mod];
+    mctx.globalAlpha=0.45;
+    mctx.fillRect(g.x*s+3,g.y*s+3,NW*s,NH*s);
+  });
+  mctx.globalAlpha=0.3;mctx.strokeStyle='#1a1a1a';mctx.lineWidth=1;
+  mctx.strokeRect(-ox*s/scale+3,-oy*s/scale+3,canvas.width*s/scale,canvas.height*s/scale);
+}
+
+// Tooltip
+const tip=document.getElementById('tip');
+canvas.addEventListener('mousemove',e=>{
+  const r=canvas.getBoundingClientRect();
+  const mx=(e.clientX-r.left-ox)/scale,my=(e.clientY-r.top-oy)/scale;
+  const hit=groups.find(g=>isVis(g)&&mx>=g.x&&mx<=g.x+NW&&my>=g.y&&my<=g.y+NH);
+  if(hit){
+    document.getElementById('tip-title').textContent=`[${hit.id}] ${hit.name}`;
+    document.getElementById('tip-dur').textContent=hLabel(hit.dur);
+    document.getElementById('tip-mod').textContent=modLabels[hit.mod];
+    document.getElementById('tip-es').textContent=hLabel(hit.es);
+    document.getElementById('tip-ef').textContent=hLabel(hit.ef);
+    document.getElementById('tip-ls').textContent=hLabel(hit.ls);
+    document.getElementById('tip-lf').textContent=hLabel(hit.lf);
+    document.getElementById('tip-fl').textContent=hLabel(hit.float);
+    document.getElementById('tip-st').textContent=hit.critical?'⚑ Critique':'–';
+    const ul=document.getElementById('tip-tasks');
+    ul.innerHTML=hit.tasks.map(t=>`<li>${t}</li>`).join('');
+    tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-10)+'px';
+    tip.className='tooltip show';
+  } else tip.className='tooltip';
+});
+canvas.addEventListener('mouseleave',()=>tip.className='tooltip');
+
+// Pan
+canvas.addEventListener('mousedown',e=>{drag=true;lx=e.clientX;ly=e.clientY;});
+window.addEventListener('mouseup',()=>drag=false);
+window.addEventListener('mousemove',e=>{if(!drag)return;ox+=e.clientX-lx;oy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;draw();});
+canvas.addEventListener('wheel',e=>{e.preventDefault();scale=Math.min(3,Math.max(0.2,scale*(e.deltaY<0?1.1:0.9)));draw();},{passive:false});
+
+document.getElementById('zi').onclick=()=>{scale=Math.min(3,scale*1.2);draw();};
+document.getElementById('zo').onclick=()=>{scale=Math.max(0.2,scale*0.85);draw();};
+document.getElementById('zr').onclick=()=>{scale=1;ox=0;oy=0;draw();};
+
+// Stats
+document.getElementById('s-dur').textContent=hLabel(PE);
+document.getElementById('s-groups').textContent=groups.length;
+document.getElementById('s-tasks').textContent=totalTasks();
+
+resize();
+</script>
+</body>
+</html>
