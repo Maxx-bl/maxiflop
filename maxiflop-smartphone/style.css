@@ -1,0 +1,126 @@
+:root {
+    --bg-color: #F8FBF8;    
+    --mauve: #C89BFF;       
+    --blue: #5FCDE4;        
+    --red: #FF7081;         
+    --yellow: #F0D722;
+    --black: #1a1717;      
+}
+
+body {
+    background-color: var(--bg-color);
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.écran {
+    text-align: center;
+    width: 90%;
+    color: var(--mauve);
+}
+
+.arriere {
+    display: none;
+}
+
+.bouton {
+    display: flex;
+    flex-direction: column; 
+    gap: 20px;
+}
+
+.btn {
+    height: 100px;
+    border: none;
+    border-radius: 50px;
+}
+
+h1 {
+    color: var(--mauve);
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+p {
+    color: var(--mauve);
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+/*Style de l'input*/
+input {
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #2d3436;
+    background-color: white;
+    border-radius: 15px;
+    padding: 1rem;
+    width: 100%;
+    max-width: 200px;
+}
+
+/*Style des boutons pages principales*/
+.groupe-boutons {
+    display: flex;        
+    justify-content: center; 
+    gap: 30px;           
+    margin-top: 20px;      
+}
+
+.btnPrem {
+    padding: 15px 15px;
+    border-radius: 10px;
+    border: 50px;
+    background-color: var(--blue);
+    letter-spacing: 1.5px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: rgb(46, 116, 201) 0px 10px 0px 0px;
+    color: hsl(0, 0%, 100%);
+    cursor: pointer;
+}
+
+.btnPrem:hover {
+  box-shadow: rgb(46, 116, 201) 0px 10px 0px 0px;
+}
+
+.btnPrem:active {
+  background-color: var(--blue);
+  box-shadow: rgb(46, 116, 201) 0px 10px 0px 0px;
+  transform: translateY(5px);
+  transition: 200ms;
+}
+
+.btnSec {
+    padding: 15px 15px;
+    border-radius: 10px;
+    border: 50px;
+    background-color: var(--red);
+    letter-spacing: 1.5px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    box-shadow: rgb(201, 46, 70) 0px 10px 0px 0px;
+    color: hsl(0, 0%, 100%);
+    cursor: pointer;
+}
+
+.btnSec:hover {
+  box-shadow: rgb(201, 46, 70) 0px 7px 0px 0px;
+}
+
+.btnSec:active {
+  background-color: rgb(255, 56, 86);
+  box-shadow: rgb(201, 46, 70) 0px 0px 0px 0px;
+  transform: translateY(5px);
+  transition: 200ms;
+}
+
+.blue { background-color: var(--blue); }
+.yellow { background-color: var(--yellow); }
+.red { background-color: var(--red); }
