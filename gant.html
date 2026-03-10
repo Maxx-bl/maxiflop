@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gantt — Rhythm Game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #f7f6f2;
+  --white: #ffffff;
+  --border: #e0ddd6;
+  --border-light: #ece9e3;
+  --godot: #2d6a4f;
+  --backend: #b5451b;
+  --frontend: #1a4f7a;
+  --critical: #c0392b;
+  --text: #1a1a1a;
+  --muted: #8a8680;
+  --row-alt: #f2f0eb;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  padding: 1.5rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.logo h1 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 600; color: var(--text); }
+.logo p { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 0.14em; margin-top: 0.2rem; text-transform: uppercase; }
+
+.stats { display: flex; gap: 2.5rem; }
+.stat { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; }
+.stat .val { font-family: 'DM Mono', monospace; font-size: 1.2rem; font-weight: 500; color: var(--text); }
+.stat .lbl { font-size: 0.58rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+.toolbar {
+  display: flex; align-items: center; gap: 1.5rem;
+  padding: 0.7rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  flex-wrap: wrap;
+}
+
+.legend { display: flex; gap: 1.2rem; align-items: center; }
+.li { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+.lc { width: 9px; height: 9px; border-radius: 2px; }
+.lc-stripe { width: 9px; height: 9px; border-radius: 2px; background: repeating-linear-gradient(45deg, #c0392b 0px, #c0392b 2px, #e8a09a 2px, #e8a09a 4px); }
+.sep { width: 1px; height: 16px; background: var(--border); }
+
+.filters { display: flex; gap: 0.3rem; margin-left: auto; }
+.flt {
+  padding: 0.25rem 0.7rem; border-radius: 3px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); font-size: 0.62rem;
+  font-family: 'DM Mono', monospace; cursor: pointer; transition: all 0.15s;
+  letter-spacing: 0.07em; text-transform: uppercase;
+}
+.flt:hover { border-color: var(--text); color: var(--text); }
+.flt.active { background: var(--text); color: var(--white); border-color: var(--text); }
+.flt.active.godot    { background: var(--godot);    border-color: var(--godot); }
+.flt.active.backend  { background: var(--backend);  border-color: var(--backend); }
+.flt.active.frontend { background: var(--frontend); border-color: var(--frontend); }
+
+#gantt-wrap {
+  flex: 1;
+  overflow: auto;
+  padding: 0;
+}
+
+#gantt {
+  min-width: 900px;
+  position: relative;
+}
+
+/* Header timeline */
+.timeline-header {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.th-label {
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  padding: 0.6rem 1rem;
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.th-ticks {
+  flex: 1;
+  position: relative;
+  height: 36px;
+}
+
+.th-tick {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-left: 1px solid var(--border-light);
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 6px;
+}
+
+.th-tick span {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.58rem;
+  color: var(--muted);
+  padding-left: 4px;
+  white-space: nowrap;
+}
+
+/* Rows */
+.gantt-section {
+  border-bottom: 2px solid var(--border);
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  background: var(--white);
+  border-bottom: 1px solid var(--border-light);
+  font-size: 0.62rem;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  gap: 0.5rem;
+  position: sticky;
+  left: 0;
+}
+
+.section-dot {
+  width: 7px; height: 7px; border-radius: 1px; flex-shrink: 0;
+}
+
+.gantt-row {
+  display: flex;
+  align-items: stretch;
+  min-height: 40px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.gantt-row:nth-child(even) { background: var(--row-alt); }
+.gantt-row:nth-child(odd)  { background: var(--white); }
+
+.row-label {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-right: 1px solid var(--border);
+  gap: 0.15rem;
+}
+
+.row-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+}
+
+.row-name {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-tasks-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.57rem;
+  color: var(--muted);
+}
+
+.row-chart {
+  flex: 1;
+  position: relative;
+  min-height: 40px;
+}
+
+/* grid lines inside chart */
+.grid-line {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 1px;
+  background: var(--border-light);
+  pointer-events: none;
+}
+
+.bar-wrapper {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.bar {
+  height: 100%;
+  border-radius: 3px;
+  position: relative;
+  transition: filter 0.15s;
+  cursor: pointer;
+}
+
+.bar:hover { filter: brightness(1.1); }
+
+.bar-label {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Float bar (slack) */
+.float-bar {
+  height: 4px;
+  border-radius: 2px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.3;
+}
+
+/* Tooltip */
+.tooltip {
+  position: fixed; background: var(--white); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.9rem 1rem; max-width: 280px;
+  pointer-events: none; opacity: 0; transition: opacity 0.12s;
+  z-index: 999; box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+.tooltip.show { opacity: 1; }
+.tt-title { font-weight: 600; font-size: 0.8rem; margin-bottom: 0.5rem; }
+.tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.18rem 0.8rem; margin-bottom: 0.4rem; }
+.tt-k { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--muted); }
+.tt-v { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--text); font-weight: 500; }
+.tt-tasks { font-size: 0.65rem; color: var(--muted); line-height: 1.7; border-top: 1px solid var(--border-light); padding-top: 0.4rem; margin-top: 0.3rem; }
+.tt-tasks li { list-style: none; padding-left: 0.8rem; position: relative; }
+.tt-tasks li::before { content: '·'; position: absolute; left: 0; }
+
+/* Critical row highlight */
+.gantt-row.critical .row-id { color: var(--critical); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <h1>Diagramme de Gantt</h1>
+    <p>Rhythm Game — Godot · Back-end · Front-end</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="val" id="s-dur">—</span><span class="lbl">Durée totale</span></div>
+    <div class="stat"><span class="val" id="s-groups">—</span><span class="lbl">Groupes</span></div>
+    <div class="stat"><span class="val" id="s-parallel">—</span><span class="lbl">Pistes parallèles</span></div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="legend">
+    <div class="li"><div class="lc" style="background:var(--godot)"></div>Godot</div>
+    <div class="li"><div class="lc" style="background:var(--backend)"></div>Back-end</div>
+    <div class="li"><div class="lc" style="background:var(--frontend)"></div>Front-end</div>
+    <div class="sep"></div>
+    <div class="li"><div class="lc-stripe"></div>Chemin critique</div>
+    <div class="li"><div class="lc" style="background:#d0ccc5;opacity:0.5"></div>Marge disponible</div>
+  </div>
+  <div class="filters">
+    <button class="flt all active" onclick="setFilter('all')">Tout</button>
+    <button class="flt godot" onclick="setFilter('godot')">Godot</button>
+    <button class="flt backend" onclick="setFilter('backend')">Backend</button>
+    <button class="flt frontend" onclick="setFilter('frontend')">Frontend</button>
+  </div>
+</div>
+
+<div id="gantt-wrap">
+  <div id="gantt"></div>
+</div>
+
+<div class="tooltip" id="tip">
+  <div class="tt-title" id="tip-title"></div>
+  <div class="tt-grid">
+    <span class="tt-k">Durée</span><span class="tt-v" id="tip-dur"></span>
+    <span class="tt-k">Statut</span><span class="tt-v" id="tip-st"></span>
+    <span class="tt-k">Début tôt</span><span class="tt-v" id="tip-es"></span>
+    <span class="tt-k">Fin tôt</span><span class="tt-v" id="tip-ef"></span>
+    <span class="tt-k">Début tard</span><span class="tt-v" id="tip-ls"></span>
+    <span class="tt-k">Fin tard</span><span class="tt-v" id="tip-lf"></span>
+    <span class="tt-k">Marge</span><span class="tt-v" id="tip-fl"></span>
+  </div>
+  <ul class="tt-tasks" id="tip-tasks"></ul>
+</div>
+
+<script>
+const H = h => Math.round(h * 10);
+
+const groups = [
+  { id:'GA', mod:'godot',    name:'Système de notes',           deps:[],           dur:H(2)+H(0.5)+H(1),
+    tasks:['Scènes Godot notes R/B/J — 2h','Script mouvement linéaire — 30min','Note Manager (instanciation) — 1h'] },
+  { id:'GB', mod:'godot',    name:'Parser JSON + Zone cible',   deps:['GA'],       dur:H(2)+H(0.5)+H(0.5),
+    tasks:['Parser JSON via FileAccess — 2h','Ligne de collision visuelle — 30min','Détection zone & feedback — 30min'] },
+  { id:'GC', mod:'godot',    name:'Input & Validation WebSocket',deps:['GB'],      dur:H(1.5)+H(0.5),
+    tasks:['Signaux WebSocket — 1h30','Fenêtres Perfect/Great/Late — 30min'] },
+  { id:'GD', mod:'godot',    name:'Score & Affichage spectateur',deps:['GC'],      dur:H(0.5)+H(1)+H(0.5)+H(1)+H(1),
+    tasks:['Streak & multiplicateurs — 30min','Score global équipe — 1h','Layout zone gauche — 30min','Barres progression — 1h','Top 5 dynamique — 1h'] },
+  { id:'BA', mod:'backend',  name:'Initialisation serveur',     deps:[],           dur:H(2)+H(0.5)+H(0.08),
+    tasks:['Serveur Express + Socket.io — 2h','Distribution fichiers statiques — 30min','Corriger package.json — 5min'] },
+  { id:'BB', mod:'backend',  name:'Lobby & Connexions',         deps:['BA'],       dur:H(1)+H(0.5)+H(1)+H(1),
+    tasks:['join-game + broadcast lobby — 1h','3 équipes dans le gameState — 30min','Événement join-team — 1h','Disconnect en lobby — 1h'] },
+  { id:'BC', mod:'backend',  name:'Lancement & Corrections',    deps:['BB'],       dur:H(1.5)+H(1)+H(0.75)+H(1.5),
+    tasks:['lancerPartie (vérif. équilibre) — 1h30','Bloquer join-team si écart > 3 — 1h','Corriger condition timer — 45min','Gérer déconnexion en partie — 1h30'] },
+  { id:'BD', mod:'backend',  name:'Synchronisation & État',     deps:['BC'],       dur:H(3)+H(0.75)+H(1.5),
+    tasks:['Transitions lobby→playing→results — 3h','Broadcaster timestamp départ — 45min','Générer QR Code — 1h30'] },
+  { id:'BE', mod:'backend',  name:'Pipeline inputs / feedback', deps:['BD'],       dur:H(1)+H(1)+H(1)+H(1),
+    tasks:['Réception inputs téléphones — 1h','Relayer inputs vers Godot — 1h','Réception feedback Godot — 1h','Renvoyer feedback → téléphone — 1h'] },
+  { id:'BF', mod:'backend',  name:'Scores & Classement',        deps:['BE'],       dur:H(2)+H(1)+H(1.5),
+    tasks:['MAJ scores individuels — 2h','Score global équipe — 1h','Émettre Top 5 vers Godot — 1h30'] },
+  { id:'FA', mod:'frontend', name:'Structure & Navigation',     deps:['BA'],       dur:H(1.5)+H(2)+H(0.5),
+    tasks:['Page accueil + pseudo — 1h30','Navigation entre pages — 2h','Bouton Quitter — 30min'] },
+  { id:'FB', mod:'frontend', name:'Lobby front-end',            deps:['FA','BB'],  dur:H(1.5)+H(1)+H(2)+H(1),
+    tasks:['Interface choix équipes — 1h30','Compteur joueurs par équipe — 1h','Blocage si écart > 3 — 2h','Couleur fond selon équipe — 1h'] },
+  { id:'FC', mod:'frontend', name:'Attente & Synchronisation',  deps:['FB','BD'],  dur:H(1)+H(1.5)+H(1.5),
+    tasks:['Page d\'attente — 1h','Envoi pseudo (join-game) — 1h30','Transition attente → jeu — 1h30'] },
+  { id:'FD', mod:'frontend', name:'Interface de jeu',           deps:['FC','BE'],  dur:H(2)+H(0.75)+H(1)+H(1.5),
+    tasks:['Interface mobile 3 boutons — 2h','Zone feedback — 45min','Zone score — 1h','Envoi clic → serveur — 1h30'] },
+  { id:'FE', mod:'frontend', name:'Temps réel joueur',          deps:['FD','BF'],  dur:H(1.5)+H(1.5),
+    tasks:['Affichage score temps réel — 1h30','Affichage feedback temps réel — 1h30'] },
+];
+
+// CPM
+const byId={};
+groups.forEach(g=>{g.es=0;g.ef=0;byId[g.id]=g;});
+let changed=true;
+while(changed){changed=false;groups.forEach(g=>{const es=g.deps.length?Math.max(...g.deps.map(d=>byId[d].ef)):0;const ef=es+g.dur;if(es!==g.es||ef!==g.ef){g.es=es;g.ef=ef;changed=true;}});}
+const PE=Math.max(...groups.map(g=>g.ef));
+groups.forEach(g=>{g.lf=PE;g.ls=PE-g.dur;});
+changed=true;
+while(changed){changed=false;groups.forEach(g=>{const succ=groups.filter(s=>s.deps.includes(g.id));const lf=succ.length?Math.min(...succ.map(s=>s.ls)):PE;const ls=lf-g.dur;if(lf!==g.lf||ls!==g.ls){g.lf=lf;g.ls=ls;changed=true;}});}
+groups.forEach(g=>{g.float=g.ls-g.es;g.critical=g.float<0.001;});
+
+const modColors={godot:'#2d6a4f',backend:'#b5451b',frontend:'#1a4f7a'};
+const modLabels={godot:'Godot',backend:'Back-end',frontend:'Front-end'};
+const modOrder=['godot','backend','frontend'];
+
+function hLabel(u){const h=u/10;if(h<0.1)return'5min';if(h<1)return`${Math.round(h*60)}min`;if(Number.isInteger(h))return`${h}h`;return`${Math.floor(h)}h${Math.round((h%1)*60)}`;}
+
+// Parallel tracks count (max concurrent groups)
+function countParallel(){
+  let max=0;
+  for(let t=0;t<=PE;t++){
+    const c=groups.filter(g=>g.es<=t&&g.ef>t).length;
+    if(c>max)max=c;
+  }
+  return max;
+}
+
+let filter='all';
+const LABEL_W=220;
+const TICK_UNIT=10; // 1h = 10 units
+
+function setFilter(f){
+  filter=f;
+  document.querySelectorAll('.flt').forEach(b=>{
+    b.classList.remove('active');
+    if((f==='all'&&b.classList.contains('all'))||(f!=='all'&&b.classList.contains(f)))b.classList.add('active');
+  });
+  render();
+}
+
+function isVis(g){return filter==='all'||g.mod===filter;}
+
+function render(){
+  const gantt=document.getElementById('gantt');
+  gantt.innerHTML='';
+
+  const visGroups=groups.filter(g=>isVis(g));
+  if(!visGroups.length)return;
+
+  const maxT=PE;
+  const wrapW=document.getElementById('gantt-wrap').clientWidth||1000;
+  const chartW=Math.max(wrapW-LABEL_W-40, 600);
+  const pxPerUnit=chartW/maxT;
+
+  function toPx(u){return u*pxPerUnit;}
+
+  // Timeline header
+  const header=document.createElement('div');
+  header.className='timeline-header';
+  const thLabel=document.createElement('div');
+  thLabel.className='th-label';
+  thLabel.style.width=LABEL_W+'px';
+  thLabel.textContent='Groupe';
+  header.appendChild(thLabel);
+  const thTicks=document.createElement('div');
+  thTicks.className='th-ticks';
+  thTicks.style.width=chartW+'px';
+  // draw ticks every TICK_UNIT (1h)
+  for(let t=0;t<=maxT;t+=TICK_UNIT){
+    const tick=document.createElement('div');
+    tick.className='th-tick';
+    tick.style.left=toPx(t)+'px';
+    const span=document.createElement('span');
+    span.textContent=hLabel(t);
+    tick.appendChild(span);
+    thTicks.appendChild(tick);
+  }
+  header.appendChild(thTicks);
+  gantt.appendChild(header);
+
+  // Sections
+  modOrder.forEach(mod=>{
+    const mg=visGroups.filter(g=>g.mod===mod);
+    if(!mg.length)return;
+    const col=modColors[mod];
+
+    const section=document.createElement('div');
+    section.className='gantt-section';
+
+    const secLabel=document.createElement('div');
+    secLabel.className='section-label';
+    secLabel.style.color=col;
+    const dot=document.createElement('div');
+    dot.className='section-dot';
+    dot.style.background=col;
+    secLabel.appendChild(dot);
+    secLabel.appendChild(document.createTextNode(modLabels[mod].toUpperCase()));
+    section.appendChild(secLabel);
+
+    mg.forEach((g,ri)=>{
+      const row=document.createElement('div');
+      row.className='gantt-row'+(g.critical?' critical':'');
+
+      // label
+      const label=document.createElement('div');
+      label.className='row-label';
+      label.style.width=LABEL_W+'px';
+      label.style.maxWidth=LABEL_W+'px';
+
+      const idEl=document.createElement('div');
+      idEl.className='row-id';
+      idEl.style.color=g.critical?'var(--critical)':col;
+      idEl.textContent=g.id;
+      label.appendChild(idEl);
+
+      const nameEl=document.createElement('div');
+      nameEl.className='row-name';
+      nameEl.style.maxWidth=(LABEL_W-20)+'px';
+      nameEl.textContent=g.name;
+      label.appendChild(nameEl);
+
+      const cnt=document.createElement('div');
+      cnt.className='row-tasks-count';
+      cnt.textContent=`${g.tasks.length} tâche${g.tasks.length>1?'s':''}`;
+      label.appendChild(cnt);
+
+      row.appendChild(label);
+
+      // chart area
+      const chart=document.createElement('div');
+      chart.className='row-chart';
+      chart.style.width=chartW+'px';
+      chart.style.minHeight='40px';
+
+      // grid lines
+      for(let t=0;t<=maxT;t+=TICK_UNIT){
+        const gl=document.createElement('div');
+        gl.className='grid-line';
+        gl.style.left=toPx(t)+'px';
+        chart.appendChild(gl);
+      }
+
+      // Float bar (slack zone)
+      if(g.float>0){
+        const fb=document.createElement('div');
+        fb.className='float-bar';
+        fb.style.left=toPx(g.ef)+'px';
+        fb.style.width=toPx(g.float)+'px';
+        fb.style.background=col;
+        chart.appendChild(fb);
+      }
+
+      // Main bar
+      const bw=document.createElement('div');
+      bw.className='bar-wrapper';
+      bw.style.left=toPx(g.es)+'px';
+      bw.style.width=toPx(g.dur)+'px';
+
+      const bar=document.createElement('div');
+      bar.className='bar';
+      bar.style.width='100%';
+
+      if(g.critical){
+        // striped red
+        bar.style.background=`repeating-linear-gradient(45deg,${col} 0px,${col} 4px,${col}cc 4px,${col}cc 8px)`;
+        bar.style.background=`repeating-linear-gradient(45deg,#c0392b 0px,#c0392b 5px,#e8877a 5px,#e8877a 10px)`;
+      } else {
+        bar.style.background=col;
+      }
+
+      // label inside bar
+      const barLabel=document.createElement('div');
+      barLabel.className='bar-label';
+      barLabel.textContent=hLabel(g.dur);
+      bar.appendChild(barLabel);
+
+      bw.appendChild(bar);
+      chart.appendChild(bw);
+
+      // tooltip interaction
+      bar.addEventListener('mouseenter',e=>showTip(e,g));
+      bar.addEventListener('mousemove',e=>{
+        const tip=document.getElementById('tip');
+        tip.style.left=(e.clientX+14)+'px';
+        tip.style.top=(e.clientY-10)+'px';
+      });
+      bar.addEventListener('mouseleave',()=>{document.getElementById('tip').className='tooltip';});
+
+      row.appendChild(chart);
+      section.appendChild(row);
+    });
+
+    gantt.appendChild(section);
+  });
+}
+
+function showTip(e,g){
+  document.getElementById('tip-title').textContent=`[${g.id}] ${g.name}`;
+  document.getElementById('tip-dur').textContent=hLabel(g.dur);
+  document.getElementById('tip-st').textContent=g.critical?'⚑ Critique':'–';
+  document.getElementById('tip-es').textContent=hLabel(g.es);
+  document.getElementById('tip-ef').textContent=hLabel(g.ef);
+  document.getElementById('tip-ls').textContent=hLabel(g.ls);
+  document.getElementById('tip-lf').textContent=hLabel(g.lf);
+  document.getElementById('tip-fl').textContent=hLabel(g.float);
+  const ul=document.getElementById('tip-tasks');
+  ul.innerHTML=g.tasks.map(t=>`<li>${t}</li>`).join('');
+  const tip=document.getElementById('tip');
+  tip.style.left=(e.clientX+14)+'px';
+  tip.style.top=(e.clientY-10)+'px';
+  tip.className='tooltip show';
+}
+
+// stats
+document.getElementById('s-dur').textContent=hLabel(PE);
+document.getElementById('s-groups').textContent=groups.length;
+document.getElementById('s-parallel').textContent=countParallel();
+
+render();
+window.addEventListener('resize',render);
+</script>
+</body>
+</html>
