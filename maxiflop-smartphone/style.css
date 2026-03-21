@@ -95,6 +95,8 @@ input {
 	padding: 14px 24px;
 	width: min(98%, 900px);
 	height: min(96vw, 480px);
+	background-color: var(--panel); /* overridable par le flash JS */
+	transition: background-color 400ms ease-out;
 }
 
 .scoreWrap {

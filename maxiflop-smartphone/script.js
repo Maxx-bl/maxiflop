@@ -108,6 +108,7 @@ const handleServerMessage = (msg) => {
 		feedbackText.textContent = `${msg.result} (+${msg.points})`;
 		scoreText.textContent = `${msg.score}`;
 		rankText.textContent = `Rang #${msg.rank} - Equipe ${playerTeamLabel}`;
+		triggerFeedback(msg.result);
 		return;
 	}
 };
@@ -135,5 +136,35 @@ document.querySelectorAll(".btn").forEach((btn) => {
 			color,
 			clientTs: Date.now()
 		});
+		// Vibration courte à chaque pression
+		if (navigator.vibrate) navigator.vibrate(40);
 	});
 });
+
+// Feedback visuel + haptique selon le résultat
+const resultStyles = {
+	"PERFECT": { bg: "#84FFC9", vibrate: [60, 30, 60], textColor: "#0a2a1a" },
+	"GOOD":    { bg: "#AAB2FF", vibrate: [30],          textColor: "#0a0a2a" },
+	"BAD":     { bg: "#F0E040", vibrate: [20],          textColor: "#1a1800" },
+	"MISS":    { bg: "#FF7081", vibrate: [80],          textColor: "#1a0005" },
+};
+
+let flashTimeout = null;
+const controllerScreen = document.getElementById("controller");
+
+function triggerFeedback(result) {
+	const style = resultStyles[result];
+	if (!style) return;
+
+	// Vibration haptique
+	if (navigator.vibrate) navigator.vibrate(style.vibrate);
+
+	// Flash de fond
+	if (flashTimeout) clearTimeout(flashTimeout);
+	controllerScreen.style.backgroundColor = style.bg;
+	controllerScreen.style.transition = "background-color 0ms";
+	flashTimeout = setTimeout(() => {
+		controllerScreen.style.transition = "background-color 400ms ease-out";
+		controllerScreen.style.backgroundColor = "";
+	}, result === "PERFECT" ? 180 : 80);
+}
