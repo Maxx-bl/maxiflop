@@ -2,7 +2,8 @@
 <html lang="fr">
 <head>
 	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta name="screen-orientation" content="landscape">
 	<title>Maxiflop Controller</title>
 	<link rel="stylesheet" href="./style.css">
 </head>
@@ -21,14 +22,14 @@
 	</section>
 
 	<section id="controller" class="screen hidden">
-		<div class="hud">
-			<div id="scoreText">Score: 0</div>
-			<div id="rankText">Rang: #1</div>
+		<div class="scoreWrap">
+			<div id="scoreText">0</div>
+			<div id="rankText">Rang #1 - Equipe bleue</div>
 		</div>
 		<div class="buttons">
-			<button data-color="0" class="btn blue">BLEU</button>
-			<button data-color="1" class="btn yellow">JAUNE</button>
-			<button data-color="2" class="btn red">ROUGE</button>
+			<button data-color="0" class="btn blue" aria-label="Bleu"></button>
+			<button data-color="1" class="btn yellow" aria-label="Jaune"></button>
+			<button data-color="2" class="btn red" aria-label="Rouge"></button>
 		</div>
 		<div id="feedback">Pret ?</div>
 	</section>

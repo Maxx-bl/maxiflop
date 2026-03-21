@@ -15,8 +15,10 @@ let hostSocket = null;
 const players = new Map();
 const socketsToPlayers = new Map();
 let gamePhase = "lobby";
+let phasePayload = { type: "phase", phase: "lobby" };
 
 const randomTeam = () => (Math.random() < 0.5 ? "A" : "B");
+const teamLabel = (team) => (team === "A" ? "bleue" : "rouge");
 const wsSend = (socket, payload) => {
 	if (!socket || socket.readyState !== 1) return;
 	socket.send(JSON.stringify(payload));
@@ -74,8 +76,8 @@ wss.on("connection", (socket) => {
 			};
 			players.set(id, player);
 			socketsToPlayers.set(socket, id);
-			wsSend(socket, { type: "joined", playerId: id, team: player.team });
-			wsSend(socket, { type: "phase", phase: gamePhase });
+			wsSend(socket, { type: "joined", playerId: id, team: player.team, teamLabel: teamLabel(player.team) });
+			wsSend(socket, phasePayload);
 			notifyHostLobby();
 			return;
 		}
@@ -95,9 +97,21 @@ wss.on("connection", (socket) => {
 
 		if (msg.type === "host_phase") {
 			gamePhase = String(msg.phase || "lobby");
-			for (const p of players.values()) {
-				wsSend(p.socket, { type: "phase", phase: gamePhase });
+			phasePayload = {
+				type: "phase",
+				phase: gamePhase,
+				remaining: Number(msg.remaining || 0)
+			};
+			if (gamePhase === "lobby") {
+				for (const p of players.values()) {
+					p.score = 0;
+					p.combo = 0;
+				}
 			}
+			for (const p of players.values()) {
+				wsSend(p.socket, phasePayload);
+			}
+			notifyHostLobby();
 			return;
 		}
 

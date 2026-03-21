@@ -14,6 +14,9 @@ const screens = {
 
 let ws = null;
 let joined = false;
+let playerTeamLabel = "bleue";
+let reconnectTimer = null;
+let playerName = "";
 
 const showScreen = (key) => {
 	Object.values(screens).forEach((el) => el.classList.add("hidden"));
@@ -31,15 +34,27 @@ const sendJson = (payload) => {
 };
 
 const connectSocket = (name) => {
+	playerName = name;
+	localStorage.setItem("maxiflop_name", name);
 	ws = new WebSocket(getWsUrl());
 
 	ws.addEventListener("open", () => {
 		statusText.textContent = "Connexion etablie";
 		sendJson({ type: "player_join", name });
+		if (reconnectTimer) {
+			clearTimeout(reconnectTimer);
+			reconnectTimer = null;
+		}
 	});
 
 	ws.addEventListener("close", () => {
-		statusText.textContent = "Connexion perdue. Rechargez la page.";
+		statusText.textContent = "Connexion perdue, reconnexion...";
+		reconnectTimer = setTimeout(() => {
+			const cached = playerName || localStorage.getItem("maxiflop_name") || "";
+			if (cached.trim()) {
+				connectSocket(cached);
+			}
+		}, 1500);
 	});
 
 	ws.addEventListener("message", (event) => {
@@ -58,12 +73,26 @@ const handleServerMessage = (msg) => {
 
 	if (msg.type === "joined") {
 		joined = true;
-		teamInfo.textContent = `Equipe ${msg.team} - en attente du lancement`;
+		playerTeamLabel = msg.teamLabel || (msg.team === "A" ? "bleue" : "rouge");
+		teamInfo.textContent = `Equipe ${playerTeamLabel} - en attente du lancement`;
+		rankText.textContent = `Rang #1 - Equipe ${playerTeamLabel}`;
+		rankText.className = msg.team === "A" ? "team-blue" : "team-red";
 		showScreen("waiting");
 		return;
 	}
 
 	if (msg.type === "phase") {
+		if (msg.phase === "lobby" || msg.phase === "warmup" || msg.phase === "countdown") {
+			showScreen("waiting");
+			const remain = Number(msg.remaining || 0);
+			if (msg.phase === "warmup" && remain > 0) {
+				teamInfo.textContent = `Equipe ${playerTeamLabel} - debut dans ${remain}s`;
+			} else if (msg.phase === "countdown") {
+				teamInfo.textContent = `Equipe ${playerTeamLabel} - prepare-toi`;
+			} else {
+				teamInfo.textContent = `Equipe ${playerTeamLabel} - en attente du lancement`;
+			}
+		}
 		if (msg.phase === "playing" && joined) {
 			feedbackText.textContent = "GO !";
 			showScreen("controller");
@@ -77,8 +106,8 @@ const handleServerMessage = (msg) => {
 
 	if (msg.type === "feedback") {
 		feedbackText.textContent = `${msg.result} (+${msg.points})`;
-		scoreText.textContent = `Score: ${msg.score}`;
-		rankText.textContent = `Rang: #${msg.rank}`;
+		scoreText.textContent = `${msg.score}`;
+		rankText.textContent = `Rang #${msg.rank} - Equipe ${playerTeamLabel}`;
 		return;
 	}
 };
@@ -93,8 +122,13 @@ joinButton.addEventListener("click", () => {
 	connectSocket(name);
 });
 
+const savedName = localStorage.getItem("maxiflop_name");
+if (savedName) {
+	nameInput.value = savedName;
+}
+
 document.querySelectorAll(".btn").forEach((btn) => {
-	btn.addEventListener("click", () => {
+	btn.addEventListener("pointerdown", () => {
 		const color = Number(btn.dataset.color);
 		sendJson({
 			type: "player_input",

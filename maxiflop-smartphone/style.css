@@ -13,27 +13,51 @@
 	font-family: Arial, sans-serif;
 }
 
-body {
+html, body {
 	margin: 0;
-	min-height: 100vh;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
 	background: radial-gradient(circle at top, #2b2d5f, var(--bg));
 	color: var(--text);
+}
+
+body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
+/* Rotation automatique en mode portrait */
+@media (orientation: portrait) {
+	body {
+		transform: rotate(90deg);
+		transform-origin: center center;
+		width: 100vh;
+		height: 100vw;
+		position: fixed;
+		top: calc((100vh - 100vw) / 2);
+		left: calc((100vw - 100vh) / 2);
+	}
+}
+
 .screen {
-	width: min(92vw, 460px);
-	padding: 24px;
+	width: min(96%, 800px);
+	padding: 20px 28px;
 	background: var(--panel);
 	border-radius: 16px;
 	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
 	text-align: center;
 }
 
+/* Écrans login et waiting : verticaux classiques */
+#login, #waiting {
+	max-width: 400px;
+}
+
 .hidden {
-	display: none;
+	display: none !important;
 }
 
 .subtitle,
@@ -61,33 +85,76 @@ input {
 	font-size: 16px;
 }
 
-.hud {
+/* Contrôleur : layout vertical plein écran, score en haut, boutons au centre, feedback en bas */
+#controller {
 	display: flex;
+	flex-direction: column;
+	align-items: center;
 	justify-content: space-between;
-	font-size: 18px;
-	margin-bottom: 16px;
+	gap: 0;
+	padding: 14px 24px;
+	width: min(98%, 900px);
+	height: min(96vw, 480px);
+}
+
+.scoreWrap {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	width: 100%;
+	flex: 0 0 auto;
+}
+
+#scoreText {
+	font-size: 38px;
+	font-weight: bold;
+	line-height: 1;
+}
+
+#rankText {
+	font-size: 16px;
+	color: var(--muted);
 }
 
 .buttons {
-	display: grid;
-	gap: 12px;
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	align-items: center;
+	gap: 24px;
+	flex: 1 1 auto;
 }
 
 .btn {
-	padding: 18px;
+	width: 130px;
+	height: 130px;
 	border: none;
-	border-radius: 12px;
-	font-size: 22px;
+	border-radius: 999px;
+	box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.2);
+	touch-action: manipulation;
+	cursor: pointer;
+	flex-shrink: 0;
+}
+
+.btn:active {
+	transform: scale(0.93);
+	box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+#feedback {
+	flex: 0 0 auto;
+	width: 100%;
+	font-size: 20px;
 	font-weight: bold;
-	color: #141414;
+	text-align: center;
+	padding-bottom: 4px;
 }
 
 .blue { background: var(--blue); }
 .yellow { background: var(--yellow); }
 .red { background: var(--red); }
 
-#feedback {
-	margin-top: 16px;
-	font-size: 20px;
-	font-weight: bold;
-}
+.team-blue { color: var(--blue); }
+.team-red { color: var(--red); }

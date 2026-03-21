@@ -135,8 +135,6 @@ func get_best_note_for_timing(col: int, song_time: float, max_window: float = 0.
 
 	if best_note == null:
 		return {}
-
-	active_notes.erase(best_note)
 	return {
 		"note": best_note,
 		"timing_error": best_error

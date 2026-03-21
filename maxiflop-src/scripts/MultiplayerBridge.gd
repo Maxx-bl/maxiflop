@@ -43,8 +43,8 @@ func _process(_delta: float) -> void:
 		var text := packet.get_string_from_utf8()
 		_handle_message(text)
 
-func send_game_phase(phase: String) -> void:
-	_send_json({"type": "host_phase", "phase": phase})
+func send_game_phase(phase: String, remaining: int = 0) -> void:
+	_send_json({"type": "host_phase", "phase": phase, "remaining": remaining})
 
 func send_feedback(player_id: String, result: String, points: int, combo: int, score: int, rank: int) -> void:
 	_send_json({
