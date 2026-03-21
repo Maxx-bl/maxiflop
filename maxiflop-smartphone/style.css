@@ -29,9 +29,9 @@ body {
 	justify-content: center;
 }
 
-/* Rotation automatique en mode portrait */
+/* Rotation paysage uniquement pendant la partie (controller actif) */
 @media (orientation: portrait) {
-	body {
+	body.playing {
 		transform: rotate(90deg);
 		transform-origin: center center;
 		width: 100vh;

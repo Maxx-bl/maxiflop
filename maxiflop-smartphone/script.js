@@ -95,9 +95,11 @@ const handleServerMessage = (msg) => {
 		}
 		if (msg.phase === "playing" && joined) {
 			feedbackText.textContent = "GO !";
+			document.body.classList.add("playing");
 			showScreen("controller");
 		}
 		if (msg.phase === "ended") {
+			document.body.classList.remove("playing");
 			showScreen("waiting");
 			teamInfo.textContent = "Partie terminee. En attente de la suivante.";
 		}
