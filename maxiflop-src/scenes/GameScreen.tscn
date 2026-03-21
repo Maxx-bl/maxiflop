@@ -1,12 +1,54 @@
-[gd_scene load_steps=6 format=3 uid="uid://cfyaf4ikyente"]
+[gd_scene load_steps=12 format=3 uid="uid://cfyaf4ikyente"]
 
 [ext_resource type="Script" uid="uid://d34qiog5r04a8" path="res://scripts/GameScreen.gd" id="1"]
 [ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
 [ext_resource type="Script" uid="uid://dkacnraee3abq" path="res://scripts/HitZone.gd" id="3"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_platform"]
+bg_color = Color(0.08, 0.08, 0.15, 0.95)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hitcircle"]
+bg_color = Color(0.16, 0.16, 0.28, 1)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_progress_song"]
+bg_color = Color(0.518, 1, 0.788, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rightpanel"]
+bg_color = Color(0.1, 0.1, 0.2, 0.85)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrivee"]
+bg_color = Color(0.05, 0.05, 0.1, 1)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_leaderboard"]
+bg_color = Color(0.07, 0.06, 0.16, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
-bg_color = Color(0.1, 0.05, 0.2, 0.95)
+bg_color = Color(0.08, 0.06, 0.18, 0.97)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
@@ -19,101 +61,70 @@ script = ExtResource("1")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.298, 0.431, 0.659, 1)
+color = Color(0.282, 0.365, 0.612, 1)
 
 [node name="Ground" type="ColorRect" parent="."]
-offset_top = 610.0
+offset_top = 612.0
 offset_right = 1280.0
 offset_bottom = 720.0
-color = Color(0.784, 0.659, 1, 1)
+color = Color(0.698, 0.592, 0.941, 1)
 
 [node name="PlayField" type="Node2D" parent="."]
 
 [node name="LineBlue" type="ColorRect" parent="PlayField"]
-offset_left = 211.0
-offset_right = 215.0
-offset_bottom = 610.0
-color = Color(0.373, 0.804, 0.894, 0.25)
+offset_left = 212.0
+offset_right = 214.0
+offset_bottom = 580.0
+color = Color(0.373, 0.804, 0.894, 0.12)
 
 [node name="LineYellow" type="ColorRect" parent="PlayField"]
-offset_left = 424.0
-offset_right = 428.0
-offset_bottom = 610.0
-color = Color(0.941, 0.878, 0.251, 0.25)
+offset_left = 425.0
+offset_right = 427.0
+offset_bottom = 580.0
+color = Color(0.941, 0.878, 0.251, 0.12)
 
 [node name="LineRed" type="ColorRect" parent="PlayField"]
 offset_left = 638.0
-offset_right = 642.0
-offset_bottom = 610.0
-color = Color(1, 0.439, 0.506, 0.25)
+offset_right = 640.0
+offset_bottom = 580.0
+color = Color(1, 0.439, 0.506, 0.12)
 
 [node name="NoteSpawner" type="Node2D" parent="PlayField"]
 script = ExtResource("2")
 note_scene = ExtResource("4")
 
-[node name="HitPlatform" type="ColorRect" parent="PlayField"]
-offset_left = 30.0
-offset_top = 503.0
-offset_right = 830.0
-offset_bottom = 615.0
-color = Color(0.15, 0.15, 0.3, 0.9)
+[node name="HitPlatform" type="PanelContainer" parent="PlayField"]
+offset_left = 35.0
+offset_top = 514.0
+offset_right = 825.0
+offset_bottom = 612.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_platform")
 
-[node name="HitCircleBlue" type="ColorRect" parent="PlayField"]
-offset_left = 185.0
+[node name="HitCircleBlue" type="PanelContainer" parent="PlayField"]
+offset_left = 172.0
 offset_top = 534.0
-offset_right = 241.0
-offset_bottom = 590.0
-scale = Vector2(0.996381, 1.0101)
-color = Color(0.373, 0.804, 0.894, 0.3)
+offset_right = 252.0
+offset_bottom = 614.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hitcircle")
 
-[node name="HitCircleYellow" type="ColorRect" parent="PlayField"]
-offset_left = 398.0
+[node name="HitCircleYellow" type="PanelContainer" parent="PlayField"]
+offset_left = 385.0
 offset_top = 534.0
-offset_right = 454.0
-offset_bottom = 590.0
-color = Color(0.941, 0.878, 0.251, 0.3)
+offset_right = 465.0
+offset_bottom = 614.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hitcircle")
 
-[node name="HitCircleRed" type="ColorRect" parent="PlayField"]
-offset_left = 612.0
+[node name="HitCircleRed" type="PanelContainer" parent="PlayField"]
+offset_left = 598.0
 offset_top = 534.0
-offset_right = 668.0
-offset_bottom = 590.0
-color = Color(1, 0.439, 0.506, 0.3)
+offset_right = 678.0
+offset_bottom = 614.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hitcircle")
 
 [node name="HitZone" type="Node2D" parent="PlayField"]
 script = ExtResource("3")
-hit_y = 562.0
+hit_y = 574.0
 note_spawner = NodePath("../NoteSpawner")
-
-[node name="HitZone#ButtonBlue" type="Label" parent="."]
-offset_left = 185.0
-offset_top = 618.0
-offset_right = 241.0
-offset_bottom = 648.0
-theme_override_colors/font_color = Color(0.373, 0.804, 0.894, 1)
-theme_override_font_sizes/font_size = 18
-text = "[A]"
-horizontal_alignment = 1
-
-[node name="HitZone#ButtonYellow" type="Label" parent="."]
-offset_left = 398.0
-offset_top = 618.0
-offset_right = 454.0
-offset_bottom = 648.0
-theme_override_colors/font_color = Color(0.941, 0.878, 0.251, 1)
-theme_override_font_sizes/font_size = 18
-text = "[S]"
-horizontal_alignment = 1
-
-[node name="HitZone#ButtonRed" type="Label" parent="."]
-offset_left = 612.0
-offset_top = 618.0
-offset_right = 668.0
-offset_bottom = 648.0
-theme_override_colors/font_color = Color(1, 0.439, 0.506, 1)
-theme_override_font_sizes/font_size = 18
-text = "[D]"
-horizontal_alignment = 1
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
 
@@ -121,65 +132,44 @@ horizontal_alignment = 1
 
 [node name="ProgressBar" type="ProgressBar" parent="HUD"]
 offset_right = 1280.0
-offset_bottom = 12.0
+offset_bottom = 10.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_progress_song")
 show_percentage = false
-
-[node name="ScoreLabel" type="Label" parent="HUD"]
-offset_left = 880.0
-offset_top = 20.0
-offset_right = 1260.0
-offset_bottom = 80.0
-theme_override_colors/font_color = Color(0.933, 0.933, 0.933, 1)
-theme_override_font_sizes/font_size = 52
-text = "0000000"
-horizontal_alignment = 2
-
-[node name="MultiplierLabel" type="Label" parent="HUD"]
-visible = false
-offset_left = 880.0
-offset_top = 78.0
-offset_right = 1260.0
-offset_bottom = 120.0
-theme_override_colors/font_color = Color(0.518, 1, 0.788, 1)
-theme_override_font_sizes/font_size = 26
-text = "x1"
-horizontal_alignment = 2
 
 [node name="ComboLabel" type="Label" parent="HUD"]
 visible = false
-offset_left = 860.0
-offset_top = 120.0
-offset_right = 1260.0
-offset_bottom = 170.0
+offset_left = 40.0
+offset_top = 395.0
+offset_right = 500.0
+offset_bottom = 445.0
 theme_override_colors/font_color = Color(0.667, 0.608, 1, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 28
 text = "x0 COMBO"
-horizontal_alignment = 2
 
-[node name="FeedbackLabel" type="Label" parent="HUD"]
+[node name="MultiplierLabel" type="Label" parent="HUD"]
 visible = false
-offset_left = 100.0
-offset_top = 470.0
-offset_right = 820.0
-offset_bottom = 530.0
+offset_left = 40.0
+offset_top = 352.0
+offset_right = 300.0
+offset_bottom = 394.0
 theme_override_colors/font_color = Color(0.518, 1, 0.788, 1)
-theme_override_font_sizes/font_size = 42
-horizontal_alignment = 1
+theme_override_font_sizes/font_size = 24
+text = "x1"
 
 [node name="CountdownLabel" type="Label" parent="HUD"]
-offset_top = 200.0
-offset_right = 850.0
-offset_bottom = 440.0
+offset_top = 150.0
+offset_right = 840.0
+offset_bottom = 450.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
-theme_override_font_sizes/font_size = 180
-text = "3"
+theme_override_font_sizes/font_size = 200
+text = "5"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="WarmupLabel" type="Label" parent="HUD"]
-offset_top = 240.0
-offset_right = 850.0
-offset_bottom = 340.0
+offset_top = 220.0
+offset_right = 840.0
+offset_bottom = 320.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
 theme_override_font_sizes/font_size = 56
 text = "Salle d'attente"
@@ -187,71 +177,115 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="StartMatchButton" type="Button" parent="HUD"]
-offset_left = 260.0
-offset_top = 350.0
-offset_right = 590.0
-offset_bottom = 420.0
+offset_left = 240.0
+offset_top = 340.0
+offset_right = 600.0
+offset_bottom = 410.0
 theme_override_font_sizes/font_size = 28
 text = "Lancer la partie"
 
 [node name="RightPanel" type="PanelContainer" parent="HUD"]
-offset_left = 860.0
-offset_top = 180.0
-offset_right = 1260.0
-offset_bottom = 650.0
+offset_left = 852.0
+offset_top = 16.0
+offset_right = 1270.0
+offset_bottom = 704.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rightpanel")
 
 [node name="VBox" type="VBoxContainer" parent="HUD/RightPanel"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="LobbyCount" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.75, 0.75, 0.88, 1)
+theme_override_font_sizes/font_size = 15
 text = "Joueurs connectes: 0"
 
 [node name="JoinLink" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(0.65, 0.65, 0.8, 1)
+theme_override_font_sizes/font_size = 13
 text = "Rejoindre: http://127.0.0.1:8080"
 autowrap_mode = 2
 
-[node name="RacePanel" type="VBoxContainer" parent="HUD/RightPanel/VBox"]
+[node name="ArriveeHeader" type="PanelContainer" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_styles/panel = SubResource("StyleBoxFlat_arrivee")
 
-[node name="FinishLabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel"]
+[node name="ArriveeLabel" type="Label" parent="HUD/RightPanel/VBox/ArriveeHeader"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 15
 text = "ARRIVEE"
 horizontal_alignment = 1
 
-[node name="TeamAProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel"]
+[node name="RacePanel" type="HBoxContainer" parent="HUD/RightPanel/VBox"]
+custom_minimum_size = Vector2(0, 170)
 layout_mode = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_result")
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="TeamATrack" type="VBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="TeamAProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamATrack"]
+custom_minimum_size = Vector2(10, 145)
+layout_mode = 2
+fill_mode = 3
 show_percentage = false
 
-[node name="TeamBProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel"]
+[node name="TeamALabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamATrack"]
 layout_mode = 2
-theme_override_styles/fill = SubResource("StyleBoxFlat_result")
+theme_override_colors/font_color = Color(0.373, 0.804, 0.894, 1)
+theme_override_font_sizes/font_size = 13
+text = "E1"
+horizontal_alignment = 1
+
+[node name="TeamBTrack" type="VBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="TeamBProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamBTrack"]
+custom_minimum_size = Vector2(10, 145)
+layout_mode = 2
+fill_mode = 3
 show_percentage = false
+
+[node name="TeamBLabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamBTrack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.439, 0.506, 1)
+theme_override_font_sizes/font_size = 13
+text = "E2"
+horizontal_alignment = 1
 
 [node name="TeamAScore" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.373, 0.804, 0.894, 1)
-theme_override_font_sizes/font_size = 22
-text = "Equipe A: 0"
+theme_override_font_sizes/font_size = 17
+text = "Equipe bleue: 0"
 
 [node name="TeamBScore" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.439, 0.506, 1)
-theme_override_font_sizes/font_size = 22
-text = "Equipe B: 0"
+theme_override_font_sizes/font_size = 17
+text = "Equipe rouge: 0"
 
-[node name="Top5Label" type="RichTextLabel" parent="HUD/RightPanel/VBox"]
+[node name="LeaderboardPanel" type="PanelContainer" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/normal_font_size = 18
+theme_override_styles/panel = SubResource("StyleBoxFlat_leaderboard")
+
+[node name="LeaderboardVBox" type="VBoxContainer" parent="HUD/RightPanel/VBox/LeaderboardPanel"]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Top5Label" type="RichTextLabel" parent="HUD/RightPanel/VBox/LeaderboardPanel/LeaderboardVBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 14
 bbcode_enabled = true
-text = "TOP 5 JOUEURS"
+text = "[b]LEADERBOARD GLOBAL TOP 5[/b]"
 fit_content = true
 autowrap_mode = 2
 
@@ -264,10 +298,10 @@ stretch_mode = 5
 
 [node name="ResultPanel" type="PanelContainer" parent="HUD"]
 visible = false
-offset_left = 280.0
-offset_top = 100.0
-offset_right = 980.0
-offset_bottom = 620.0
+offset_left = 180.0
+offset_top = 70.0
+offset_right = 1020.0
+offset_bottom = 650.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_result")
 
 [node name="VBox" type="VBoxContainer" parent="HUD/ResultPanel"]

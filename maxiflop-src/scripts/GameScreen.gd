@@ -7,7 +7,6 @@ extends Node2D
 @onready var score_label: Label = $HUD/ScoreLabel
 @onready var combo_label: Label = $HUD/ComboLabel
 @onready var multiplier_label: Label = $HUD/MultiplierLabel
-@onready var feedback_label: Label = $HUD/FeedbackLabel
 @onready var progress_bar: ProgressBar = $HUD/ProgressBar
 @onready var count_down: Label = $HUD/CountdownLabel
 @onready var result_panel: Control = $HUD/ResultPanel
@@ -17,9 +16,9 @@ extends Node2D
 @onready var team_b_score_label: Label = $HUD/RightPanel/VBox/TeamBScore
 @onready var lobby_count_label: Label = $HUD/RightPanel/VBox/LobbyCount
 @onready var join_link_label: Label = $HUD/RightPanel/VBox/JoinLink
-@onready var team_a_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamAProgress
-@onready var team_b_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamBProgress
-@onready var top5_label: RichTextLabel = $HUD/RightPanel/VBox/Top5Label
+@onready var team_a_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamATrack/TeamAProgress
+@onready var team_b_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamBTrack/TeamBProgress
+@onready var top5_label: RichTextLabel = $HUD/RightPanel/VBox/LeaderboardPanel/LeaderboardVBox/Top5Label
 @onready var qr_texture: TextureRect = $HUD/RightPanel/VBox/QRCodeTexture
 @onready var qr_http: HTTPRequest = $HUD/RightPanel/VBox/QRHTTPRequest
 @onready var result_team_scores_label: Label = $HUD/ResultPanel/VBox/TeamScoresLabel
@@ -40,7 +39,6 @@ var player_judged_notes: Dictionary = {}
 func _ready() -> void:
 	GameManager.score_changed.connect(_on_score_changed)
 	GameManager.combo_changed.connect(_on_combo_changed)
-	GameManager.note_hit.connect(_on_note_hit)
 	GameManager.game_over.connect(_on_game_over)
 	MultiplayerBridge.connected_to_server.connect(_on_host_connected)
 	MultiplayerBridge.lobby_updated.connect(_on_lobby_updated)
@@ -49,7 +47,6 @@ func _ready() -> void:
 
 	result_panel.visible = false
 	combo_label.visible = false
-	feedback_label.visible = false
 	start_match_button.pressed.connect(_on_start_match_pressed)
 	_set_join_url()
 	qr_http.request_completed.connect(_on_qr_downloaded)
@@ -133,28 +130,6 @@ func _on_combo_changed(new_combo: int) -> void:
 		multiplier_label.visible = true
 	else:
 		multiplier_label.visible = false
-
-func _on_note_hit(result: String) -> void:
-	feedback_label.visible = true
-
-	match result:
-		"PERFECT":
-			feedback_label.text = "PERFECT !!"
-			feedback_label.modulate = Color("#84FFC9")
-		"GOOD":
-			feedback_label.text = "GOOD :)"
-			feedback_label.modulate = Color("#AAB2FF")
-		"BAD":
-			feedback_label.text = "BAD :/"
-			feedback_label.modulate = Color("#F0E040")
-		"MISS":
-			feedback_label.text = "MISS :("
-			feedback_label.modulate = Color("#FF7081")
-
-	var tween := create_tween()
-	tween.tween_interval(0.4)
-	tween.tween_property(feedback_label, "modulate:a", 0.0, 0.2)
-	tween.tween_callback(func(): feedback_label.visible = false; feedback_label.modulate.a = 1.0)
 
 func _on_game_over() -> void:
 	note_spawner.stop()
@@ -265,7 +240,7 @@ func _on_player_input_received(payload: Dictionary) -> void:
 func _evaluate_remote_hit(player_id: String, color: int) -> Dictionary:
 	var best: Dictionary = note_spawner.get_best_note_for_timing(color, elapsed, GameManager.WINDOW_BAD)
 	if best.is_empty():
-		return {"result": "MISS", "points": 0}
+		return {"result": "MISS", "points": 0, "empty": true}
 
 	var note = best.get("note", null)
 	var timing_error := float(best.get("timing_error", 999.0))
@@ -315,16 +290,21 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 
 	if result == "MISS":
 		combo = 0
+		# Pénalité si clic dans le vide (points = -400 encodé comme 0 avec flag empty)
+		var is_empty := bool(result_payload.get("empty", false))
+		if is_empty:
+			points = - GameManager.PENALTY_EMPTY
 	else:
 		combo = int(result_payload.get("combo", combo + 1))
 
-	var score := int(player_data.get("score", 0)) + points
+	var score := maxi(0, int(player_data.get("score", 0)) + points)
 	player_data["combo"] = combo
 	player_data["score"] = score
 	players[player_id] = player_data
 
 	var team := str(player_data.get("team", "A"))
-	team_scores[team] = int(team_scores.get(team, 0)) + points
+	if points > 0:
+		team_scores[team] = int(team_scores.get(team, 0)) + points
 
 	var sorted_players := _get_sorted_players()
 	var rank := 1
