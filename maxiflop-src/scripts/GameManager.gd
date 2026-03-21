@@ -10,8 +10,9 @@ const SCORE_PERFECT := 300
 const SCORE_GOOD := 100
 const SCORE_BAD := 50
 const SCORE_MISS := 0
+const PENALTY_EMPTY := 400
 
-const WINDOW_PERFECT := 0.08
+const WINDOW_PERFECT := 0.05
 const WINDOW_GOOD := 0.15
 const WINDOW_BAD := 0.25
 
@@ -20,7 +21,6 @@ var combo: int = 0
 var max_combo: int = 0
 var multiplier: float = 1.0
 var is_playing: bool = false
-var song_position: float = 0.0
 
 func _ready() -> void:
 	pass
@@ -80,6 +80,14 @@ func register_miss() -> void:
 	multiplier = 1.0
 	emit_signal("combo_changed", combo)
 	emit_signal("note_hit", "MISS")
+
+func register_empty_hit() -> void:
+	# Pénalité pour avoir cliqué dans le vide
+	score = maxi(0, score - PENALTY_EMPTY)
+	combo = 0
+	multiplier = 1.0
+	emit_signal("score_changed", score)
+	emit_signal("combo_changed", combo)
 
 func end_game() -> void:
 	is_playing = false

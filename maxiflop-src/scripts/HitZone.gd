@@ -28,14 +28,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		return
 	if not event.pressed:
 		return
-
 	match event.keycode:
-		KEY_BLUE:
-			_try_hit(0, btn_blue)
-		KEY_YELLOW:
-			_try_hit(1, btn_yellow)
-		KEY_RED:
-			_try_hit(2, btn_red)
+		KEY_BLUE: _try_hit(0, btn_blue)
+		KEY_YELLOW: _try_hit(1, btn_yellow)
+		KEY_RED: _try_hit(2, btn_red)
 
 func press_button(col: int) -> void:
 	match col:
@@ -53,19 +49,19 @@ func _try_hit(col: int, btn: Node) -> void:
 
 	var notes_nearby = spawner.get_notes_near_hit(col, hit_y)
 	if notes_nearby.is_empty():
-		GameManager.register_miss()
+		# Aucune note proche : pénalité pour clic dans le vide
+		GameManager.register_empty_hit()
 		return
 
 	var closest_note = notes_nearby[0]
-	var timing_error: float = abs(closest_note.position.y - hit_y) / closest_note.fall_speed
+	var timing_error: float = abs(closest_note.position.y - hit_y) / 560.0
 	var result := GameManager.register_hit(timing_error, true)
 	closest_note.hit_animation(result)
 
 func _flash_button(btn: Node, col: int) -> void:
 	if btn == null:
 		return
-	col = col
-	var original_scale = btn.scale
+	btn.scale = Vector2(1.0, 1.0)
 	var tween := create_tween()
-	tween.tween_property(btn, "scale", original_scale * 1.15, 0.05)
-	tween.tween_property(btn, "scale", original_scale, 0.1)
+	tween.tween_property(btn, "scale", Vector2(1.15, 1.15), 0.05)
+	tween.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.1)

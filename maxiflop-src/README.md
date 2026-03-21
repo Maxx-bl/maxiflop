@@ -59,9 +59,32 @@ maxiflop/
 3. Assigner le stream audio
 4. Adapter `song_duration` dans le script `GameScreen.gd`
 
-## Prochaines étapes (multijoueur)
+## Mode multijoueur (host PC + manettes smartphone)
 
-- Serveur Node.js + Socket.io
-- Manette HTML/CSS pour mobile
-- Équipes et leaderboard global
-- Beatmaps depuis fichiers JSON
+### 1) Lancer le serveur
+
+Depuis la racine du repo :
+
+```bash
+cd maxiflop-server
+npm install
+npm start
+```
+
+Le serveur expose :
+- `http://<ip-du-pc>:8080` : page manette smartphone
+- `ws://<ip-du-pc>:8080/ws` : websocket utilisé par Godot + smartphone
+
+### 2) Lancer Godot
+
+Ouvrir `maxiflop-src` dans Godot 4.4.1 puis lancer la scène principale.
+
+### 3) Rejoindre depuis téléphone
+
+Connecter les téléphones au même réseau local, puis ouvrir l'URL affichée à droite de l'écran de jeu.
+
+Fonctionnement :
+- les appuis (`bleu/jaune/rouge`) sont envoyés au host;
+- le host valide le timing des notes;
+- le score est renvoyé à chaque manette;
+- le classement Top 5 et les scores d'équipe sont affichés sur l'écran principal.

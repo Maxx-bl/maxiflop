@@ -19,6 +19,8 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameManager="*res://scripts/GameManager.gd"
+MultiplayerBridge="*res://scripts/MultiplayerBridge.gd"
+ServerManager="*res://scripts/ServerManager.gd"
 
 [display]
 
