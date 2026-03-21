@@ -5,3 +5,4 @@
 *.uid
 *.zip
 *.import
+node_modules/

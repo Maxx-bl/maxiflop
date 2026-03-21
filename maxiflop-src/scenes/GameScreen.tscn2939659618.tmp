@@ -14,6 +14,7 @@ corner_radius_bottom_left = 20
 
 [node name="GameScreen" type="Node2D"]
 script = ExtResource("1")
+song_duration = null
 
 [node name="Background" type="ColorRect" parent="."]
 anchors_preset = 15
@@ -53,7 +54,7 @@ note_scene = ExtResource("4")
 
 [node name="HitPlatform" type="ColorRect" parent="PlayField"]
 offset_left = 30.0
-offset_top = 503.0
+offset_top = 595.0
 offset_right = 830.0
 offset_bottom = 615.0
 color = Color(0.15, 0.15, 0.3, 0.9)
@@ -117,8 +118,6 @@ horizontal_alignment = 1
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
 
-[node name="QrRequest" type="HTTPRequest" parent="."]
-
 [node name="HUD" type="CanvasLayer" parent="."]
 
 [node name="ProgressBar" type="ProgressBar" parent="HUD"]
@@ -177,51 +176,6 @@ theme_override_font_sizes/font_size = 180
 text = "3"
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="RightPanel" type="PanelContainer" parent="HUD"]
-offset_left = 860.0
-offset_top = 180.0
-offset_right = 1260.0
-offset_bottom = 650.0
-
-[node name="VBox" type="VBoxContainer" parent="HUD/RightPanel"]
-layout_mode = 2
-theme_override_constants/separation = 12
-
-[node name="LobbyCount" type="Label" parent="HUD/RightPanel/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Joueurs connectes: 0"
-
-[node name="QRLink" type="Label" parent="HUD/RightPanel/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 16
-text = "Rejoindre: http://127.0.0.1:8080"
-autowrap_mode = 2
-
-[node name="QRCode" type="TextureRect" parent="HUD/RightPanel/VBox"]
-custom_minimum_size = Vector2(220, 220)
-layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
-
-[node name="TeamAScore" type="Label" parent="HUD/RightPanel/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.373, 0.804, 0.894, 1)
-theme_override_font_sizes/font_size = 22
-text = "Equipe A: 0"
-
-[node name="TeamBScore" type="Label" parent="HUD/RightPanel/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.439, 0.506, 1)
-theme_override_font_sizes/font_size = 22
-text = "Equipe B: 0"
-
-[node name="Top5Label" type="Label" parent="HUD/RightPanel/VBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "TOP 5 JOUEURS"
-autowrap_mode = 2
 
 [node name="ResultPanel" type="PanelContainer" parent="HUD"]
 visible = false

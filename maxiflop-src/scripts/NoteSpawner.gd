@@ -115,3 +115,29 @@ func get_notes_near_hit(col: int, hit_y_pos: float) -> Array:
 				result.append(note)
 	result.sort_custom(func(a, b): return abs(a.position.y - hit_y_pos) < abs(b.position.y - hit_y_pos))
 	return result
+
+func get_best_note_for_timing(col: int, song_time: float, max_window: float = 0.25) -> Dictionary:
+	var best_note = null
+	var best_error := 999.0
+
+	for note in active_notes:
+		if not is_instance_valid(note):
+			continue
+		if note.has_been_hit or note.is_missed:
+			continue
+		if note.color != col:
+			continue
+
+		var err: float = abs(float(note.spawn_time) - song_time)
+		if err <= max_window and err < best_error:
+			best_error = err
+			best_note = note
+
+	if best_note == null:
+		return {}
+
+	active_notes.erase(best_note)
+	return {
+		"note": best_note,
+		"timing_error": best_error
+	}
