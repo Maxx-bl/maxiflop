@@ -6,7 +6,7 @@ const os = require('os');
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server);
+const io = new Server(server, { cors: { origin: "*" } });
 const port = 3000;
 
 app.use(express.static(join(__dirname, '../maxiflop-smartphone')));
@@ -24,6 +24,32 @@ const gameState = {
 
 let countdownInterval = null;
 let tempsRestant = 15;
+let godotHost = null;
+
+function sendLobbyToGodot() {
+	if (!godotHost) return;
+
+	const playersArr = [];
+	Object.keys(gameState.players).forEach(id => {
+		playersArr.push({
+			id: id,
+			pseudo: gameState.players[id].pseudo,
+			team: gameState.players[id].team
+		});
+	});
+
+	const teamScores = {};
+	gameState.teams.forEach(t => teamScores[t.name] = 0);
+
+	godotHost.emit("lobby_update", {
+		players: playersArr,
+		teamScores: teamScores
+	});
+}
+
+function sendPlayerLeftToGodot(id) {
+	if (godotHost) godotHost.emit("player_left", { playerId: id });
+}
 
 function lancerPartie() {
 	const equipesActives = gameState.teams.filter(t => t.players.length > 0);
@@ -57,7 +83,7 @@ function demarrerChrono() {
 
 			if (tempsRestant <= 0) {
 				if (!lancerPartie()) {
-					tempsRestant = 10; // Repousse si déséquilibre
+					tempsRestant = 10;
 					io.emit('timer-tick', tempsRestant);
 				} else {
 					clearInterval(countdownInterval);
@@ -77,11 +103,18 @@ function stopperChrono() {
 }
 
 io.on('connection', (socket) => {
-	console.log('user connected');
+	console.log('user connected :', socket.id);
+
+	socket.on('host_join', () => {
+		console.log('Godot Host connecté via Socket.IO !');
+		godotHost = socket;
+		sendLobbyToGodot();
+	});
 
 	socket.on('join-game', (pseudo) => {
 		gameState.players[socket.id] = { pseudo, team: null, score: 0 };
 		io.emit('update-lobby', gameState);
+		sendLobbyToGodot();
 		demarrerChrono();
 	});
 
@@ -98,6 +131,7 @@ io.on('connection', (socket) => {
 		player.team = teamName;
 		team.players.push(socket.id);
 		io.emit('update-lobby', gameState);
+		sendLobbyToGodot();
 	});
 
 	socket.on('player_input', (data) => {
@@ -107,6 +141,15 @@ io.on('connection', (socket) => {
 			clientTs: Number(data.clientTs || Date.now()),
 			serverTs: Date.now()
 		});
+
+		if (godotHost) {
+			godotHost.emit('player_input', {
+				playerId: socket.id,
+				color: Number(data.color),
+				clientTs: Number(data.clientTs || Date.now()),
+				serverTs: Date.now()
+			});
+		}
 	});
 
 	socket.on('feedback', (data) => {
@@ -114,6 +157,14 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('disconnect', () => {
+		console.log('user disconnected :', socket.id);
+
+		if (godotHost === socket) {
+			console.log('Godot Host déconnecté');
+			godotHost = null;
+			return;
+		}
+
 		const player = gameState.players[socket.id];
 		if (!player) return;
 
@@ -124,7 +175,8 @@ io.on('connection', (socket) => {
 
 		delete gameState.players[socket.id];
 		io.emit('update-lobby', gameState);
-		console.log('user disconnected');
+		sendPlayerLeftToGodot(socket.id);
+		sendLobbyToGodot();
 		stopperChrono();
 	});
 });

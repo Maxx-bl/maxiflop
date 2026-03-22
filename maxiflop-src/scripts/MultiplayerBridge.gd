@@ -6,7 +6,8 @@ signal lobby_updated(players: Array, team_scores: Dictionary)
 signal player_input_received(payload: Dictionary)
 signal player_left(player_id: String)
 
-@export var server_url: String = "ws://127.0.0.1:8080/ws"
+# L'URL "magique" qui imite la toute première connexion d'un client HTTP Socket.IO via WebSocket (Engine.IO v4)
+@export var server_url: String = "ws://127.0.0.1:3000/socket.io/?EIO=4&transport=websocket"
 
 var _socket := WebSocketPeer.new()
 var _is_connected := false
@@ -27,11 +28,7 @@ func _process(_delta: float) -> void:
 	_socket.poll()
 	var state := _socket.get_ready_state()
 
-	if state == WebSocketPeer.STATE_OPEN and not _is_connected:
-		_is_connected = true
-		_send_json({"type": "host_join"})
-		emit_signal("connected_to_server")
-	elif state == WebSocketPeer.STATE_CLOSED and _is_connected:
+	if state == WebSocketPeer.STATE_CLOSED and _is_connected:
 		_is_connected = false
 		emit_signal("disconnected_from_server")
 
@@ -44,11 +41,10 @@ func _process(_delta: float) -> void:
 		_handle_message(text)
 
 func send_game_phase(phase: String, remaining: int = 0) -> void:
-	_send_json({"type": "host_phase", "phase": phase, "remaining": remaining})
+	_emit_socketio("host_phase", {"phase": phase, "remaining": remaining})
 
 func send_feedback(player_id: String, result: String, points: int, combo: int, score: int, rank: int) -> void:
-	_send_json({
-		"type": "feedback",
+	_emit_socketio("feedback", {
 		"playerId": player_id,
 		"result": result,
 		"points": points,
@@ -58,31 +54,51 @@ func send_feedback(player_id: String, result: String, points: int, combo: int, s
 	})
 
 func send_scoreboard(players: Array, team_scores: Dictionary) -> void:
-	_send_json({
-		"type": "scoreboard",
+	_emit_socketio("scoreboard", {
 		"players": players,
 		"teamScores": team_scores
 	})
 
-func _send_json(payload: Dictionary) -> void:
+# Traduction du JSON en trame Socket.IO (code '42') !
+func _emit_socketio(event_name: String, payload: Dictionary = {}) -> void:
 	if _socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
 		return
-	_socket.send_text(JSON.stringify(payload))
+	var msg = "42" + JSON.stringify([event_name, payload])
+	_socket.send_text(msg)
 
-func _handle_message(raw_text: String) -> void:
-	var parsed = JSON.parse_string(raw_text)
-	if typeof(parsed) != TYPE_DICTIONARY:
-		return
-
-	var msg: Dictionary = parsed
-	var msg_type: String = str(msg.get("type", ""))
-
-	match msg_type:
-		"lobby_update":
-			var players: Array = msg.get("players", [])
-			var team_scores: Dictionary = msg.get("teamScores", {})
-			emit_signal("lobby_updated", players, team_scores)
-		"player_input":
-			emit_signal("player_input_received", msg)
-		"player_left":
-			emit_signal("player_left", str(msg.get("playerId", "")))
+func _handle_message(text: String) -> void:
+	# === LOGIQUE INTERNE ENGINE.IO & SOCKET.IO DÉCODÉE EN GDSCRIPT ===
+	
+	if text.begins_with("0"):
+		# Message 0: Engine.IO Open -> On demande tout de suite la connexion Socket.IO (Message 40)
+		_socket.send_text("40")
+	
+	elif text.begins_with("2"):
+		# Message 2: Engine.IO Ping -> On répond avec un Pong (Message 3) pour ne pas être kické !
+		_socket.send_text("3")
+		
+	elif text.begins_with("40"):
+		# Message 40: Socket.IO nous accepte officiellement ! On envoie 'host_join'
+		if not _is_connected:
+			_is_connected = true
+			_emit_socketio("host_join", {})
+			emit_signal("connected_to_server")
+			
+	elif text.begins_with("42"):
+		# Message 42: C'est un événement Socket.IO. On traite le JSON "magique" de la forme ["mon_event", {data}]
+		var json_str = text.substr(2)
+		var parsed = JSON.parse_string(json_str)
+		if typeof(parsed) == TYPE_ARRAY and parsed.size() >= 2:
+			var event_name = str(parsed[0])
+			var msg = parsed[1]
+			
+			if typeof(msg) == TYPE_DICTIONARY:
+				match event_name:
+					"lobby_update":
+						var players: Array = msg.get("players", [])
+						var team_scores: Dictionary = msg.get("teamScores", {})
+						emit_signal("lobby_updated", players, team_scores)
+					"player_input":
+						emit_signal("player_input_received", msg)
+					"player_left":
+						emit_signal("player_left", str(msg.get("playerId", "")))

@@ -361,7 +361,7 @@ func _refresh_right_panel() -> void:
 func _load_qr_code() -> void:
 	var url := join_url_override.strip_edges()
 	if url.is_empty():
-		url = "http://%s:8080" % _get_preferred_lan_ip()
+		url = "http://%s:3000" % _get_preferred_lan_ip()
 	var encoded := url.uri_encode()
 	qr_http.request("https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encoded)
 
@@ -374,7 +374,7 @@ func _set_join_url() -> void:
 	var join_url := join_url_override.strip_edges()
 	if join_url.is_empty():
 		var local_ip := _get_preferred_lan_ip()
-		join_url = "http://%s:8080" % local_ip
+		join_url = "http://%s:3000" % local_ip
 	join_link_label.text = "Adresse: %s" % join_url
 
 func _already_judged_note(player_id: String, note_key: String) -> bool:
