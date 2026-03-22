@@ -1,169 +1,141 @@
-const path = require("path");
-const express = require("express");
-const http = require("http");
-const { WebSocketServer } = require("ws");
+const express = require('express');
+const { createServer } = require('node:http');
+const { join } = require('node:path');
+const { Server } = require('socket.io');
+const os = require('os');
 
-const PORT = Number(process.env.PORT || 8080);
 const app = express();
-const server = http.createServer(app);
-const wss = new WebSocketServer({ server, path: "/ws" });
+const server = createServer(app);
+const io = new Server(server);
+const port = 3000;
 
-const smartphonePath = path.join(__dirname, "..", "maxiflop-smartphone");
-app.use(express.static(smartphonePath));
+app.use(express.static(join(__dirname, '../maxiflop-smartphone')));
+app.get('/', (req, res) => res.sendFile(join(__dirname, '../maxiflop-smartphone/index.html')));
 
-let hostSocket = null;
-const players = new Map();
-const socketsToPlayers = new Map();
-let gamePhase = "lobby";
-let phasePayload = { type: "phase", phase: "lobby" };
-
-const randomTeam = () => (Math.random() < 0.5 ? "A" : "B");
-const teamLabel = (team) => (team === "A" ? "bleue" : "rouge");
-const wsSend = (socket, payload) => {
-	if (!socket || socket.readyState !== 1) return;
-	socket.send(JSON.stringify(payload));
+const gameState = {
+	status: "lobby",
+	teams: [
+		{ name: "Equipe1", players: [] },
+		{ name: "Equipe2", players: [] },
+		{ name: "Equipe3", players: [] }
+	],
+	players: {}
 };
 
-const buildPlayersPayload = () =>
-	Array.from(players.values()).map((p) => ({
-		id: p.id,
-		name: p.name,
-		team: p.team,
-		score: p.score,
-		combo: p.combo
-	}));
+let countdownInterval = null;
+let tempsRestant = 15;
 
-const computeTeamScores = () => {
-	const teamScores = { A: 0, B: 0 };
-	for (const p of players.values()) {
-		teamScores[p.team] += p.score;
+function lancerPartie() {
+	const equipesActives = gameState.teams.filter(t => t.players.length > 0);
+	if (equipesActives.length < 2) {
+		io.emit('error-lancement', 'Il faut au moins 2 équipes actives pour jouer !');
+		return false;
 	}
-	return teamScores;
-};
 
-const notifyHostLobby = () => {
-	wsSend(hostSocket, {
-		type: "lobby_update",
-		players: buildPlayersPayload(),
-		teamScores: computeTeamScores()
-	});
-};
+	const size = equipesActives.map(t => t.players.length);
+	const max = Math.max(...size);
+	const min = Math.min(...size);
 
-wss.on("connection", (socket) => {
-	socket.on("message", (raw) => {
-		let msg = null;
-		try {
-			msg = JSON.parse(raw.toString());
-		} catch {
-			return;
-		}
+	if (max - min > 3) {
+		io.emit('desequilibre', gameState.teams);
+		return false;
+	}
 
-		if (msg.type === "host_join") {
-			hostSocket = socket;
-			notifyHostLobby();
-			return;
-		}
+	gameState.status = "playing";
+	io.emit('start-game', gameState);
+	return true;
+}
 
-		if (msg.type === "player_join") {
-			const id = `p_${Math.random().toString(36).slice(2, 10)}`;
-			const player = {
-				id,
-				name: String(msg.name || "Player").slice(0, 15),
-				team: randomTeam(),
-				score: 0,
-				combo: 0,
-				socket
-			};
-			players.set(id, player);
-			socketsToPlayers.set(socket, id);
-			wsSend(socket, { type: "joined", playerId: id, team: player.team, teamLabel: teamLabel(player.team) });
-			wsSend(socket, phasePayload);
-			notifyHostLobby();
-			return;
-		}
+function demarrerChrono() {
+	if (Object.keys(gameState.players).length >= 2 && !countdownInterval) {
+		tempsRestant = 15;
+		io.emit('timer-tick', tempsRestant);
 
-		if (msg.type === "player_input") {
-			const playerId = socketsToPlayers.get(socket);
-			if (!playerId || !hostSocket) return;
-			wsSend(hostSocket, {
-				type: "player_input",
-				playerId,
-				color: Number(msg.color),
-				clientTs: Number(msg.clientTs || Date.now()),
-				serverTs: Date.now()
-			});
-			return;
-		}
+		countdownInterval = setInterval(() => {
+			tempsRestant--;
+			io.emit('timer-tick', tempsRestant);
 
-		if (msg.type === "host_phase") {
-			gamePhase = String(msg.phase || "lobby");
-			phasePayload = {
-				type: "phase",
-				phase: gamePhase,
-				remaining: Number(msg.remaining || 0)
-			};
-			if (gamePhase === "lobby") {
-				for (const p of players.values()) {
-					p.score = 0;
-					p.combo = 0;
+			if (tempsRestant <= 0) {
+				if (!lancerPartie()) {
+					tempsRestant = 10; // Repousse si déséquilibre
+					io.emit('timer-tick', tempsRestant);
+				} else {
+					clearInterval(countdownInterval);
+					countdownInterval = null;
 				}
 			}
-			for (const p of players.values()) {
-				wsSend(p.socket, phasePayload);
-			}
-			notifyHostLobby();
-			return;
-		}
+		}, 1000);
+	}
+}
 
-		if (msg.type === "feedback") {
-			const playerId = String(msg.playerId || "");
-			const player = players.get(playerId);
-			if (!player) return;
+function stopperChrono() {
+	if (Object.keys(gameState.players).length < 2 && countdownInterval) {
+		clearInterval(countdownInterval);
+		countdownInterval = null;
+		io.emit('timer-tick', -1);
+	}
+}
 
-			player.score = Number(msg.score || player.score);
-			player.combo = Number(msg.combo || player.combo);
-			wsSend(player.socket, {
-				type: "feedback",
-				result: String(msg.result || "MISS"),
-				points: Number(msg.points || 0),
-				score: player.score,
-				combo: player.combo,
-				rank: Number(msg.rank || 1)
-			});
-			return;
-		}
+io.on('connection', (socket) => {
+	console.log('user connected');
 
-		if (msg.type === "scoreboard") {
-			const incomingPlayers = Array.isArray(msg.players) ? msg.players : [];
-			for (const p of incomingPlayers) {
-				const id = String(p.id || "");
-				if (!players.has(id)) continue;
-				const stored = players.get(id);
-				stored.score = Number(p.score || stored.score);
-				stored.combo = Number(p.combo || stored.combo);
-				players.set(id, stored);
-			}
-			notifyHostLobby();
-		}
+	socket.on('join-game', (pseudo) => {
+		gameState.players[socket.id] = { pseudo, team: null, score: 0 };
+		io.emit('update-lobby', gameState);
+		demarrerChrono();
 	});
 
-	socket.on("close", () => {
-		if (socket === hostSocket) {
-			hostSocket = null;
+	socket.on('join-team', (teamName) => {
+		const player = gameState.players[socket.id];
+		const team = gameState.teams.find(t => t.name === teamName);
+		if (!player || !team) return;
+
+		if (player.team) {
+			const oldTeam = gameState.teams.find(t => t.name === player.team);
+			if (oldTeam) oldTeam.players = oldTeam.players.filter(id => id !== socket.id);
 		}
 
-		const playerId = socketsToPlayers.get(socket);
-		if (!playerId) return;
+		player.team = teamName;
+		team.players.push(socket.id);
+		io.emit('update-lobby', gameState);
+	});
 
-		socketsToPlayers.delete(socket);
-		players.delete(playerId);
+	socket.on('player_input', (data) => {
+		io.emit('player_input', {
+			playerId: socket.id,
+			color: Number(data.color),
+			clientTs: Number(data.clientTs || Date.now()),
+			serverTs: Date.now()
+		});
+	});
 
-		wsSend(hostSocket, { type: "player_left", playerId });
-		notifyHostLobby();
+	socket.on('feedback', (data) => {
+		if (data.playerId) io.to(data.playerId).emit('feedback', data);
+	});
+
+	socket.on('disconnect', () => {
+		const player = gameState.players[socket.id];
+		if (!player) return;
+
+		if (player.team) {
+			const team = gameState.teams.find(t => t.name === player.team);
+			if (team) team.players = team.players.filter(id => id !== socket.id);
+		}
+
+		delete gameState.players[socket.id];
+		io.emit('update-lobby', gameState);
+		console.log('user disconnected');
+		stopperChrono();
 	});
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-	console.log(`MAXIFLOP server running on http://0.0.0.0:${PORT}`);
-	console.log("Open this URL on smartphone by QR code or manually.");
+server.listen(port, "0.0.0.0", () => {
+	console.log(`\nLocal: http://localhost:${port}`);
+	const ifaces = os.networkInterfaces();
+	for (let dev in ifaces) {
+		ifaces[dev].forEach((d) => {
+			if (d.family === 'IPv4' && !d.internal) console.log(`Wifi:  http://${d.address}:${port}`);
+		});
+	}
+	console.log();
 });

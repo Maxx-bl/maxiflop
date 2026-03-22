@@ -1,42 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maxiflop</title>
-    <link rel="stylesheet" href="./style.css">
-</head>
-
-<body>
-    <section id="login" class="écran">
-        <h1 class="page principal">Bienvenue sur Maxiflop</h1>
-        <div class="formulaire-participation">
-            <input type="text" id="ajout-pseudo" placeholder="Entrez votre pseudo..." maxlength="15">
-            <div class="groupe-boutons">
-                <button type="button" id="btnQuit" class="btnSec">QUITTER</button>
-                <button type="button" id="btnPart" class="btnPrem">PARTICIPER</button>
-            </div>
-        </div>
-    </section>
-    <section id="attente" class="écran arriere">
-        <p>En attente du début de la partie...</p>
-        <div class="chargement"></div>
-    </section>
-    <section id="jeu" class="écran arriere">
-        <div class="bouton">
-            <button class="btn Bleu"></button>
-            <button class="btn Jaune"></button>
-            <button class="btn rouge"></button>
-        </div>
-        <div id="go">PRÊT ?</div>
-    </section>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>const socket = io();</script>
-    <script src="./script.js"></script>
-
-</body>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -44,25 +7,33 @@
     <title>Maxiflop Controller</title>
     <link rel="stylesheet" href="./style.css">
 </head>
-
 <body>
     <section id="login" class="screen">
         <h1>MAXIFLOP</h1>
         <p class="subtitle">Entrez votre pseudo pour rejoindre la partie</p>
         <input type="text" id="nameInput" placeholder="Pseudo" maxlength="15" />
-        <button id="joinButton" class="primary">Participer</button>
+        
+        <p class="team-selection-title">Choisissez votre équipe :</p>
+        <div class="team-buttons">
+            <button class="join-team-btn btn blue" data-team="Equipe1">Équipe 1</button>
+            <button class="join-team-btn btn red" data-team="Equipe2">Équipe 2</button>
+            <button class="join-team-btn btn yellow" data-team="Equipe3">Équipe 3</button>
+        </div>
+        
         <p id="status" class="status"></p>
     </section>
 
     <section id="waiting" class="screen hidden">
         <h2>En attente...</h2>
-        <p id="teamInfo">Affectation d'equipe en cours</p>
+        <p id="teamInfo">Affectation d'équipe en cours</p>
+        <br>
+        <h3 id="timerDisplay">En attente de joueurs...</h3>
     </section>
 
     <section id="controller" class="screen hidden">
         <div class="scoreWrap">
             <div id="scoreText">0</div>
-            <div id="rankText">Rang #1 - Equipe bleue</div>
+            <div id="rankText">Rang #1 - Équipe bleue</div>
         </div>
         <div class="buttons">
             <button data-color="0" class="btn blue" aria-label="Bleu"></button>
@@ -72,7 +43,7 @@
         <div id="feedback">Pret ?</div>
     </section>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script src="./script.js"></script>
 </body>
-
 </html>
