@@ -35,6 +35,7 @@ function joinGame(teamName) {
 
 	statusText.textContent = "Connexion...";
 	localStorage.setItem("maxiflop_name", name);
+	localStorage.setItem("maxiflop_team", teamName);
 
 	socket.emit("join-game", name);
 
@@ -49,26 +50,32 @@ socket.on("update-lobby", (gameState) => {
 	if (!myPlayer || !myPlayer.team) return;
 
 	teamInfo.textContent = `Tu es dans l'${myPlayer.team} !`;
-	rankText.textContent = `Rang #1 - ${myPlayer.team}`;
-	
+
+	if (!rankText.textContent.includes("Rang")) {
+		rankText.textContent = `Rang ? - ${myPlayer.team}`;
+	}
+
 	if (myPlayer.team === "Equipe1") rankText.className = "team-blue";
 	else if (myPlayer.team === "Equipe2") rankText.className = "team-red";
 	else rankText.className = "team-yellow";
 });
 
-// Écoute du chrono précis envoyé par le serveur
-socket.on("timer-tick", (timeLeft) => {
-    if (timeLeft < 0) {
-        timerDisplay.textContent = "En attente d'autres joueurs...";
-    } else {
-        timerDisplay.textContent = `Lancement dans ${timeLeft} s...`;
-    }
-});
-
-socket.on("start-game", (gameState) => {
-	feedbackText.textContent = "GO !";
-	document.body.classList.add("playing");
-	showScreen("controller");
+// Écoute des phases de la partie, dictées par Godot
+socket.on("host_phase", (data) => {
+	if (data.phase === "countdown") {
+		timerDisplay.textContent = "Regardez l'écran, lancement imminent !";
+	} else if (data.phase === "playing") {
+		feedbackText.textContent = "GO !";
+		document.body.classList.add("playing");
+		showScreen("controller");
+	} else if (data.phase === "lobby" || data.phase === "ended") {
+		document.body.classList.remove("playing");
+		showScreen("waiting");
+		timerDisplay.textContent = "En attente du lancement par l'écran principal...";
+		// Remise à zéro visuelle pour la prochaine partie
+		scoreText.textContent = "0";
+		feedbackText.textContent = "Pret ?";
+	}
 });
 
 socket.on("error-lancement", (msg) => {
@@ -82,7 +89,13 @@ socket.on("desequilibre", (teams) => {
 socket.on("feedback", (msg) => {
 	feedbackText.textContent = `${msg.result} (+${msg.points})`;
 	scoreText.textContent = `${msg.score}`;
-	triggerFeedback(msg.result);
+
+	const teamName = localStorage.getItem("maxiflop_team") || "???";
+	if (msg.rank) {
+		rankText.textContent = `Rang #${msg.rank} - ${teamName}`;
+	}
+
+	triggerVibration(msg.result);
 });
 
 document.querySelectorAll(".btn[data-color]").forEach((btn) => {
@@ -107,7 +120,7 @@ const resultStyles = {
 let flashTimeout = null;
 const controllerScreen = document.getElementById("controller");
 
-function triggerFeedback(result) {
+function triggerVibration(result) {
 	const style = resultStyles[result];
 	if (!style) return;
 
@@ -126,4 +139,15 @@ function triggerFeedback(result) {
 const savedName = localStorage.getItem("maxiflop_name");
 if (savedName) {
 	nameInput.value = savedName;
+
+	// Reconnexion automatique si on a une équipe sauvegardée
+	const savedTeam = localStorage.getItem("maxiflop_team");
+	if (savedTeam) {
+		// Demande un reconnexion transparente au chargement de la page
+		socket.emit("join-game", savedName);
+		setTimeout(() => {
+			socket.emit("join-team", savedTeam);
+			showScreen("waiting");
+		}, 100);
+	}
 }
