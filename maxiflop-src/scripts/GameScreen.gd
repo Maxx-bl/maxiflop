@@ -32,7 +32,7 @@ var countdown_time: float = 5.0
 var is_counting_down: bool = false
 var is_waiting_start: bool = true
 var elapsed: float = 0.0
-var team_scores := {"A": 0, "B": 0}
+var team_scores := {"Equipe1": 0, "Equipe2": 0, "Equipe3": 0}
 var players: Dictionary = {}
 var player_judged_notes: Dictionary = {}
 
@@ -44,6 +44,7 @@ func _ready() -> void:
 	MultiplayerBridge.lobby_updated.connect(_on_lobby_updated)
 	MultiplayerBridge.player_input_received.connect(_on_player_input_received)
 	MultiplayerBridge.player_left.connect(_on_player_left)
+	MultiplayerBridge.public_url_received.connect(_on_public_url_received)
 
 	result_panel.visible = false
 	combo_label.visible = false
@@ -53,6 +54,7 @@ func _ready() -> void:
 	_load_qr_code()
 	_refresh_right_panel()
 	MultiplayerBridge.connect_as_host()
+	MultiplayerBridge.request_lobby()
 	_enter_waiting_state()
 
 func _enter_waiting_state() -> void:
@@ -157,18 +159,18 @@ func _on_btn_blue_pressed() -> void: hit_zone.press_button(0)
 func _on_btn_yellow_pressed() -> void: hit_zone.press_button(1)
 func _on_btn_red_pressed() -> void: hit_zone.press_button(2)
 func _refresh_result_panel() -> void:
-	var score_a := int(team_scores.get("A", 0))
-	var score_b := int(team_scores.get("B", 0))
-	result_team_scores_label.text = "Equipe bleue: %d  |  Equipe rouge: %d" % [score_a, score_b]
+	var score_a := int(team_scores.get("Equipe1", 0))
+	var score_b := int(team_scores.get("Equipe2", 0))
+	result_team_scores_label.text = "Equipe 1: %d  |  Equipe 2: %d" % [score_a, score_b]
 
 	# Couleur équipe bleue = cyan, rouge = rose
 	var color_a := Color("#5fcde4")
 	var color_b := Color("#ff7081")
 	if score_a > score_b:
-		result_winner_label.text = "Equipe bleue remporte la partie !"
+		result_winner_label.text = "Equipe 1 remporte la partie !"
 		result_winner_label.add_theme_color_override("font_color", color_a)
 	elif score_b > score_a:
-		result_winner_label.text = "Equipe rouge remporte la partie !"
+		result_winner_label.text = "Equipe 2 remporte la partie !"
 		result_winner_label.add_theme_color_override("font_color", color_b)
 	else:
 		result_winner_label.text = "Egalite !"
@@ -179,14 +181,16 @@ func _refresh_result_panel() -> void:
 	var max_lines := mini(5, ranked.size())
 	for i in max_lines:
 		var p: Dictionary = ranked[i]
-		var team := str(p.get("team", "A"))
-		var name_str := str(p.get("name", "Player"))
+		var team := str(p.get("team", "Equipe1"))
+		var name_str := str(p.get("pseudo", p.get("name", "Player")))
 		var score_str := str(int(p.get("score", 0)))
-		var color := "#5fcde4" if team == "A" else "#ff7081"
+		var color := "#5fcde4" if team == "Equipe1" else "#ff7081"
 		lines.append("%d. [color=%s]%s[/color] — %s pts" % [i + 1, color, name_str, score_str])
 	result_top5_label.text = "\n".join(lines)
 
-func _on_restart_pressed() -> void: get_tree().reload_current_scene()
+func _on_restart_pressed() -> void:
+	_on_start_match_pressed()
+	
 func _on_menu_pressed() -> void: get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
 func _on_host_connected() -> void:
@@ -202,13 +206,13 @@ func _on_lobby_updated(remote_players: Array, remote_team_scores: Dictionary) ->
 			continue
 		players[player_id] = {
 			"id": player_id,
-			"name": str(p.get("name", "Player")),
-			"team": str(p.get("team", "A")),
+			"name": str(p.get("pseudo", p.get("name", "Player"))),
+			"team": str(p.get("team", "Equipe1")),
 			"score": int(p.get("score", 0)),
 			"combo": int(p.get("combo", 0))
 		}
-	team_scores["A"] = int(remote_team_scores.get("A", 0))
-	team_scores["B"] = int(remote_team_scores.get("B", 0))
+	for team_key in remote_team_scores.keys():
+		team_scores[team_key] = int(remote_team_scores.get(team_key, 0))
 	_refresh_right_panel()
 
 func _on_player_left(player_id: String) -> void:
@@ -302,7 +306,7 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 	player_data["score"] = score
 	players[player_id] = player_data
 
-	var team := str(player_data.get("team", "A"))
+	var team := str(player_data.get("team", "Equipe1"))
 	if points > 0:
 		team_scores[team] = int(team_scores.get(team, 0)) + points
 
@@ -330,16 +334,16 @@ func _get_sorted_players() -> Array:
 	return arr
 
 func _refresh_right_panel() -> void:
-	team_a_score_label.text = "Equipe bleue: %d" % int(team_scores.get("A", 0))
-	team_b_score_label.text = "Equipe rouge: %d" % int(team_scores.get("B", 0))
+	team_a_score_label.text = "Equipe 1: %d" % int(team_scores.get("Equipe1", 0))
+	team_b_score_label.text = "Equipe 2: %d" % int(team_scores.get("Equipe2", 0))
 	lobby_count_label.text = "Joueurs connectes: %d" % players.size()
-	var total := float(int(team_scores.get("A", 0)) + int(team_scores.get("B", 0)))
+	var total := float(int(team_scores.get("Equipe1", 0)) + int(team_scores.get("Equipe2", 0)))
 	if total <= 0.0:
 		team_a_progress.value = 0.0
 		team_b_progress.value = 0.0
 	else:
-		team_a_progress.value = (float(int(team_scores.get("A", 0))) / total) * 100.0
-		team_b_progress.value = (float(int(team_scores.get("B", 0))) / total) * 100.0
+		team_a_progress.value = (float(int(team_scores.get("Equipe1", 0))) / total) * 100.0
+		team_b_progress.value = (float(int(team_scores.get("Equipe2", 0))) / total) * 100.0
 
 	# En lobby : afficher QR code + lien, masquer classement
 	# En jeu : afficher classement, masquer QR code + lien
@@ -353,8 +357,8 @@ func _refresh_right_panel() -> void:
 	var max_lines := mini(5, ranked.size())
 	for i in max_lines:
 		var p: Dictionary = ranked[i]
-		var team := str(p.get("team", "A"))
-		var color := "#5fcde4" if team == "A" else "#ff7081"
+		var team := str(p.get("team", "Equipe1"))
+		var color := "#5fcde4" if team == "Equipe1" else "#ff7081"
 		lines.append("%d. [color=%s]%s[/color] - %d" % [i + 1, color, str(p.get("name", "Player")), int(p.get("score", 0))])
 	top5_label.text = "\n".join(lines)
 
@@ -362,6 +366,14 @@ func _load_qr_code() -> void:
 	var url := join_url_override.strip_edges()
 	if url.is_empty():
 		url = "http://%s:3000" % _get_preferred_lan_ip()
+	var encoded := url.uri_encode()
+	qr_http.request("https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encoded)
+
+func _on_public_url_received(url: String) -> void:
+	print("Tunnel public recu depuis Node.js : ", url)
+	join_url_override = url
+	join_link_label.text = "Adresse: %s" % url
+	qr_http.cancel_request()
 	var encoded := url.uri_encode()
 	qr_http.request("https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encoded)
 
@@ -411,10 +423,20 @@ func _get_preferred_lan_ip() -> String:
 func _on_start_match_pressed() -> void:
 	if GameManager.is_playing:
 		return
+		
+	if not _verifier_equilibrage():
+		warmup_label.text = "ERREUR : Nombre de joueurs insuffisant\nou equipes desequilibrees (Max ecart 3)."
+		warmup_label.add_theme_color_override("font_color", Color.RED)
+		warmup_label.visible = true
+		return
+		
+	warmup_label.remove_theme_color_override("font_color")
+	
 	result_panel.visible = false
 	# Réinitialiser les scores
-	team_scores["A"] = 0
-	team_scores["B"] = 0
+	team_scores["Equipe1"] = 0
+	team_scores["Equipe2"] = 0
+	team_scores["Equipe3"] = 0
 	player_judged_notes.clear()
 	for player_id in players.keys():
 		var player_data: Dictionary = players[player_id]
@@ -424,3 +446,25 @@ func _on_start_match_pressed() -> void:
 	MultiplayerBridge.send_scoreboard(_build_player_array(), team_scores)
 	_refresh_right_panel()
 	_start_countdown()
+
+func _verifier_equilibrage() -> bool:
+	var team_counts := {}
+	for p_id in players:
+		var p: Dictionary = players[p_id]
+		var team: String = str(p.get("team", ""))
+		if not team.is_empty():
+			team_counts[team] = team_counts.get(team, 0) + 1
+			
+	if team_counts.size() < 2:
+		return false
+		
+	var max_s = -1
+	var min_s = 9999
+	for count in team_counts.values():
+		if count > max_s: max_s = count
+		if count < min_s: min_s = count
+		
+	if max_s - min_s > 3:
+		return false
+		
+	return true

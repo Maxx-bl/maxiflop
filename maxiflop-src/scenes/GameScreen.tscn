@@ -1,8 +1,8 @@
 [gd_scene load_steps=12 format=3 uid="uid://cfyaf4ikyente"]
 
-[ext_resource type="Script" uid="uid://d34qiog5r04a8" path="res://scripts/GameScreen.gd" id="1"]
-[ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
-[ext_resource type="Script" uid="uid://dkacnraee3abq" path="res://scripts/HitZone.gd" id="3"]
+[ext_resource type="Script" uid="uid://drg7brm3x041u" path="res://scripts/GameScreen.gd" id="1"]
+[ext_resource type="Script" uid="uid://uhim6n2ijx2k" path="res://scripts/NoteSpawner.gd" id="2"]
+[ext_resource type="Script" uid="uid://bpdpdiydd45vf" path="res://scripts/HitZone.gd" id="3"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_platform"]
