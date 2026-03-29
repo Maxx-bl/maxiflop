@@ -5,8 +5,9 @@ signal disconnected_from_server
 signal lobby_updated(players: Array, team_scores: Dictionary)
 signal player_input_received(payload: Dictionary)
 signal player_left(player_id: String)
+signal public_url_received(url: String)
 
-# L'URL "magique" qui imite la toute première connexion d'un client HTTP Socket.IO via WebSocket (Engine.IO v4)
+# L'URL qui imite la toute première connexion d'un client HTTP Socket.IO via WebSocket
 @export var server_url: String = "ws://127.0.0.1:3000/socket.io/?EIO=4&transport=websocket"
 
 var _socket := WebSocketPeer.new()
@@ -15,6 +16,8 @@ var _is_connected := false
 func connect_as_host() -> void:
 	if _is_connected:
 		return
+	# Attendre 3s que le serveur Node.js et localtunnel soient prêts
+	await get_tree().create_timer(3.0).timeout
 	var err := _socket.connect_to_url(server_url)
 	if err != OK:
 		push_warning("Connexion WS impossible: %s" % str(err))
@@ -59,6 +62,9 @@ func send_scoreboard(players: Array, team_scores: Dictionary) -> void:
 		"teamScores": team_scores
 	})
 
+func request_lobby() -> void:
+	_emit_socketio("get_lobby", {})
+
 # Traduction du JSON en trame Socket.IO (code '42') !
 func _emit_socketio(event_name: String, payload: Dictionary = {}) -> void:
 	if _socket.get_ready_state() != WebSocketPeer.STATE_OPEN:
@@ -102,3 +108,5 @@ func _handle_message(text: String) -> void:
 						emit_signal("player_input_received", msg)
 					"player_left":
 						emit_signal("player_left", str(msg.get("playerId", "")))
+					"public_url":
+						emit_signal("public_url_received", str(msg.get("url", "")))
