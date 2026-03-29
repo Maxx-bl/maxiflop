@@ -3,6 +3,7 @@ const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io');
 const os = require('os');
+const localtunnel = require('localtunnel');
 
 const app = express();
 const server = createServer(app);
@@ -22,9 +23,8 @@ const gameState = {
 	players: {}
 };
 
-let countdownInterval = null;
-let tempsRestant = 15;
 let godotHost = null;
+let publicUrl = null;
 
 function sendLobbyToGodot() {
 	if (!godotHost) return;
@@ -51,55 +51,26 @@ function sendPlayerLeftToGodot(id) {
 	if (godotHost) godotHost.emit("player_left", { playerId: id });
 }
 
-function lancerPartie() {
+function verifierEquilibrage() {
+	//prendre les équipes qui ont a minima 1 joueur respectivement
 	const equipesActives = gameState.teams.filter(t => t.players.length > 0);
 	if (equipesActives.length < 2) {
 		io.emit('error-lancement', 'Il faut au moins 2 équipes actives pour jouer !');
 		return false;
 	}
 
+	//prendre le nombre de joueur de chaque équipe active
 	const size = equipesActives.map(t => t.players.length);
 	const max = Math.max(...size);
 	const min = Math.min(...size);
 
+	//si la différence entre le nombre de joueur de l'équipe la plus nombreuse et l'équipe la moins nombreuse est sup à 3, on lance une erreur
 	if (max - min > 3) {
 		io.emit('desequilibre', gameState.teams);
 		return false;
 	}
 
-	gameState.status = "playing";
-	io.emit('start-game', gameState);
 	return true;
-}
-
-function demarrerChrono() {
-	if (Object.keys(gameState.players).length >= 2 && !countdownInterval) {
-		tempsRestant = 15;
-		io.emit('timer-tick', tempsRestant);
-
-		countdownInterval = setInterval(() => {
-			tempsRestant--;
-			io.emit('timer-tick', tempsRestant);
-
-			if (tempsRestant <= 0) {
-				if (!lancerPartie()) {
-					tempsRestant = 10;
-					io.emit('timer-tick', tempsRestant);
-				} else {
-					clearInterval(countdownInterval);
-					countdownInterval = null;
-				}
-			}
-		}, 1000);
-	}
-}
-
-function stopperChrono() {
-	if (Object.keys(gameState.players).length < 2 && countdownInterval) {
-		clearInterval(countdownInterval);
-		countdownInterval = null;
-		io.emit('timer-tick', -1);
-	}
 }
 
 io.on('connection', (socket) => {
@@ -109,13 +80,39 @@ io.on('connection', (socket) => {
 		console.log('Godot Host connecté via Socket.IO !');
 		godotHost = socket;
 		sendLobbyToGodot();
+		if (publicUrl) godotHost.emit('public_url', { url: publicUrl });
+	});
+
+	// Écoute de Godot
+	socket.on('host_phase', (data) => {
+		// data: { phase: "lobby", "countdown", "playing", "ended" }
+
+		if (data.phase === "countdown" || data.phase === "playing") {
+			if (!verifierEquilibrage()) {
+				// l'equilibrage est refusé on prévient les téléphones avec des erreurs
+				return;
+			}
+		}
+
+		io.emit('host_phase', data);
+
+		if (data.phase === "playing") {
+			gameState.status = "playing";
+		} else if (data.phase === "lobby" || data.phase === "ended") {
+			gameState.status = "lobby";
+		}
 	});
 
 	socket.on('join-game', (pseudo) => {
 		gameState.players[socket.id] = { pseudo, team: null, score: 0 };
 		io.emit('update-lobby', gameState);
 		sendLobbyToGodot();
-		demarrerChrono();
+	});
+
+	socket.on('get_lobby', () => {
+		if (socket === godotHost) {
+			sendLobbyToGodot();
+		}
 	});
 
 	socket.on('join-team', (teamName) => {
@@ -177,11 +174,10 @@ io.on('connection', (socket) => {
 		io.emit('update-lobby', gameState);
 		sendPlayerLeftToGodot(socket.id);
 		sendLobbyToGodot();
-		stopperChrono();
 	});
 });
 
-server.listen(port, "0.0.0.0", () => {
+server.listen(port, "0.0.0.0", async () => {
 	console.log(`\nLocal: http://localhost:${port}`);
 	const ifaces = os.networkInterfaces();
 	for (let dev in ifaces) {
@@ -190,4 +186,14 @@ server.listen(port, "0.0.0.0", () => {
 		});
 	}
 	console.log();
+
+	try {
+		const tunnel = await localtunnel({ port: port });
+		publicUrl = tunnel.url;
+		console.log(`Tunnel public: ${tunnel.url}`);
+		if (godotHost) godotHost.emit('public_url', { url: publicUrl });
+		tunnel.on('close', () => console.log('Tunnel fermé.'));
+	} catch (e) {
+		console.log("Erreur tunnel:", e.message);
+	}
 });
