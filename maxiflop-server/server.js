@@ -3,7 +3,8 @@ const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io');
 const os = require('os');
-const localtunnel = require('localtunnel');
+const { spawn } = require('child_process');
+
 
 const app = express();
 const server = createServer(app);
@@ -188,12 +189,23 @@ server.listen(port, "0.0.0.0", async () => {
 	console.log();
 
 	try {
-		const tunnel = await localtunnel({ port: port });
-		publicUrl = tunnel.url;
-		console.log(`Tunnel public: ${tunnel.url}`);
-		if (godotHost) godotHost.emit('public_url', { url: publicUrl });
-		tunnel.on('close', () => console.log('Tunnel fermé.'));
+		console.log("Démarrage du tunnel Cloudflare (cloudflared)...");
+		const cloudflared = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`]);
+		
+		cloudflared.stderr.on('data', (data) => {
+			const output = data.toString();
+			const match = output.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+			if (match && !publicUrl) {
+				publicUrl = match[0];
+				console.log(`Tunnel public Cloudflare: ${publicUrl}`);
+				if (godotHost) godotHost.emit('public_url', { url: publicUrl });
+			}
+		});
+		
+		cloudflared.on('close', (code) => {
+			console.log(`Le tunnel Cloudflare s'est fermé avec le code ${code}`);
+		});
 	} catch (e) {
-		console.log("Erreur tunnel:", e.message);
+		console.log("Erreur tunnel Cloudflare:", e.message);
 	}
 });
