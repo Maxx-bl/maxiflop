@@ -53,20 +53,19 @@ function sendPlayerLeftToGodot(id) {
 }
 
 function verifierEquilibrage() {
-	//prendre les équipes qui ont a minima 1 joueur respectivement
-	const equipesActives = gameState.teams.filter(t => t.players.length > 0);
-	if (equipesActives.length < 2) {
-		io.emit('error-lancement', 'Il faut au moins 2 équipes actives pour jouer !');
+	const size = gameState.teams.map(t => t.players.length);
+	const nbActives = size.filter(s => s > 0).length;
+
+	if (nbActives < 1) {
+		io.emit('error-lancement', 'Il faut au moins 1 joueur pour jouer !');
 		return false;
 	}
 
-	//prendre le nombre de joueur de chaque équipe active
-	const size = equipesActives.map(t => t.players.length);
 	const max = Math.max(...size);
 	const min = Math.min(...size);
 
-	//si la différence entre le nombre de joueur de l'équipe la plus nombreuse et l'équipe la moins nombreuse est sup à 3, on lance une erreur
-	if (max - min > 3) {
+	//si la différence entre le nombre de joueur de l'équipe la plus nombreuse et l'équipe la moins nombreuse est sup à 2, on lance une erreur
+	if (max - min > 2) {
 		io.emit('desequilibre', gameState.teams);
 		return false;
 	}
@@ -76,6 +75,7 @@ function verifierEquilibrage() {
 
 io.on('connection', (socket) => {
 	console.log('user connected :', socket.id);
+	socket.emit('update-lobby', gameState);
 
 	socket.on('host_join', () => {
 		console.log('Godot Host connecté via Socket.IO !');
