@@ -46,6 +46,25 @@ function joinGame(teamName) {
 }
 
 socket.on("update-lobby", (gameState) => {
+	// Dynamically update team selection buttons correctly based on active teams logic
+	const teamCounts = {};
+	gameState.teams.forEach(t => teamCounts[t.name] = t.players.length || 0);
+
+	document.querySelectorAll(".join-team-btn").forEach((btn) => {
+		const targetTeam = btn.dataset.team;
+		const counts = { ...teamCounts };
+		counts[targetTeam] = (counts[targetTeam] || 0) + 1; // Simulate joining
+		
+		const sizes = Object.values(counts);
+		const max = Math.max(...sizes);
+		const min = Math.min(...sizes);
+		let isValid = (max - min <= 2);
+		
+		btn.disabled = !isValid;
+		if (!isValid) btn.classList.add("disabled");
+		else btn.classList.remove("disabled");
+	});
+
 	const myPlayer = gameState.players[socket.id];
 	if (!myPlayer || !myPlayer.team) return;
 

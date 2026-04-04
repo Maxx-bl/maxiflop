@@ -14,16 +14,17 @@ extends Node2D
 @onready var start_match_button: Button = $HUD/StartMatchButton
 @onready var team_a_score_label: Label = $HUD/RightPanel/VBox/TeamAScore
 @onready var team_b_score_label: Label = $HUD/RightPanel/VBox/TeamBScore
+@onready var team_c_score_label: Label = $HUD/RightPanel/VBox/TeamCScore
 @onready var lobby_count_label: Label = $HUD/RightPanel/VBox/LobbyCount
 @onready var join_link_label: Label = $HUD/RightPanel/VBox/JoinLink
 @onready var team_a_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamATrack/TeamAProgress
 @onready var team_b_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamBTrack/TeamBProgress
+@onready var team_c_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamCTrack/TeamCProgress
 @onready var top5_label: RichTextLabel = $HUD/RightPanel/VBox/LeaderboardPanel/LeaderboardVBox/Top5Label
 @onready var qr_texture: TextureRect = $HUD/RightPanel/VBox/QRCodeTexture
 @onready var qr_http: HTTPRequest = $HUD/RightPanel/VBox/QRHTTPRequest
 @onready var result_team_scores_label: Label = $HUD/ResultPanel/VBox/TeamScoresLabel
 @onready var result_winner_label: Label = $HUD/ResultPanel/VBox/WinnerLabel
-@onready var result_top5_label: RichTextLabel = $HUD/ResultPanel/VBox/Top5ResultLabel
 
 @export var song_duration: float = 30.0
 @export var join_url_override: String = ""
@@ -31,6 +32,7 @@ extends Node2D
 var countdown_time: float = 5.0
 var is_counting_down: bool = false
 var is_waiting_start: bool = true
+var is_game_over: bool = false
 var elapsed: float = 0.0
 var team_scores := {"Equipe1": 0, "Equipe2": 0, "Equipe3": 0}
 var players: Dictionary = {}
@@ -60,6 +62,7 @@ func _ready() -> void:
 func _enter_waiting_state() -> void:
 	is_waiting_start = true
 	is_counting_down = false
+	is_game_over = false
 	warmup_label.visible = true
 	warmup_label.text = "Salle d'attente"
 	start_match_button.visible = true
@@ -70,6 +73,7 @@ func _enter_waiting_state() -> void:
 func _start_countdown() -> void:
 	is_waiting_start = false
 	is_counting_down = true
+	is_game_over = false
 	countdown_time = 5.0
 	warmup_label.visible = false
 	start_match_button.visible = false
@@ -139,6 +143,7 @@ func _on_game_over() -> void:
 	MultiplayerBridge.send_game_phase("ended")
 	is_waiting_start = true
 	is_counting_down = false
+	is_game_over = true
 	start_match_button.visible = true
 	start_match_button.disabled = false
 	warmup_label.visible = true
@@ -161,32 +166,27 @@ func _on_btn_red_pressed() -> void: hit_zone.press_button(2)
 func _refresh_result_panel() -> void:
 	var score_a := int(team_scores.get("Equipe1", 0))
 	var score_b := int(team_scores.get("Equipe2", 0))
-	result_team_scores_label.text = "Equipe 1: %d  |  Equipe 2: %d" % [score_a, score_b]
+	var score_c := int(team_scores.get("Equipe3", 0))
+	result_team_scores_label.text = "Equipe 1: %d  |  Equipe 2: %d  |  Equipe 3: %d" % [score_a, score_b, score_c]
 
-	# Couleur équipe bleue = cyan, rouge = rose
+	# Couleur équipe bleue = cyan, rouge = rose, jaune = jaune
 	var color_a := Color("#5fcde4")
 	var color_b := Color("#ff7081")
-	if score_a > score_b:
+	var color_c := Color("#f0e040")
+	var max_score = max(score_a, max(score_b, score_c))
+
+	if score_a == max_score and score_b < max_score and score_c < max_score:
 		result_winner_label.text = "Equipe 1 remporte la partie !"
 		result_winner_label.add_theme_color_override("font_color", color_a)
-	elif score_b > score_a:
+	elif score_b == max_score and score_a < max_score and score_c < max_score:
 		result_winner_label.text = "Equipe 2 remporte la partie !"
 		result_winner_label.add_theme_color_override("font_color", color_b)
+	elif score_c == max_score and score_a < max_score and score_b < max_score:
+		result_winner_label.text = "Equipe 3 remporte la partie !"
+		result_winner_label.add_theme_color_override("font_color", color_c)
 	else:
 		result_winner_label.text = "Egalite !"
 		result_winner_label.add_theme_color_override("font_color", Color.WHITE)
-
-	var ranked := _get_sorted_players()
-	var lines := ["[b]TOP 5 JOUEURS[/b]\n"]
-	var max_lines := mini(5, ranked.size())
-	for i in max_lines:
-		var p: Dictionary = ranked[i]
-		var team := str(p.get("team", "Equipe1"))
-		var name_str := str(p.get("pseudo", p.get("name", "Player")))
-		var score_str := str(int(p.get("score", 0)))
-		var color := "#5fcde4" if team == "Equipe1" else "#ff7081"
-		lines.append("%d. [color=%s]%s[/color] — %s pts" % [i + 1, color, name_str, score_str])
-	result_top5_label.text = "\n".join(lines)
 
 func _on_restart_pressed() -> void:
 	_on_start_match_pressed()
@@ -220,6 +220,7 @@ func _on_player_left(player_id: String) -> void:
 		players.erase(player_id)
 	if player_judged_notes.has(player_id):
 		player_judged_notes.erase(player_id)
+	_recompute_team_scores()
 	_refresh_right_panel()
 
 func _on_player_input_received(payload: Dictionary) -> void:
@@ -306,9 +307,7 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 	player_data["score"] = score
 	players[player_id] = player_data
 
-	var team := str(player_data.get("team", "Equipe1"))
-	if points > 0:
-		team_scores[team] = int(team_scores.get(team, 0)) + points
+	_recompute_team_scores()
 
 	var sorted_players := _get_sorted_players()
 	var rank := 1
@@ -333,23 +332,36 @@ func _get_sorted_players() -> Array:
 	arr.sort_custom(func(a, b): return int(a.get("score", 0)) > int(b.get("score", 0)))
 	return arr
 
+func _recompute_team_scores() -> void:
+	team_scores["Equipe1"] = 0
+	team_scores["Equipe2"] = 0
+	team_scores["Equipe3"] = 0
+	for p_id in players:
+		var p: Dictionary = players[p_id]
+		var t: String = str(p.get("team", "Equipe1"))
+		if team_scores.has(t):
+			team_scores[t] += int(p.get("score", 0))
+
 func _refresh_right_panel() -> void:
 	team_a_score_label.text = "Equipe 1: %d" % int(team_scores.get("Equipe1", 0))
 	team_b_score_label.text = "Equipe 2: %d" % int(team_scores.get("Equipe2", 0))
+	team_c_score_label.text = "Equipe 3: %d" % int(team_scores.get("Equipe3", 0))
 	lobby_count_label.text = "Joueurs connectes: %d" % players.size()
-	var total := float(int(team_scores.get("Equipe1", 0)) + int(team_scores.get("Equipe2", 0)))
+	var total := float(int(team_scores.get("Equipe1", 0)) + int(team_scores.get("Equipe2", 0)) + int(team_scores.get("Equipe3", 0)))
 	if total <= 0.0:
 		team_a_progress.value = 0.0
 		team_b_progress.value = 0.0
+		team_c_progress.value = 0.0
 	else:
 		team_a_progress.value = (float(int(team_scores.get("Equipe1", 0))) / total) * 100.0
 		team_b_progress.value = (float(int(team_scores.get("Equipe2", 0))) / total) * 100.0
+		team_c_progress.value = (float(int(team_scores.get("Equipe3", 0))) / total) * 100.0
 
 	# En lobby : afficher QR code + lien, masquer classement
-	# En jeu : afficher classement, masquer QR code + lien
-	var in_lobby: bool = is_waiting_start
-	qr_texture.visible = in_lobby
-	join_link_label.visible = in_lobby
+	# En jeu ou Resultat : afficher classement
+	var in_lobby: bool = is_waiting_start and not is_game_over
+	qr_texture.visible = is_waiting_start # visible in lobby & result
+	join_link_label.visible = is_waiting_start
 	top5_label.visible = not in_lobby
 
 	var ranked := _get_sorted_players()
@@ -358,7 +370,7 @@ func _refresh_right_panel() -> void:
 	for i in max_lines:
 		var p: Dictionary = ranked[i]
 		var team := str(p.get("team", "Equipe1"))
-		var color := "#5fcde4" if team == "Equipe1" else "#ff7081"
+		var color := "#5fcde4" if team == "Equipe1" else ("#ff7081" if team == "Equipe2" else "#f0e040")
 		lines.append("%d. [color=%s]%s[/color] - %d" % [i + 1, color, str(p.get("name", "Player")), int(p.get("score", 0))])
 	top5_label.text = "\n".join(lines)
 
@@ -425,7 +437,7 @@ func _on_start_match_pressed() -> void:
 		return
 		
 	if not _verifier_equilibrage():
-		warmup_label.text = "ERREUR : Nombre de joueurs insuffisant\nou equipes desequilibrees (Max ecart 3)."
+		warmup_label.text = "ERREUR : Nombre de joueurs insuffisant\nou equipes desequilibrees (Max ecart 2)."
 		warmup_label.add_theme_color_override("font_color", Color.RED)
 		warmup_label.visible = true
 		return
@@ -448,14 +460,19 @@ func _on_start_match_pressed() -> void:
 	_start_countdown()
 
 func _verifier_equilibrage() -> bool:
-	var team_counts := {}
+	var team_counts := {"Equipe1": 0, "Equipe2": 0, "Equipe3": 0}
 	for p_id in players:
 		var p: Dictionary = players[p_id]
 		var team: String = str(p.get("team", ""))
-		if not team.is_empty():
-			team_counts[team] = team_counts.get(team, 0) + 1
+		if team_counts.has(team):
+			team_counts[team] += 1
 			
-	if team_counts.size() < 2:
+	var nb_actives = 0
+	for count in team_counts.values():
+		if count > 0:
+			nb_actives += 1
+			
+	if nb_actives < 1:
 		return false
 		
 	var max_s = -1
@@ -464,7 +481,7 @@ func _verifier_equilibrage() -> bool:
 		if count > max_s: max_s = count
 		if count < min_s: min_s = count
 		
-	if max_s - min_s > 3:
+	if max_s - min_s > 2:
 		return false
 		
 	return true

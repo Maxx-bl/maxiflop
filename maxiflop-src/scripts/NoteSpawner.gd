@@ -96,6 +96,7 @@ func _spawn_note(col: int, arrive_time: float) -> void:
 	note.color = col
 	note.fall_speed = (hit_y - spawn_y) / approach_time
 	note.spawn_time = arrive_time
+	note.hit_y = hit_y
 	get_parent().add_child(note)
 	active_notes.append(note)
 	emit_signal("note_spawned", note)
@@ -109,7 +110,7 @@ func _check_misses() -> void:
 		if note.has_been_hit or note.is_missed:
 			to_remove.append(note)
 			continue
-		if note.position.y > hit_y + 100:
+		if time_elapsed > note.spawn_time + 0.25:
 			note.miss_animation()
 			GameManager.register_miss()
 			to_remove.append(note)

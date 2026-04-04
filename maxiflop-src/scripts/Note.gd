@@ -3,10 +3,12 @@ extends Area2D
 @export var color: int = 0 # 0=bleu, 1=jaune, 2=rouge
 @export var fall_speed: float = 400.0
 @export var spawn_time: float = 0.0
+@export var hit_y: float = 560.0
 
 @onready var circle: Polygon2D = $Circle
 @onready var glow: Polygon2D = $Glow
 @onready var collision: CollisionShape2D = $CollisionShape2D
+@onready var burst: CPUParticles2D = $BurstParticles
 
 var has_been_hit: bool = false
 var is_missed: bool = false
@@ -54,31 +56,36 @@ func _ready() -> void:
 func _apply_color() -> void:
 	circle.color = COLORS[color]
 	glow.color = GLOW_COLORS[color]
+	burst.color = COLORS[color]
 
 func _process(delta: float) -> void:
 	if has_been_hit or is_missed:
 		return
-	position.y += fall_speed * delta
+	if position.y >= hit_y:
+		position.y = hit_y
+	else:
+		position.y += fall_speed * delta
 
 func get_note_color() -> int:
 	return color
 
 func hit_animation(result: String) -> void:
 	has_been_hit = true
+	burst.emitting = true
+	circle.hide()
+	glow.hide()
+	
 	var tween := create_tween()
-	match result:
-		"PERFECT":
-			tween.tween_property(self , "scale", Vector2(1.5, 1.5), 0.1)
-			tween.tween_property(self , "modulate:a", 0.0, 0.15)
-		"GOOD":
-			tween.tween_property(self , "scale", Vector2(1.2, 1.2), 0.1)
-			tween.tween_property(self , "modulate:a", 0.0, 0.2)
-		_:
-			tween.tween_property(self , "modulate:a", 0.0, 0.15)
+	# The lifetime of particles is 0.4s
+	tween.tween_interval(0.4)
 	tween.tween_callback(queue_free)
 
 func miss_animation() -> void:
 	is_missed = true
+	burst.emitting = true
+	circle.hide()
+	glow.hide()
+	
 	var tween := create_tween()
-	tween.tween_property(self , "modulate:a", 0.0, 0.3)
+	tween.tween_interval(0.4)
 	tween.tween_callback(queue_free)

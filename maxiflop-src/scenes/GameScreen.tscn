@@ -1,16 +1,19 @@
 [gd_scene load_steps=12 format=3 uid="uid://cfyaf4ikyente"]
 
-[ext_resource type="Script" uid="uid://drg7brm3x041u" path="res://scripts/GameScreen.gd" id="1"]
-[ext_resource type="Script" uid="uid://uhim6n2ijx2k" path="res://scripts/NoteSpawner.gd" id="2"]
-[ext_resource type="Script" uid="uid://bpdpdiydd45vf" path="res://scripts/HitZone.gd" id="3"]
+[ext_resource type="Script" uid="uid://cqlsnvoii4n14" path="res://scripts/GameScreen.gd" id="1"]
+[ext_resource type="Script" uid="uid://b6e3dl0k5hdal" path="res://scripts/NoteSpawner.gd" id="2"]
+[ext_resource type="Script" uid="uid://b56xowt0m5vdn" path="res://scripts/HitZone.gd" id="3"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_platform"]
-bg_color = Color(0.08, 0.08, 0.15, 0.95)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
+bg_color = Color(0.08, 0.08, 0.15, 0.55)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 20
+shadow_offset = Vector2(0, 10)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hitcircle"]
 bg_color = Color(0.16, 0.16, 0.28, 1)
@@ -27,32 +30,73 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rightpanel"]
-bg_color = Color(0.1, 0.1, 0.2, 0.85)
-corner_radius_top_left = 16
-corner_radius_top_right = 16
-corner_radius_bottom_right = 16
-corner_radius_bottom_left = 16
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrivee"]
-bg_color = Color(0.05, 0.05, 0.1, 1)
-corner_radius_top_left = 14
-corner_radius_top_right = 14
-corner_radius_bottom_right = 14
-corner_radius_bottom_left = 14
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_leaderboard"]
-bg_color = Color(0.07, 0.06, 0.16, 0.95)
-corner_radius_top_left = 10
-corner_radius_top_right = 10
-corner_radius_bottom_right = 10
-corner_radius_bottom_left = 10
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
-bg_color = Color(0.08, 0.06, 0.18, 0.97)
+content_margin_left = 24.0
+content_margin_top = 24.0
+content_margin_right = 24.0
+content_margin_bottom = 24.0
+bg_color = Color(0.12, 0.12, 0.22, 0.9)
 corner_radius_top_left = 20
 corner_radius_top_right = 20
 corner_radius_bottom_right = 20
 corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 15
+shadow_offset = Vector2(0, 8)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrivee"]
+content_margin_top = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0.15, 0.15, 0.3, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_leaderboard"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+bg_color = Color(0.07, 0.06, 0.16, 0.95)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
+bg_color = Color(0.08, 0.06, 0.18, 0.97)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.373, 0.804, 0.894, 0.8)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 8
+shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.48, 0.92, 1, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 12
+shadow_offset = Vector2(0, 6)
 
 [node name="GameScreen" type="Node2D"]
 script = ExtResource("1")
@@ -182,6 +226,9 @@ offset_top = 340.0
 offset_right = 600.0
 offset_bottom = 410.0
 theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
 text = "Lancer la partie"
 
 [node name="RightPanel" type="PanelContainer" parent="HUD"]
@@ -193,7 +240,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_rightpanel")
 
 [node name="VBox" type="VBoxContainer" parent="HUD/RightPanel"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 16
 
 [node name="LobbyCount" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
@@ -261,6 +308,24 @@ theme_override_font_sizes/font_size = 13
 text = "E2"
 horizontal_alignment = 1
 
+[node name="TeamCTrack" type="VBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="TeamCProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamCTrack"]
+custom_minimum_size = Vector2(10, 145)
+layout_mode = 2
+fill_mode = 3
+show_percentage = false
+
+[node name="TeamCLabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamCTrack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.941, 0.878, 0.251, 1)
+theme_override_font_sizes/font_size = 13
+text = "E3"
+horizontal_alignment = 1
+
 [node name="TeamAScore" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.373, 0.804, 0.894, 1)
@@ -272,6 +337,12 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.439, 0.506, 1)
 theme_override_font_sizes/font_size = 17
 text = "Equipe rouge: 0"
+
+[node name="TeamCScore" type="Label" parent="HUD/RightPanel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.941, 0.878, 0.251, 1)
+theme_override_font_sizes/font_size = 17
+text = "Equipe jaune: 0"
 
 [node name="LeaderboardPanel" type="PanelContainer" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
@@ -298,15 +369,14 @@ stretch_mode = 5
 
 [node name="ResultPanel" type="PanelContainer" parent="HUD"]
 visible = false
-offset_left = 180.0
-offset_top = 70.0
-offset_right = 1020.0
-offset_bottom = 650.0
+offset_right = 852.0
+offset_bottom = 720.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_result")
 
 [node name="VBox" type="VBoxContainer" parent="HUD/ResultPanel"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 26
+alignment = 1
 
 [node name="TitleLabel" type="Label" parent="HUD/ResultPanel/VBox"]
 layout_mode = 2
@@ -318,7 +388,7 @@ horizontal_alignment = 1
 [node name="TeamScoresLabel" type="Label" parent="HUD/ResultPanel/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = "Equipe bleue: 0  |  Equipe rouge: 0"
+text = "Equipe bleue: 0  |  Equipe rouge: 0  |  Equipe jaune: 0"
 horizontal_alignment = 1
 
 [node name="WinnerLabel" type="Label" parent="HUD/ResultPanel/VBox"]
@@ -327,21 +397,28 @@ theme_override_font_sizes/font_size = 30
 text = "Equipe bleue remporte la partie !"
 horizontal_alignment = 1
 
-[node name="Top5ResultLabel" type="RichTextLabel" parent="HUD/ResultPanel/VBox"]
+[node name="ButtonsHBox" type="HBoxContainer" parent="HUD/ResultPanel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/normal_font_size = 20
-bbcode_enabled = true
-text = "TOP 5 JOUEURS"
-fit_content = true
-autowrap_mode = 2
+theme_override_constants/separation = 32
+alignment = 1
 
-[node name="Spacer" type="Control" parent="HUD/ResultPanel/VBox"]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-
-[node name="RestartButton" type="Button" parent="HUD/ResultPanel/VBox"]
+[node name="RestartButton" type="Button" parent="HUD/ResultPanel/VBox/ButtonsHBox"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
 text = "↺  Rejouer"
 
-[connection signal="pressed" from="HUD/ResultPanel/VBox/RestartButton" to="." method="_on_restart_pressed"]
+[node name="MenuButton" type="Button" parent="HUD/ResultPanel/VBox/ButtonsHBox"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+text = "≡  Retour Menu"
+
+[connection signal="pressed" from="HUD/ResultPanel/VBox/ButtonsHBox/RestartButton" to="." method="_on_restart_pressed"]
+[connection signal="pressed" from="HUD/ResultPanel/VBox/ButtonsHBox/MenuButton" to="." method="_on_menu_pressed"]

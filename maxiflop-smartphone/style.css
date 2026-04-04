@@ -184,6 +184,12 @@ input {
 
 .join-team-btn.yellow { color: black; }
 
+.join-team-btn.disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	filter: grayscale(80%);
+}
+
 #timerDisplay {
 	color: #84FFC9;
 	font-size: 24px;
