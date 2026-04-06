@@ -26,3 +26,9 @@ func _on_start_pressed() -> void:
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()
+
+var time: float = 0.0
+
+func _process(delta: float) -> void:
+	time += delta
+	title_label.scale = Vector2.ONE * (1.0 + sin(time * 3.0) * 0.03)

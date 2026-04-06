@@ -63,5 +63,11 @@ func _flash_button(btn: Node, col: int) -> void:
 		return
 	btn.scale = Vector2(1.0, 1.0)
 	var tween := create_tween()
-	tween.tween_property(btn, "scale", Vector2(1.15, 1.15), 0.05)
-	tween.tween_property(btn, "scale", Vector2(1.0, 1.0), 0.1)
+	tween.set_parallel(true)
+	# Depress animation
+	tween.tween_property(btn, "scale", Vector2(0.9, 0.9), 0.05)
+	# Flash animation (btn is a PanelContainer now)
+	tween.tween_property(btn, "modulate:a", 2.0, 0.05)
+	
+	tween.chain().tween_property(btn, "scale", Vector2(1.0, 1.0), 0.1)
+	tween.parallel().tween_property(btn, "modulate:a", 1.0, 0.1)

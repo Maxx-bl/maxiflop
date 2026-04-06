@@ -35,6 +35,8 @@ var is_waiting_start: bool = true
 var is_game_over: bool = false
 var elapsed: float = 0.0
 var team_scores := {"Equipe1": 0, "Equipe2": 0, "Equipe3": 0}
+var join_url_ready: bool = false
+var loading_timer: float = 0.0
 var players: Dictionary = {}
 var player_judged_notes: Dictionary = {}
 
@@ -51,9 +53,8 @@ func _ready() -> void:
 	result_panel.visible = false
 	combo_label.visible = false
 	start_match_button.pressed.connect(_on_start_match_pressed)
-	_set_join_url()
 	qr_http.request_completed.connect(_on_qr_downloaded)
-	_load_qr_code()
+	qr_texture.texture = null
 	_refresh_right_panel()
 	MultiplayerBridge.connect_as_host()
 	MultiplayerBridge.request_lobby()
@@ -82,6 +83,19 @@ func _start_countdown() -> void:
 	MultiplayerBridge.send_game_phase("countdown")
 
 func _process(delta: float) -> void:
+	if not join_url_ready and is_waiting_start:
+		loading_timer += delta
+		if loading_timer > 10.0:
+			join_url_ready = true
+			_set_join_url()
+			_load_qr_code()
+			_refresh_right_panel()
+		else:
+			var dots := ""
+			for i in range(int(loading_timer * 3) % 4):
+				dots += "."
+			join_link_label.text = "Création du lien" + dots
+
 	if is_waiting_start:
 		return
 
@@ -360,7 +374,7 @@ func _refresh_right_panel() -> void:
 	# En lobby : afficher QR code + lien, masquer classement
 	# En jeu ou Resultat : afficher classement
 	var in_lobby: bool = is_waiting_start and not is_game_over
-	qr_texture.visible = is_waiting_start # visible in lobby & result
+	qr_texture.visible = is_waiting_start and join_url_ready # visible in lobby & result
 	join_link_label.visible = is_waiting_start
 	top5_label.visible = not in_lobby
 
@@ -383,11 +397,13 @@ func _load_qr_code() -> void:
 
 func _on_public_url_received(url: String) -> void:
 	print("Tunnel public recu depuis Node.js : ", url)
+	join_url_ready = true
 	join_url_override = url
 	join_link_label.text = "Adresse: %s" % url
 	qr_http.cancel_request()
 	var encoded := url.uri_encode()
 	qr_http.request("https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encoded)
+	_refresh_right_panel()
 
 func _on_qr_downloaded(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	var img := Image.new()

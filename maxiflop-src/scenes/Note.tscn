@@ -21,10 +21,10 @@ initial_velocity_max = 250.0
 scale_amount_min = 4.0
 scale_amount_max = 8.0
 
-[node name="Glow" type="Polygon2D" parent="."]
-color = Color(1, 1, 1, 0.25)
-
-[node name="Circle" type="Polygon2D" parent="."]
+[node name="TilePanel" type="Panel" parent="."]
+offset_left = -45.0
+offset_top = -45.0
+offset_right = 45.0
+offset_bottom = 45.0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-

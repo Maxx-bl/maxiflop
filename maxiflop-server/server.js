@@ -44,7 +44,8 @@ function sendLobbyToGodot() {
 
 	godotHost.emit("lobby_update", {
 		players: playersArr,
-		teamScores: teamScores
+		teamScores: teamScores,
+		publicUrl: publicUrl
 	});
 }
 
@@ -191,7 +192,7 @@ server.listen(port, "0.0.0.0", async () => {
 	try {
 		console.log("Démarrage du tunnel Cloudflare (cloudflared)...");
 		const cloudflared = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`]);
-		
+
 		cloudflared.stderr.on('data', (data) => {
 			const output = data.toString();
 			const match = output.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
@@ -201,7 +202,7 @@ server.listen(port, "0.0.0.0", async () => {
 				if (godotHost) godotHost.emit('public_url', { url: publicUrl });
 			}
 		});
-		
+
 		cloudflared.on('close', (code) => {
 			console.log(`Le tunnel Cloudflare s'est fermé avec le code ${code}`);
 		});

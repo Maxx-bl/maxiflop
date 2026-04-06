@@ -103,6 +103,10 @@ func _handle_message(text: String) -> void:
 					"lobby_update":
 						var players: Array = msg.get("players", [])
 						var team_scores: Dictionary = msg.get("teamScores", {})
+						if msg.has("publicUrl") and msg.get("publicUrl") != null:
+							var pu = str(msg.get("publicUrl"))
+							if pu != "":
+								emit_signal("public_url_received", pu)
 						emit_signal("lobby_updated", players, team_scores)
 					"player_input":
 						emit_signal("player_input_received", msg)

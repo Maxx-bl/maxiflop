@@ -5,17 +5,12 @@ extends Area2D
 @export var spawn_time: float = 0.0
 @export var hit_y: float = 560.0
 
-@onready var circle: Polygon2D = $Circle
-@onready var glow: Polygon2D = $Glow
+@onready var tile_panel: Panel = $TilePanel
 @onready var collision: CollisionShape2D = $CollisionShape2D
 @onready var burst: CPUParticles2D = $BurstParticles
 
 var has_been_hit: bool = false
 var is_missed: bool = false
-
-const RADIUS := 28.0
-const GLOW_RADIUS := 38.0
-const SEGMENTS := 32
 
 const COLORS := {
 	0: Color("#5FCDE4"), # bleu
@@ -29,34 +24,26 @@ const GLOW_COLORS := {
 	2: Color(1.0, 0.439, 0.506, 0.3),
 }
 
-func _make_circle_polygon(radius: float, segments: int) -> PackedVector2Array:
-	var pts := PackedVector2Array()
-	for i in segments:
-		var angle := (TAU / segments) * i
-		pts.append(Vector2(cos(angle), sin(angle)) * radius)
-	return pts
-
 func _ready() -> void:
-	# Générer les polygones circulaires
-	var circle_pts := _make_circle_polygon(RADIUS, SEGMENTS)
-	var glow_pts := _make_circle_polygon(GLOW_RADIUS, SEGMENTS)
-	circle.polygon = circle_pts
-	glow.polygon = glow_pts
+	var style := StyleBoxFlat.new()
+	style.bg_color = COLORS[color]
+	style.corner_radius_top_left = 999
+	style.corner_radius_top_right = 999
+	style.corner_radius_bottom_left = 999
+	style.corner_radius_bottom_right = 999
+	style.shadow_color = GLOW_COLORS[color]
+	style.shadow_size = 15
+	tile_panel.add_theme_stylebox_override("panel", style)
+	tile_panel.pivot_offset = tile_panel.size / 2.0
 
-	# Collision shape circulaire
-	var shape := CircleShape2D.new()
-	shape.radius = RADIUS
+	var shape := RectangleShape2D.new()
+	shape.size = tile_panel.size
 	collision.shape = shape
 
-	_apply_color()
+	burst.color = COLORS[color]
 	modulate.a = 0.0
 	var tween := create_tween()
-	tween.tween_property(self , "modulate:a", 1.0, 0.15)
-
-func _apply_color() -> void:
-	circle.color = COLORS[color]
-	glow.color = GLOW_COLORS[color]
-	burst.color = COLORS[color]
+	tween.tween_property(self, "modulate:a", 1.0, 0.15)
 
 func _process(delta: float) -> void:
 	if has_been_hit or is_missed:
@@ -72,20 +59,19 @@ func get_note_color() -> int:
 func hit_animation(result: String) -> void:
 	has_been_hit = true
 	burst.emitting = true
-	circle.hide()
-	glow.hide()
 	
 	var tween := create_tween()
-	# The lifetime of particles is 0.4s
-	tween.tween_interval(0.4)
+	tween.set_parallel(true)
+	tween.tween_property(tile_panel, "scale", Vector2(1.15, 1.15), 0.15)
+	tween.tween_property(tile_panel, "modulate:a", 0.0, 0.15)
+	tween.chain().tween_interval(0.25)
 	tween.tween_callback(queue_free)
 
 func miss_animation() -> void:
 	is_missed = true
-	burst.emitting = true
-	circle.hide()
-	glow.hide()
 	
 	var tween := create_tween()
-	tween.tween_interval(0.4)
-	tween.tween_callback(queue_free)
+	tween.set_parallel(true)
+	tween.tween_property(tile_panel, "scale", Vector2(0.8, 0.8), 0.2)
+	tween.tween_property(tile_panel, "modulate", Color(1.0, 0.2, 0.2, 0.0), 0.2)
+	tween.chain().tween_callback(queue_free)
