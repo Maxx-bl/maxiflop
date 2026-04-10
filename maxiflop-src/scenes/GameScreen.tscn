@@ -208,6 +208,9 @@ note_spawner = NodePath("../NoteSpawner")
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
 
+[node name="SonsTuiles" type="AudioStreamPlayer" parent="."]
+max_polyphony = 10
+
 [node name="HUD" type="CanvasLayer" parent="."]
 
 [node name="ProgressBar" type="ProgressBar" parent="HUD"]

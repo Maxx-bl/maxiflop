@@ -3,6 +3,7 @@ extends Node2D
 @onready var note_spawner: Node2D = $PlayField/NoteSpawner
 @onready var hit_zone: Node2D = $PlayField/HitZone
 @onready var music_player: AudioStreamPlayer = $MusicPlayer
+@onready var sons_tuiles: AudioStreamPlayer = $SonsTuiles
 
 @onready var score_label: Label = $HUD/ScoreLabel
 @onready var combo_label: Label = $HUD/ComboLabel
@@ -39,6 +40,17 @@ var join_url_ready: bool = false
 var loading_timer: float = 0.0
 var players: Dictionary = {}
 var player_judged_notes: Dictionary = {}
+
+var gamme_pentatonique: Array[AudioStream] = [
+	preload("res://assets/c4.wav"),
+	preload("res://assets/d4.wav"),
+	preload("res://assets/e4.wav"),
+	preload("res://assets/f4.wav"),
+	preload("res://assets/g4.wav"),
+	preload("res://assets/a4.wav"),
+	preload("res://assets/b4.wav"),
+	preload("res://assets/c5.wav")
+]
 
 func _ready() -> void:
 	GameManager.score_changed.connect(_on_score_changed)
@@ -254,6 +266,11 @@ func _on_player_input_received(payload: Dictionary) -> void:
 		if _already_judged_note(player_id, note_key):
 			return
 		_mark_judged_note(player_id, note_key)
+		
+		var res_str := str(result.get("result", ""))
+		if res_str in ["PERFECT", "GOOD", "BAD"]:
+			jouer_note_tuile()
+			
 	_apply_remote_result(player_id, result)
 
 func _evaluate_remote_hit(player_id: String, color: int) -> Dictionary:
@@ -501,3 +518,9 @@ func _verifier_equilibrage() -> bool:
 		return false
 		
 	return true
+
+func jouer_note_tuile() -> void:
+	if gamme_pentatonique.size() > 0:
+		var son_choisi: AudioStream = gamme_pentatonique.pick_random()
+		sons_tuiles.stream = son_choisi
+		sons_tuiles.play()
