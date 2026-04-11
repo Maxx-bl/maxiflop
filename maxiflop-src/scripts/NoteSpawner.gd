@@ -15,63 +15,29 @@ var time_elapsed: float = 0.0
 var is_running: bool = false
 var song_duration: float = 30.0
 
-var beatmap: Array = []
 var active_notes: Array = []
+
+var analyzer_instance: AudioEffectSpectrumAnalyzerInstance
+@export var bass_threshold: float = 0.003
+@export var cooldown_time: float = 0.12
+var current_cooldown: float = 0.0
+var smoothed_magnitude: float = 0.0
+var bass_baseline: float = 0.0
+var is_in_beat: bool = false
+
 
 var rng := RandomNumberGenerator.new()
 
-func _ready() -> void:
-	pass
-
-func _generate_random_beatmap() -> void:
-	beatmap.clear()
-	rng.randomize()
-
-	var beat := 60.0 / bpm # ~0.6s à 100bpm
-	var t := approach_time
-	var last_col := -1
-
-	while t < song_duration + approach_time:
-		var pattern := rng.randi_range(0, 7)
-
-		match pattern:
-			0, 1, 2: # Note simple (3/8 de chance)
-				var col := _rand_col(last_col)
-				beatmap.append([t, col])
-				last_col = col
-				t += beat
-
-			3, 4: # Deux notes séparées d'un demi-beat (2/8)
-				var col_a := _rand_col(last_col)
-				var col_b := _rand_col(col_a)
-				beatmap.append([t, col_a])
-				beatmap.append([t + beat * 0.5, col_b])
-				last_col = col_b
-				t += beat * 1.5
-
-			5, 6: # Double note simultanée (2/8)
-				var col_a := rng.randi_range(0, 2)
-				var col_b := (col_a + rng.randi_range(1, 2)) % 3
-				beatmap.append([t, col_a])
-				beatmap.append([t, col_b])
-				last_col = col_b
-				t += beat * 1.5
-
-			7: # Pause courte (1/8 de chance seulement)
-				t += beat
-
-	beatmap.sort_custom(func(a, b): return a[0] < b[0])
-
-func _rand_col(exclude: int) -> int:
-	var col := rng.randi_range(0, 2)
-	if col == exclude:
-		col = (col + 1) % 3
-	return col
-
-func start() -> void:
-	_generate_random_beatmap()
+func start_spectrum(bus_idx: int) -> void:
 	time_elapsed = 0.0
 	is_running = true
+	rng.randomize()
+	current_cooldown = 0.0
+	smoothed_magnitude = 0.0
+	bass_baseline = 0.0
+	is_in_beat = false
+	if bus_idx >= 0:
+		analyzer_instance = AudioServer.get_bus_effect_instance(bus_idx, 0) as AudioEffectSpectrumAnalyzerInstance
 
 func stop() -> void:
 	is_running = false
@@ -80,13 +46,47 @@ func _process(delta: float) -> void:
 	if not is_running:
 		return
 	time_elapsed += delta
-	for entry in beatmap:
-		var note_arrive_time: float = entry[0]
-		var spawn_trigger_time: float = note_arrive_time - approach_time
-		if entry.size() < 3 and time_elapsed >= spawn_trigger_time:
-			entry.append(true)
-			_spawn_note(entry[1], note_arrive_time)
+	
+	if current_cooldown > 0:
+		current_cooldown -= delta
+		
+	if analyzer_instance != null:
+		var mag: Vector2 = analyzer_instance.get_magnitude_for_frequency_range(20.0, 150.0, AudioEffectSpectrumAnalyzerInstance.MAGNITUDE_AVERAGE)
+		var bass_energy = (mag.x + mag.y) / 2.0
+		
+		# Suivi très réactif de l'énergie (smooth)
+		smoothed_magnitude = lerp(smoothed_magnitude, bass_energy, delta * 30.0)
+		
+		# Suivi très lent pour estimer l'ambiance globale de basse (bruit de fond / nappe)
+		bass_baseline = lerp(bass_baseline, bass_energy, delta * 1.5)
+		
+		var dynamic_threshold = bass_baseline + bass_threshold
+		
+		# Detection de type "Schmitt trigger" (Hysteresis) adaptatif
+		if smoothed_magnitude > dynamic_threshold:
+			if not is_in_beat and current_cooldown <= 0:
+				_spawn_bass_note()
+				current_cooldown = cooldown_time
+			is_in_beat = true
+		elif smoothed_magnitude < dynamic_threshold - (bass_threshold * 0.5):
+			# Réarmer le beat quand l'énergie retombe bas
+			is_in_beat = false
+
 	_check_misses()
+
+var last_col: int = -1
+
+func _spawn_bass_note() -> void:
+	var col := rng.randi_range(0, 2)
+	if col == last_col:
+		col = (col + rng.randi_range(1, 2)) % 3
+	last_col = col
+	
+	# Le ghost player entend la basse mtn
+	# L'auditeur l'entendra exactement dans approach_time secondes
+	var note_strike_time = time_elapsed + approach_time
+	_spawn_note(col, note_strike_time)
+
 
 func _spawn_note(col: int, arrive_time: float) -> void:
 	if note_scene == null:

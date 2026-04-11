@@ -1,9 +1,10 @@
-[gd_scene load_steps=16 format=3 uid="uid://cfyaf4ikyente"]
+[gd_scene load_steps=17 format=3 uid="uid://cfyaf4ikyente"]
 
 [ext_resource type="Script" uid="uid://d34qiog5r04a8" path="res://scripts/GameScreen.gd" id="1"]
 [ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
 [ext_resource type="Script" uid="uid://dkacnraee3abq" path="res://scripts/HitZone.gd" id="3"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
+[ext_resource type="AudioStream" uid="uid://4cqfg06w8r3x" path="res://assets/Favé - Urus (Clip Officiel).mp3" id="5_xpdqc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ring_blue"]
 bg_color = Color(0, 0, 0, 0)
@@ -138,6 +139,7 @@ bg_color = Color(0.08, 0.06, 0.18, 0.97)
 
 [node name="GameScreen" type="Node2D"]
 script = ExtResource("1")
+song_duration = 60.0
 
 [node name="Background" type="ColorRect" parent="."]
 anchors_preset = 15
@@ -220,9 +222,7 @@ script = ExtResource("3")
 note_spawner = NodePath("../NoteSpawner")
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
-
-[node name="SonsTuiles" type="AudioStreamPlayer" parent="."]
-max_polyphony = 10
+stream = ExtResource("5_xpdqc")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 

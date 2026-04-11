@@ -3,7 +3,6 @@ extends Node2D
 @onready var note_spawner: Node2D = $PlayField/NoteSpawner
 @onready var hit_zone: Node2D = $PlayField/HitZone
 @onready var music_player: AudioStreamPlayer = $MusicPlayer
-@onready var sons_tuiles: AudioStreamPlayer = $SonsTuiles
 
 
 @onready var combo_label: Label = $HUD/ComboLabel
@@ -43,18 +42,23 @@ var loading_timer: float = 0.0
 var players: Dictionary = {}
 var player_judged_notes: Dictionary = {}
 
-var gamme_pentatonique: Array[AudioStream] = [
-	preload("res://assets/c4.wav"),
-	preload("res://assets/d4.wav"),
-	preload("res://assets/e4.wav"),
-	preload("res://assets/f4.wav"),
-	preload("res://assets/g4.wav"),
-	preload("res://assets/a4.wav"),
-	preload("res://assets/b4.wav"),
-	preload("res://assets/c5.wav")
-]
+var ghost_player: AudioStreamPlayer
+var phantom_bus_idx: int = -1
 
 func _ready() -> void:
+	# --- PhantomBus Setup ---
+	AudioServer.add_bus()
+	phantom_bus_idx = AudioServer.bus_count - 1
+	AudioServer.set_bus_name(phantom_bus_idx, "PhantomBus")
+	AudioServer.set_bus_mute(phantom_bus_idx, true)
+	var analyzer := AudioEffectSpectrumAnalyzer.new()
+	analyzer.buffer_length = 0.1
+	AudioServer.add_bus_effect(phantom_bus_idx, analyzer)
+	
+	ghost_player = AudioStreamPlayer.new()
+	ghost_player.bus = "PhantomBus"
+	add_child(ghost_player)
+	# ------------------------
 
 	GameManager.combo_changed.connect(_on_combo_changed)
 	GameManager.game_over.connect(_on_game_over)
@@ -138,11 +142,17 @@ func _begin_game() -> void:
 	player_judged_notes.clear()
 	elapsed = 0.0
 	progress_bar.value = 0.0
-	note_spawner.song_duration = song_duration
-	note_spawner.start()
-	GameManager.start_game()
 	if music_player.stream != null:
-		music_player.play()
+		song_duration = music_player.stream.get_length()
+		ghost_player.stream = music_player.stream
+		
+	note_spawner.song_duration = song_duration
+	note_spawner.start_spectrum(phantom_bus_idx)
+	GameManager.start_game()
+	
+	if music_player.stream != null:
+		music_player.play(0.0)
+		ghost_player.play(note_spawner.approach_time)
 
 #Signaux
 
@@ -167,6 +177,8 @@ func _on_combo_changed(new_combo: int) -> void:
 func _on_game_over() -> void:
 	note_spawner.stop()
 	music_player.stop()
+	if ghost_player:
+		ghost_player.stop()
 	MultiplayerBridge.send_game_phase("ended")
 	is_waiting_start = true
 	is_counting_down = false
@@ -277,10 +289,6 @@ func _on_player_input_received(payload: Dictionary) -> void:
 		if _already_judged_note(player_id, note_key):
 			return
 		_mark_judged_note(player_id, note_key)
-		
-		var res_str := str(result.get("result", ""))
-		if res_str in ["PERFECT", "GOOD", "BAD"]:
-			jouer_note_tuile()
 			
 	_apply_remote_result(player_id, result)
 
@@ -554,8 +562,3 @@ func _verifier_equilibrage() -> bool:
 		
 	return true
 
-func jouer_note_tuile() -> void:
-	if gamme_pentatonique.size() > 0:
-		var son_choisi: AudioStream = gamme_pentatonique.pick_random()
-		sons_tuiles.stream = son_choisi
-		sons_tuiles.play()
