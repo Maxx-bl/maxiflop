@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://nifvvk7p0i7b"
+path="res://.godot/imported/Warriyo - Mortals (feat. Laura Brehm) [NCS Release].mp3-cca66693c058e88e8af0786d2bbd9e64.mp3str"
+
+[deps]
+
+source_file="res://assets/Warriyo - Mortals (feat. Laura Brehm) [NCS Release].mp3"
+dest_files=["res://.godot/imported/Warriyo - Mortals (feat. Laura Brehm) [NCS Release].mp3-cca66693c058e88e8af0786d2bbd9e64.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

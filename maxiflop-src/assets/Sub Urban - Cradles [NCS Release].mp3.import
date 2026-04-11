@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dui56t1t3h6v0"
+path="res://.godot/imported/Sub Urban - Cradles [NCS Release].mp3-39a6cd21c594c8d24503c0705f5b4397.mp3str"
+
+[deps]
+
+source_file="res://assets/Sub Urban - Cradles [NCS Release].mp3"
+dest_files=["res://.godot/imported/Sub Urban - Cradles [NCS Release].mp3-39a6cd21c594c8d24503c0705f5b4397.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
