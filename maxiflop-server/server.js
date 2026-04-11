@@ -191,11 +191,12 @@ server.listen(port, "0.0.0.0", async () => {
 
 	try {
 		console.log("Démarrage du tunnel Cloudflare (cloudflared)...");
-		const cloudflared = spawn('npx', ['cloudflared', 'tunnel', '--url', `http://localhost:${port}`]);
+		const cloudflared = spawn('npx', ['-y', 'cloudflared', 'tunnel', '--url', `http://localhost:${port}`], { shell: true });
 
+		let outputBuffer = '';
 		cloudflared.stderr.on('data', (data) => {
-			const output = data.toString();
-			const match = output.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
+			outputBuffer += data.toString();
+			const match = outputBuffer.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
 			if (match && !publicUrl) {
 				publicUrl = match[0];
 				console.log(`Tunnel public Cloudflare: ${publicUrl}`);
@@ -205,6 +206,10 @@ server.listen(port, "0.0.0.0", async () => {
 
 		cloudflared.on('close', (code) => {
 			console.log(`Le tunnel Cloudflare s'est fermé avec le code ${code}`);
+		});
+
+		cloudflared.on('error', (err) => {
+			console.log("Erreur de lancement de cloudflared:", err.message);
 		});
 	} catch (e) {
 		console.log("Erreur tunnel Cloudflare:", e.message);

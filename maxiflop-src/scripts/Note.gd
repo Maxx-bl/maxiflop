@@ -56,7 +56,7 @@ func _process(delta: float) -> void:
 func get_note_color() -> int:
 	return color
 
-func hit_animation(result: String) -> void:
+func hit_animation(_result: String) -> void:
 	has_been_hit = true
 	burst.emitting = true
 	

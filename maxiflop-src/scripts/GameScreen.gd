@@ -5,7 +5,7 @@ extends Node2D
 @onready var music_player: AudioStreamPlayer = $MusicPlayer
 @onready var sons_tuiles: AudioStreamPlayer = $SonsTuiles
 
-@onready var score_label: Label = $HUD/ScoreLabel
+
 @onready var combo_label: Label = $HUD/ComboLabel
 @onready var multiplier_label: Label = $HUD/MultiplierLabel
 @onready var progress_bar: ProgressBar = $HUD/ProgressBar
@@ -22,10 +22,12 @@ extends Node2D
 @onready var team_b_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamBTrack/TeamBProgress
 @onready var team_c_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamCTrack/TeamCProgress
 @onready var top5_label: RichTextLabel = $HUD/RightPanel/VBox/LeaderboardPanel/LeaderboardVBox/Top5Label
+@onready var error_toast: PanelContainer = $HUD/ErrorToast
 @onready var qr_texture: TextureRect = $HUD/RightPanel/VBox/QRCodeTexture
 @onready var qr_http: HTTPRequest = $HUD/RightPanel/VBox/QRHTTPRequest
 @onready var result_team_scores_label: Label = $HUD/ResultPanel/VBox/TeamScoresLabel
 @onready var result_winner_label: Label = $HUD/ResultPanel/VBox/WinnerLabel
+@onready var result_top5_label: RichTextLabel = $HUD/ResultPanel/VBox/ResultTop5Label
 
 @export var song_duration: float = 30.0
 @export var join_url_override: String = ""
@@ -53,7 +55,7 @@ var gamme_pentatonique: Array[AudioStream] = [
 ]
 
 func _ready() -> void:
-	GameManager.score_changed.connect(_on_score_changed)
+
 	GameManager.combo_changed.connect(_on_combo_changed)
 	GameManager.game_over.connect(_on_game_over)
 	MultiplayerBridge.connected_to_server.connect(_on_host_connected)
@@ -93,6 +95,7 @@ func _start_countdown() -> void:
 	count_down.visible = true
 	count_down.text = "5"
 	MultiplayerBridge.send_game_phase("countdown")
+	_refresh_right_panel()
 
 func _process(delta: float) -> void:
 	if not join_url_ready and is_waiting_start:
@@ -143,8 +146,6 @@ func _begin_game() -> void:
 
 #Signaux
 
-func _on_score_changed(new_score: int) -> void:
-	score_label.text = str(new_score).lpad(7, "0")
 
 func _on_combo_changed(new_combo: int) -> void:
 	if new_combo > 1:
@@ -193,7 +194,7 @@ func _refresh_result_panel() -> void:
 	var score_a := int(team_scores.get("Equipe1", 0))
 	var score_b := int(team_scores.get("Equipe2", 0))
 	var score_c := int(team_scores.get("Equipe3", 0))
-	result_team_scores_label.text = "Equipe 1: %d  |  Equipe 2: %d  |  Equipe 3: %d" % [score_a, score_b, score_c]
+	result_team_scores_label.text = "Equipe bleue : %d  |  Equipe rouge : %d  |  Equipe jaune : %d" % [score_a, score_b, score_c]
 
 	# Couleur équipe bleue = cyan, rouge = rose, jaune = jaune
 	var color_a := Color("#5fcde4")
@@ -202,17 +203,27 @@ func _refresh_result_panel() -> void:
 	var max_score = max(score_a, max(score_b, score_c))
 
 	if score_a == max_score and score_b < max_score and score_c < max_score:
-		result_winner_label.text = "Equipe 1 remporte la partie !"
+		result_winner_label.text = "L'équipe bleue remporte la partie !"
 		result_winner_label.add_theme_color_override("font_color", color_a)
 	elif score_b == max_score and score_a < max_score and score_c < max_score:
-		result_winner_label.text = "Equipe 2 remporte la partie !"
+		result_winner_label.text = "L'équipe rouge remporte la partie !"
 		result_winner_label.add_theme_color_override("font_color", color_b)
 	elif score_c == max_score and score_a < max_score and score_b < max_score:
-		result_winner_label.text = "Equipe 3 remporte la partie !"
+		result_winner_label.text = "L'équipe jaune remporte la partie !"
 		result_winner_label.add_theme_color_override("font_color", color_c)
 	else:
-		result_winner_label.text = "Egalite !"
+		result_winner_label.text = "Egalité !"
 		result_winner_label.add_theme_color_override("font_color", Color.WHITE)
+
+	var ranked := _get_sorted_players()
+	var lines := ["[center][b]TOP 5 JOUEURS[/b][/center]"]
+	var max_lines := mini(5, ranked.size())
+	for i in max_lines:
+		var p: Dictionary = ranked[i]
+		var team := str(p.get("team", "Equipe1"))
+		var color := "#5fcde4" if team == "Equipe1" else ("#ff7081" if team == "Equipe2" else "#f0e040")
+		lines.append("[center]%d. [color=%s]%s[/color] - %d[/center]" % [i + 1, color, str(p.get("name", "Player")), int(p.get("score", 0))])
+	result_top5_label.text = "\n".join(lines)
 
 func _on_restart_pressed() -> void:
 	_on_start_match_pressed()
@@ -374,9 +385,25 @@ func _recompute_team_scores() -> void:
 			team_scores[t] += int(p.get("score", 0))
 
 func _refresh_right_panel() -> void:
-	team_a_score_label.text = "Equipe 1: %d" % int(team_scores.get("Equipe1", 0))
-	team_b_score_label.text = "Equipe 2: %d" % int(team_scores.get("Equipe2", 0))
-	team_c_score_label.text = "Equipe 3: %d" % int(team_scores.get("Equipe3", 0))
+	var in_lobby: bool = is_waiting_start and not is_game_over
+	
+	if not in_lobby:
+		team_a_score_label.text = "Equipe bleue: %d" % int(team_scores.get("Equipe1", 0))
+		team_b_score_label.text = "Equipe rouge: %d" % int(team_scores.get("Equipe2", 0))
+		team_c_score_label.text = "Equipe jaune: %d" % int(team_scores.get("Equipe3", 0))
+	else:
+		var count_a = 0
+		var count_b = 0
+		var count_c = 0
+		for p_id in players:
+			var t: String = str(players[p_id].get("team", ""))
+			if t == "Equipe1": count_a += 1
+			elif t == "Equipe2": count_b += 1
+			elif t == "Equipe3": count_c += 1
+		team_a_score_label.text = "Joueurs équipe bleue : %d" % count_a
+		team_b_score_label.text = "Joueurs équipe rouge : %d" % count_b
+		team_c_score_label.text = "Joueurs équipe jaune : %d" % count_c
+
 	lobby_count_label.text = "Joueurs connectes: %d" % players.size()
 	var total := float(int(team_scores.get("Equipe1", 0)) + int(team_scores.get("Equipe2", 0)) + int(team_scores.get("Equipe3", 0)))
 	if total <= 0.0:
@@ -390,7 +417,7 @@ func _refresh_right_panel() -> void:
 
 	# En lobby : afficher QR code + lien, masquer classement
 	# En jeu ou Resultat : afficher classement
-	var in_lobby: bool = is_waiting_start and not is_game_over
+	# En lobby : afficher QR code + lien, masquer classement
 	qr_texture.visible = is_waiting_start and join_url_ready # visible in lobby & result
 	join_link_label.visible = is_waiting_start
 	top5_label.visible = not in_lobby
@@ -470,9 +497,17 @@ func _on_start_match_pressed() -> void:
 		return
 		
 	if not _verifier_equilibrage():
-		warmup_label.text = "ERREUR : Nombre de joueurs insuffisant\nou equipes desequilibrees (Max ecart 2)."
-		warmup_label.add_theme_color_override("font_color", Color.RED)
-		warmup_label.visible = true
+		error_toast.visible = true
+		error_toast.modulate.a = 0.0
+		error_toast.position.y = -50
+		var err_tween = create_tween()
+		err_tween.set_parallel(true)
+		err_tween.tween_property(error_toast, "position:y", 20.0, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+		err_tween.tween_property(error_toast, "modulate:a", 1.0, 0.2)
+		var seq_tween = create_tween()
+		seq_tween.tween_interval(3.0)
+		seq_tween.tween_property(error_toast, "modulate:a", 0.0, 0.3)
+		seq_tween.chain().tween_callback(func(): error_toast.visible = false)
 		return
 		
 	warmup_label.remove_theme_color_override("font_color")

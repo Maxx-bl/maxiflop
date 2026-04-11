@@ -58,7 +58,7 @@ func _try_hit(col: int, btn: Node) -> void:
 	var result := GameManager.register_hit(timing_error, true)
 	closest_note.hit_animation(result)
 
-func _flash_button(btn: Node, col: int) -> void:
+func _flash_button(btn: Node, _col: int) -> void:
 	if btn == null:
 		return
 	btn.scale = Vector2(1.0, 1.0)

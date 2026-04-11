@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://cfyaf4ikyente"]
+[gd_scene load_steps=16 format=3 uid="uid://cfyaf4ikyente"]
 
 [ext_resource type="Script" uid="uid://d34qiog5r04a8" path="res://scripts/GameScreen.gd" id="1"]
 [ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
@@ -81,6 +81,19 @@ corner_radius_bottom_left = 12
 shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 8
 shadow_offset = Vector2(0, 4)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_error_toast"]
+content_margin_left = 20.0
+content_margin_top = 10.0
+content_margin_right = 20.0
+content_margin_bottom = 10.0
+bg_color = Color(0.95, 0.2, 0.25, 0.9)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rightpanel"]
 content_margin_left = 24.0
@@ -270,6 +283,22 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
 text = "Lancer la partie"
 
+[node name="ErrorToast" type="PanelContainer" parent="HUD"]
+visible = false
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 300.0
+offset_bottom = 80.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_error_toast")
+
+[node name="Label" type="Label" parent="HUD/ErrorToast"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Pas assez de joueurs"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="RightPanel" type="PanelContainer" parent="HUD"]
 offset_left = 852.0
 offset_top = 16.0
@@ -280,6 +309,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_rightpanel")
 [node name="VBox" type="VBoxContainer" parent="HUD/RightPanel"]
 layout_mode = 2
 theme_override_constants/separation = 16
+
+[node name="QRCodeTexture" type="TextureRect" parent="HUD/RightPanel/VBox"]
+custom_minimum_size = Vector2(180, 180)
+layout_mode = 2
+stretch_mode = 5
+
+[node name="QRHTTPRequest" type="HTTPRequest" parent="HUD/RightPanel/VBox"]
 
 [node name="LobbyCount" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
@@ -399,13 +435,6 @@ text = "[b]LEADERBOARD GLOBAL TOP 5[/b]"
 fit_content = true
 autowrap_mode = 2
 
-[node name="QRCodeTexture" type="TextureRect" parent="HUD/RightPanel/VBox"]
-custom_minimum_size = Vector2(180, 180)
-layout_mode = 2
-stretch_mode = 5
-
-[node name="QRHTTPRequest" type="HTTPRequest" parent="HUD/RightPanel/VBox"]
-
 [node name="ResultPanel" type="PanelContainer" parent="HUD"]
 visible = false
 offset_right = 852.0
@@ -435,6 +464,14 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 30
 text = "Equipe bleue remporte la partie !"
 horizontal_alignment = 1
+
+[node name="ResultTop5Label" type="RichTextLabel" parent="HUD/ResultPanel/VBox"]
+layout_mode = 2
+theme_override_font_sizes/normal_font_size = 18
+bbcode_enabled = true
+text = "[center][b]LEADERBOARD[/b][/center]"
+fit_content = true
+autowrap_mode = 2
 
 [node name="ButtonsHBox" type="HBoxContainer" parent="HUD/ResultPanel/VBox"]
 layout_mode = 2
