@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
 [ext_resource type="Script" uid="uid://dkacnraee3abq" path="res://scripts/HitZone.gd" id="3"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
-[ext_resource type="AudioStream" uid="uid://4cqfg06w8r3x" path="res://assets/Favé - Urus (Clip Officiel).mp3" id="5_xpdqc"]
+[ext_resource type="AudioStream" uid="uid://uspi6x7ttad5" path="res://assets/Clarx - Ride Future House NCS - Copyright Free Music.mp3" id="5_xpdqc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ring_blue"]
 bg_color = Color(0, 0, 0, 0)

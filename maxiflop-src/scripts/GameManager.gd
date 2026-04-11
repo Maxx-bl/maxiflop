@@ -6,11 +6,11 @@ signal note_hit(result: String)
 signal game_started
 signal game_over
 
-const SCORE_PERFECT := 300
-const SCORE_GOOD := 100
-const SCORE_BAD := 50
+const SCORE_PERFECT := 10
+const SCORE_GOOD := 5
+const SCORE_BAD := 1
 const SCORE_MISS := 0
-const PENALTY_EMPTY := 400
+const PENALTY_EMPTY := 4
 
 const WINDOW_PERFECT := 0.05
 const WINDOW_GOOD := 0.15
