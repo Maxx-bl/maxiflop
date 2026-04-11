@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
 [ext_resource type="Script" uid="uid://dkacnraee3abq" path="res://scripts/HitZone.gd" id="3"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
-[ext_resource type="AudioStream" uid="uid://c4acibwi0doge" path="res://assets/DEAF KEV - Invincible [NCS Release].mp3" id="5_xpdqc"]
+[ext_resource type="AudioStream" uid="uid://dcf34i1jfenko" path="res://assets/test_kick_6s.wav" id="5_xpdqc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ring_blue"]
 bg_color = Color(0, 0, 0, 0)
@@ -147,22 +147,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0.04, 0.05, 0.08, 1)
 
-[node name="StarParticles" type="CPUParticles2D" parent="."]
-position = Vector2(425, -50)
-amount = 150
-lifetime = 6.0
-preprocess = 5.0
-emission_shape = 3
-emission_rect_extents = Vector2(600, 1)
-direction = Vector2(0, 1)
-spread = 0.0
-gravity = Vector2(0, 0)
-initial_velocity_min = 150.0
-initial_velocity_max = 350.0
-scale_amount_min = 2.0
-scale_amount_max = 6.0
-color = Color(0.8, 0.8, 1, 0.4)
-
 [node name="Ground" type="ColorRect" parent="."]
 offset_top = 580.0
 offset_right = 852.0
@@ -223,7 +207,6 @@ note_spawner = NodePath("../NoteSpawner")
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("5_xpdqc")
-volume_db = -26.874
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
@@ -454,11 +437,13 @@ theme_override_font_sizes/font_size = 44
 text = "FIN DE PARTIE"
 horizontal_alignment = 1
 
-[node name="TeamScoresLabel" type="Label" parent="HUD/ResultPanel/VBox"]
+[node name="TeamScoresLabel" type="RichTextLabel" parent="HUD/ResultPanel/VBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "Equipe bleue: 0  |  Equipe rouge: 0  |  Equipe jaune: 0"
-horizontal_alignment = 1
+theme_override_font_sizes/normal_font_size = 26
+bbcode_enabled = true
+text = "[center]Equipe bleue: 0  |  Equipe rouge: 0  |  Equipe jaune: 0[/center]"
+fit_content = true
+autowrap_mode = 2
 
 [node name="WinnerLabel" type="Label" parent="HUD/ResultPanel/VBox"]
 layout_mode = 2

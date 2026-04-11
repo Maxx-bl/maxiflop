@@ -11,6 +11,7 @@ extends Area2D
 
 var has_been_hit: bool = false
 var is_missed: bool = false
+var bg_particles_spawned: bool = false
 
 const COLORS := {
 	0: Color("#5FCDE4"), # bleu
@@ -50,8 +51,39 @@ func _process(delta: float) -> void:
 		return
 	if position.y >= hit_y:
 		position.y = hit_y
+		if not bg_particles_spawned:
+			bg_particles_spawned = true
+			_spawn_background_burst()
 	else:
 		position.y += fall_speed * delta
+
+func _spawn_background_burst() -> void:
+	var p := CPUParticles2D.new()
+	p.emitting = false
+	p.amount = 15
+	p.lifetime = 6.0
+	p.one_shot = true
+	p.explosiveness = 1.0
+	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	p.emission_rect_extents = Vector2(50, 10)
+	p.direction = Vector2(0, -1)
+	p.spread = 70.0
+	p.initial_velocity_min = 150.0
+	p.initial_velocity_max = 400.0
+	p.gravity = Vector2(0, -20)
+	p.scale_amount_min = 3.0
+	p.scale_amount_max = 7.0
+	p.color = COLORS[color]
+	p.color.a = 0.6
+	
+	p.global_position = Vector2(global_position.x, hit_y)
+	
+	var bg = get_tree().current_scene.get_node_or_null("Background")
+	if bg:
+		bg.add_child(p)
+		p.emitting = true
+		var t = get_tree().create_timer(6.5)
+		t.timeout.connect(p.queue_free)
 
 func get_note_color() -> int:
 	return color

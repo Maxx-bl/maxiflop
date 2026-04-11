@@ -12,6 +12,7 @@ extends Node2D
 @onready var result_panel: Control = $HUD/ResultPanel
 @onready var warmup_label: Label = $HUD/WarmupLabel
 @onready var start_match_button: Button = $HUD/StartMatchButton
+@onready var right_panel: PanelContainer = $HUD/RightPanel
 @onready var team_a_score_label: Label = $HUD/RightPanel/VBox/TeamAScore
 @onready var team_b_score_label: Label = $HUD/RightPanel/VBox/TeamBScore
 @onready var team_c_score_label: Label = $HUD/RightPanel/VBox/TeamCScore
@@ -24,7 +25,7 @@ extends Node2D
 @onready var error_toast: PanelContainer = $HUD/ErrorToast
 @onready var qr_texture: TextureRect = $HUD/RightPanel/VBox/QRCodeTexture
 @onready var qr_http: HTTPRequest = $HUD/RightPanel/VBox/QRHTTPRequest
-@onready var result_team_scores_label: Label = $HUD/ResultPanel/VBox/TeamScoresLabel
+@onready var result_team_scores_label: RichTextLabel = $HUD/ResultPanel/VBox/TeamScoresLabel
 @onready var result_winner_label: Label = $HUD/ResultPanel/VBox/WinnerLabel
 @onready var result_top5_label: RichTextLabel = $HUD/ResultPanel/VBox/ResultTop5Label
 
@@ -42,8 +43,15 @@ var loading_timer: float = 0.0
 var players: Dictionary = {}
 var player_judged_notes: Dictionary = {}
 
+var voting_time: float = 15.0
+var is_voting: bool = false
+var selected_song: String = ""
+var reveal_timer: float = 0.0
+
 var ghost_player: AudioStreamPlayer
 var phantom_bus_idx: int = -1
+var voting_panel: PanelContainer
+var difficulty_label: Label
 
 func _ready() -> void:
 	# --- PhantomBus Setup ---
@@ -76,7 +84,51 @@ func _ready() -> void:
 	_refresh_right_panel()
 	MultiplayerBridge.connect_as_host()
 	MultiplayerBridge.request_lobby()
+	GameManager.global_note_missed.connect(_on_global_note_missed)
+	MultiplayerBridge.vote_result_received.connect(_on_vote_result)
+	_setup_voting_ui()
 	_enter_waiting_state()
+
+func _setup_voting_ui() -> void:
+	var center = CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	$HUD.add_child(center)
+	
+	voting_panel = PanelContainer.new()
+	var style = right_panel.get_theme_stylebox("panel").duplicate()
+	style.content_margin_left = 60
+	style.content_margin_right = 60
+	style.content_margin_top = 40
+	style.content_margin_bottom = 40
+	voting_panel.add_theme_stylebox_override("panel", style)
+	center.add_child(voting_panel)
+	
+	var vbox = VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 20)
+	voting_panel.add_child(vbox)
+	
+	# Reparent labels existants
+	warmup_label.reparent(vbox)
+	count_down.reparent(vbox)
+	
+	difficulty_label = Label.new()
+	difficulty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	difficulty_label.add_theme_font_size_override("font_size", 40)
+	vbox.add_child(difficulty_label)
+	
+	warmup_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_down.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count_down.autowrap_mode = TextServer.AUTOWRAP_ARBITRARY
+	
+	warmup_label.custom_minimum_size = Vector2(600, 0)
+	count_down.custom_minimum_size = Vector2(600, 0)
+	
+	# Largeur fixe pour forcer le retour à la ligne automatique (autowrap)
+	voting_panel.custom_minimum_size = Vector2(600, 150)
+	voting_panel.clip_contents = true
+	
+	voting_panel.visible = false
 
 func _enter_waiting_state() -> void:
 	is_waiting_start = true
@@ -89,17 +141,71 @@ func _enter_waiting_state() -> void:
 	count_down.visible = false
 	MultiplayerBridge.send_game_phase("lobby")
 
+func _start_voting() -> void:
+	is_waiting_start = false
+	is_counting_down = false
+	is_voting = true
+	voting_time = 15.0
+	voting_panel.visible = true
+	difficulty_label.visible = false
+	warmup_label.visible = true
+	warmup_label.text = "VOTE POUR LA MUSIQUE"
+	count_down.visible = true
+	count_down.text = "15"
+	count_down.add_theme_font_size_override("font_size", 120)
+	start_match_button.visible = false
+	
+	# Lister les musiques
+	var musics := []
+	var dir = DirAccess.open("res://assets/musics")
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if not dir.current_is_dir() and file_name.ends_with(".mp3"):
+				musics.append(file_name.replace(".mp3", ""))
+			file_name = dir.get_next()
+	
+	
+	# Trier les musiques par difficulté
+	var diff_priority := {"EASY": 0, "MEDIUM": 1, "HARD": 2, "EXTREME": 3}
+	musics.sort_custom(func(a: String, b: String):
+		var p_a = 99
+		var p_b = 99
+		var up_a = a.to_upper()
+		var up_b = b.to_upper()
+		for d in diff_priority:
+			if up_a.ends_with(d): p_a = diff_priority[d]
+			if up_b.ends_with(d): p_b = diff_priority[d]
+		
+		if p_a != p_b:
+			return p_a < p_b
+		return a < b # tri alphabétique si même difficulté
+	)
+	
+	MultiplayerBridge.send_music_list(musics)
+	MultiplayerBridge.send_game_phase("voting")
+	_refresh_right_panel()
+
 func _start_countdown() -> void:
 	is_waiting_start = false
+	is_voting = false
 	is_counting_down = true
 	is_game_over = false
 	countdown_time = 5.0
-	warmup_label.visible = false
+	voting_panel.visible = true
+	warmup_label.visible = true
+	warmup_label.text = "PRÊT ?"
 	start_match_button.visible = false
 	count_down.visible = true
 	count_down.text = "5"
+	count_down.scale = Vector2.ONE
+	count_down.add_theme_font_size_override("font_size", 200)
 	MultiplayerBridge.send_game_phase("countdown")
 	_refresh_right_panel()
+	
+	# Fondus sonore : la musique du menu disparaît pour laisser place au jeu
+	MusicManager.fade_out(1.5)
 
 func _process(delta: float) -> void:
 	if not join_url_ready and is_waiting_start:
@@ -118,6 +224,23 @@ func _process(delta: float) -> void:
 	if is_waiting_start:
 		return
 
+	if is_voting:
+		voting_time -= delta
+		var display := ceili(voting_time)
+		if display > 0:
+			count_down.text = str(display)
+		else:
+			is_voting = false
+			MultiplayerBridge.send_game_phase("reveal")
+			count_down.text = "!"
+		return
+
+	if reveal_timer > 0:
+		reveal_timer -= delta
+		if reveal_timer <= 0:
+			_start_countdown()
+		return
+
 	if is_counting_down:
 		countdown_time -= delta
 		var display := ceili(countdown_time)
@@ -132,18 +255,25 @@ func _process(delta: float) -> void:
 	elapsed += delta
 	progress_bar.value = (elapsed / song_duration) * 100.0
 
+	# Fade out progressif sur les 10 dernieres secondes si le track est cut
+	if song_duration == 120.0 and elapsed >= 110.0:
+		var fade_factor = clamp((elapsed - 110.0) / 10.0, 0.0, 1.0)
+		music_player.volume_db = lerp(0.0, -80.0, fade_factor)
+
 	if elapsed >= song_duration:
 		GameManager.end_game()
 
 func _begin_game() -> void:
 	is_counting_down = false
 	count_down.visible = false
+	voting_panel.visible = false
 	MultiplayerBridge.send_game_phase("playing")
 	player_judged_notes.clear()
 	elapsed = 0.0
 	progress_bar.value = 0.0
+	music_player.volume_db = 0.0 # reset volume in case of quick restart
 	if music_player.stream != null:
-		song_duration = music_player.stream.get_length()
+		song_duration = min(120.0, float(music_player.stream.get_length()))
 		ghost_player.stream = music_player.stream
 		
 	note_spawner.song_duration = song_duration
@@ -153,6 +283,59 @@ func _begin_game() -> void:
 	if music_player.stream != null:
 		music_player.play(0.0)
 		ghost_player.play(note_spawner.approach_time)
+
+func _on_vote_result(song_name: String) -> void:
+	selected_song = song_name
+	warmup_label.text = "MUSIQUE CHOISIE :"
+	
+	# Extraire la difficulté du nom du fichier (ex: "- EASY")
+	var display_name = song_name
+	var diff_text = ""
+	var diff_color = Color.WHITE
+	
+	if song_name.to_upper().ends_with("EASY"):
+		diff_text = "DIFFICULTÉ : FACILE"
+		diff_color = Color.GREEN
+		display_name = song_name.left(song_name.length() - 7).strip_edges()
+	elif song_name.to_upper().ends_with("MEDIUM"):
+		diff_text = "DIFFICULTÉ : MOYEN"
+		diff_color = Color.ORANGE
+		display_name = song_name.left(song_name.length() - 9).strip_edges()
+	elif song_name.to_upper().ends_with("HARD"):
+		diff_text = "DIFFICULTÉ : DIFFICILE"
+		diff_color = Color.RED
+		display_name = song_name.left(song_name.length() - 7).strip_edges()
+	elif song_name.to_upper().ends_with("EXTREME"):
+		diff_text = "DIFFICULTÉ : EXTRÊME"
+		diff_color = Color.BLACK
+		display_name = song_name.left(song_name.length() - 10).strip_edges()
+	
+	count_down.text = display_name
+	count_down.add_theme_font_size_override("font_size", 48)
+	
+	difficulty_label.text = diff_text
+	difficulty_label.add_theme_color_override("font_color", diff_color)
+	difficulty_label.visible = !diff_text.is_empty()
+	
+	# Appliquer la difficulté au spawner de notes
+	note_spawner.set_difficulty(song_name)
+	
+	# Charger la musique
+	var path = "res://assets/musics/" + song_name + ".mp3"
+	var stream = load(path)
+	if stream:
+		music_player.stream = stream
+		song_duration = min(120.0, float(stream.get_length()))
+	
+	reveal_timer = 4.0
+	
+	# Animation visuelle
+	# On centre le pivot pour que le scale se fasse depuis le milieu du texte
+	count_down.pivot_offset = count_down.size / 2
+	var tween = create_tween()
+	tween.tween_property(count_down, "scale", Vector2(1.2, 1.2), 0.3).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_interval(3.5) # On attend un peu plus pour couvrir le reveal_timer
+	tween.tween_callback(func(): count_down.scale = Vector2.ONE)
 
 #Signaux
 
@@ -188,6 +371,10 @@ func _on_game_over() -> void:
 	warmup_label.visible = true
 	warmup_label.text = "Partie terminee"
 	result_panel.visible = true
+	
+	# Relancer la musique de menu avec un fondu à la fin de la partie
+	MusicManager.play_menu_music()
+	
 	_refresh_result_panel()
 	_refresh_right_panel()
 
@@ -206,7 +393,24 @@ func _refresh_result_panel() -> void:
 	var score_a := int(team_scores.get("Equipe1", 0))
 	var score_b := int(team_scores.get("Equipe2", 0))
 	var score_c := int(team_scores.get("Equipe3", 0))
-	result_team_scores_label.text = "Equipe bleue : %d  |  Equipe rouge : %d  |  Equipe jaune : %d" % [score_a, score_b, score_c]
+	
+	var count_a = 0
+	var count_b = 0
+	var count_c = 0
+	for p_id in players:
+		var t: String = str(players[p_id].get("team", ""))
+		if t == "Equipe1": count_a += 1
+		elif t == "Equipe2": count_b += 1
+		elif t == "Equipe3": count_c += 1
+	
+	var label_text := "[center]"
+	label_text += "[b][font_size=24][color=#5fcde4]Musique : %s[/color][/font_size][/b]\n\n" % selected_song
+	label_text += "[b][color=#5fcde4]Equipe Bleue  :[/color][/b]  %d points (%dj)\n" % [score_a, count_a]
+	label_text += "[b][color=#ff7081]Equipe Rouge :[/color][/b]  %d points (%dj)\n" % [score_b, count_b]
+	label_text += "[b][color=#f0e040]Equipe Jaune :[/color][/b]  %d points (%dj)" % [score_c, count_c]
+	label_text += "[/center]"
+	
+	result_team_scores_label.text = label_text
 
 	# Couleur équipe bleue = cyan, rouge = rose, jaune = jaune
 	var color_a := Color("#5fcde4")
@@ -258,7 +462,8 @@ func _on_lobby_updated(remote_players: Array, remote_team_scores: Dictionary) ->
 			"name": str(p.get("pseudo", p.get("name", "Player"))),
 			"team": str(p.get("team", "Equipe1")),
 			"score": int(p.get("score", 0)),
-			"combo": int(p.get("combo", 0))
+			"combo": int(p.get("combo", 0)),
+			"perfect_streak": int(p.get("perfect_streak", 0))
 		}
 	for team_key in remote_team_scores.keys():
 		team_scores[team_key] = int(remote_team_scores.get(team_key, 0))
@@ -317,22 +522,31 @@ func _evaluate_remote_hit(player_id: String, color: int) -> Dictionary:
 
 	var player_data: Dictionary = players[player_id]
 	var next_combo := int(player_data.get("combo", 0)) + 1
-	var multiplier := 1
-	if next_combo >= 20:
-		multiplier = 4
-	elif next_combo >= 10:
-		multiplier = 3
-	elif next_combo >= 5:
-		multiplier = 2
+	var next_perfect_streak := int(player_data.get("perfect_streak", 0))
 
-	var points := base_points * multiplier
+	var points := base_points
+	if result == "PERFECT":
+		points += (next_perfect_streak * 3)
+		next_perfect_streak += 1
+	else:
+		next_perfect_streak = 0
+
 	var note_key := "%d:%d" % [color, int(round(float(note.spawn_time) * 1000.0))]
 	return {
 		"result": result,
 		"points": points,
 		"combo": next_combo,
+		"perfect_streak": next_perfect_streak,
 		"note_key": note_key
 	}
+
+func _on_global_note_missed(color: int, spawn_time: float) -> void:
+	var note_key := "%d:%d" % [color, int(round(spawn_time * 1000.0))]
+	for p_id in players.keys():
+		var judged: Dictionary = player_judged_notes.get(p_id, {})
+		if not judged.has(note_key):
+			_mark_judged_note(p_id, note_key)
+			_apply_remote_result(p_id, {"result": "MISS", "timeout": true})
 
 func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void:
 	if not players.has(player_id):
@@ -342,18 +556,20 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 	var result := str(result_payload.get("result", "MISS"))
 	var points := int(result_payload.get("points", 0))
 	var combo := int(player_data.get("combo", 0))
+	var perfect_streak := int(player_data.get("perfect_streak", 0))
 
 	if result == "MISS":
 		combo = 0
-		# Pénalité si clic dans le vide (points = -400 encodé comme 0 avec flag empty)
-		var is_empty := bool(result_payload.get("empty", false))
-		if is_empty:
-			points = - GameManager.PENALTY_EMPTY
+		perfect_streak = 0
+		# Pénalité systématique pour tout type de MISS (vide, timeout, timing)
+		points = - GameManager.PENALTY_EMPTY
 	else:
 		combo = int(result_payload.get("combo", combo + 1))
+		perfect_streak = int(result_payload.get("perfect_streak", perfect_streak))
 
 	var score := maxi(0, int(player_data.get("score", 0)) + points)
 	player_data["combo"] = combo
+	player_data["perfect_streak"] = perfect_streak
 	player_data["score"] = score
 	players[player_id] = player_data
 
@@ -396,9 +612,19 @@ func _refresh_right_panel() -> void:
 	var in_lobby: bool = is_waiting_start and not is_game_over
 	
 	if not in_lobby:
+		var count_a = 0
+		var count_b = 0
+		var count_c = 0
+		for p_id in players:
+			var t: String = str(players[p_id].get("team", ""))
+			if t == "Equipe1": count_a += 1
+			elif t == "Equipe2": count_b += 1
+			elif t == "Equipe3": count_c += 1
+			
 		team_a_score_label.text = "Equipe bleue: %d" % int(team_scores.get("Equipe1", 0))
 		team_b_score_label.text = "Equipe rouge: %d" % int(team_scores.get("Equipe2", 0))
 		team_c_score_label.text = "Equipe jaune: %d" % int(team_scores.get("Equipe3", 0))
+		lobby_count_label.text = "Musique: %s" % selected_song
 	else:
 		var count_a = 0
 		var count_b = 0
@@ -411,8 +637,7 @@ func _refresh_right_panel() -> void:
 		team_a_score_label.text = "Joueurs équipe bleue : %d" % count_a
 		team_b_score_label.text = "Joueurs équipe rouge : %d" % count_b
 		team_c_score_label.text = "Joueurs équipe jaune : %d" % count_c
-
-	lobby_count_label.text = "Joueurs connectes: %d" % players.size()
+		lobby_count_label.text = "Joueurs connectes: %d" % players.size()
 	var total := float(int(team_scores.get("Equipe1", 0)) + int(team_scores.get("Equipe2", 0)) + int(team_scores.get("Equipe3", 0)))
 	if total <= 0.0:
 		team_a_progress.value = 0.0
@@ -428,7 +653,7 @@ func _refresh_right_panel() -> void:
 	# En lobby : afficher QR code + lien, masquer classement
 	qr_texture.visible = is_waiting_start and join_url_ready # visible in lobby & result
 	join_link_label.visible = is_waiting_start
-	top5_label.visible = not in_lobby
+	top5_label.visible = not is_waiting_start
 
 	var ranked := _get_sorted_players()
 	var lines := ["[b]TOP 5 JOUEURS[/b]"]
@@ -442,19 +667,26 @@ func _refresh_right_panel() -> void:
 
 func _load_qr_code() -> void:
 	var url := join_url_override.strip_edges()
+	var local_ip := _get_preferred_lan_ip()
 	if url.is_empty():
-		url = "http://%s:3000" % _get_preferred_lan_ip()
+		url = "http://%s:3000" % local_ip
+	print("=== Génération du QR Code ===")
+	print("Adresse IP locale détectée : ", local_ip)
+	print("URL intégrée dans le QR Code : ", url)
+	print("===============================")
+	
 	var encoded := url.uri_encode()
-	qr_http.request("https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encoded)
+	qr_http.request("https://quickchart.io/qr?size=180&format=png&text=" + encoded)
 
 func _on_public_url_received(url: String) -> void:
 	print("Tunnel public recu depuis Node.js : ", url)
+	print("URL intégrée dans le QR Code : ", url)
 	join_url_ready = true
 	join_url_override = url
 	join_link_label.text = "Adresse: %s" % url
 	qr_http.cancel_request()
 	var encoded := url.uri_encode()
-	qr_http.request("https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=" + encoded)
+	qr_http.request("https://quickchart.io/qr?size=180&format=png&text=" + encoded)
 	_refresh_right_panel()
 
 func _on_qr_downloaded(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
@@ -464,9 +696,11 @@ func _on_qr_downloaded(_result: int, _code: int, _headers: PackedStringArray, bo
 
 func _set_join_url() -> void:
 	var join_url := join_url_override.strip_edges()
+	var local_ip := _get_preferred_lan_ip()
 	if join_url.is_empty():
-		var local_ip := _get_preferred_lan_ip()
 		join_url = "http://%s:3000" % local_ip
+	print("Set Join URL - IP Locale : ", local_ip)
+	print("Set Join URL - URL finale : ", join_url)
 	join_link_label.text = "Adresse: %s" % join_url
 
 func _already_judged_note(player_id: String, note_key: String) -> bool:
@@ -533,7 +767,7 @@ func _on_start_match_pressed() -> void:
 		players[player_id] = player_data
 	MultiplayerBridge.send_scoreboard(_build_player_array(), team_scores)
 	_refresh_right_panel()
-	_start_countdown()
+	_start_voting()
 
 func _verifier_equilibrage() -> bool:
 	var team_counts := {"Equipe1": 0, "Equipe2": 0, "Equipe3": 0}
@@ -561,4 +795,3 @@ func _verifier_equilibrage() -> bool:
 		return false
 		
 	return true
-

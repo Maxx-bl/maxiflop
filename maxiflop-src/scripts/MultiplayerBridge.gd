@@ -6,6 +6,7 @@ signal lobby_updated(players: Array, team_scores: Dictionary)
 signal player_input_received(payload: Dictionary)
 signal player_left(player_id: String)
 signal public_url_received(url: String)
+signal vote_result_received(song_name: String)
 
 # L'URL qui imite la toute première connexion d'un client HTTP Socket.IO via WebSocket
 @export var server_url: String = "ws://127.0.0.1:3000/socket.io/?EIO=4&transport=websocket"
@@ -62,6 +63,12 @@ func send_scoreboard(players: Array, team_scores: Dictionary) -> void:
 		"teamScores": team_scores
 	})
 
+func send_music_list(musics: Array) -> void:
+	_emit_socketio("music_list", {"musics": musics})
+
+func send_vote(song_name: String) -> void:
+	_emit_socketio("vote", {"songName": song_name})
+
 func request_lobby() -> void:
 	_emit_socketio("get_lobby", {})
 
@@ -114,3 +121,5 @@ func _handle_message(text: String) -> void:
 						emit_signal("player_left", str(msg.get("playerId", "")))
 					"public_url":
 						emit_signal("public_url_received", str(msg.get("url", "")))
+					"vote_result":
+						emit_signal("vote_result_received", str(msg.get("winner", "")))

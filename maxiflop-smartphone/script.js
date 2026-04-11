@@ -9,7 +9,9 @@ const timerDisplay = document.getElementById("timerDisplay");
 const screens = {
 	login: document.getElementById("login"),
 	waiting: document.getElementById("waiting"),
-	controller: document.getElementById("controller")
+	controller: document.getElementById("controller"),
+	vote: document.getElementById("vote"),
+	rotate: document.getElementById("rotate")
 };
 
 const showScreen = (key) => {
@@ -81,8 +83,8 @@ socket.on("update-lobby", (gameState) => {
 
 // Écoute des phases de la partie, dictées par Godot
 socket.on("host_phase", (data) => {
-	if (data.phase === "countdown") {
-		timerDisplay.textContent = "Regardez l'écran, lancement imminent !";
+	if (data.phase === "countdown" || data.phase === "reveal") {
+		showScreen("rotate");
 	} else if (data.phase === "playing") {
 		feedbackText.textContent = "GO !";
 		document.body.classList.add("playing");
@@ -94,6 +96,8 @@ socket.on("host_phase", (data) => {
 		// Remise à zéro visuelle pour la prochaine partie
 		scoreText.textContent = "0";
 		feedbackText.textContent = "Pret ?";
+	} else if (data.phase === "voting") {
+		showScreen("vote");
 	}
 });
 
@@ -106,7 +110,8 @@ socket.on("desequilibre", (teams) => {
 });
 
 socket.on("feedback", (msg) => {
-	feedbackText.textContent = `${msg.result} (+${msg.points})`;
+	const sign = msg.points > 0 ? "+" : "";
+	feedbackText.textContent = `${msg.result} (${sign}${msg.points})`;
 	scoreText.textContent = `${msg.score}`;
 
 	const teamName = localStorage.getItem("maxiflop_team") || "???";
@@ -117,9 +122,47 @@ socket.on("feedback", (msg) => {
 	triggerVibration(msg.result);
 });
 
+socket.on("music_list", (musics) => {
+	const musicList = document.getElementById("musicList");
+	musicList.innerHTML = "";
+	musics.forEach((song) => {
+		const item = document.createElement("div");
+		item.className = "music-item";
+		
+		let displayName = song;
+		if (song.toUpperCase().endsWith("EASY")) {
+			item.classList.add("diff-easy");
+			displayName = song.substring(0, song.length - 7);
+		} else if (song.toUpperCase().endsWith("MEDIUM")) {
+			item.classList.add("diff-medium");
+			displayName = song.substring(0, song.length - 9);
+		} else if (song.toUpperCase().endsWith("HARD")) {
+			item.classList.add("diff-hard");
+			displayName = song.substring(0, song.length - 7);
+		} else if (song.toUpperCase().endsWith("EXTREME")) {
+			item.classList.add("diff-extreme");
+			displayName = song.substring(0, song.length - 10);
+		}
+		
+		item.textContent = displayName.trim();
+		item.onclick = () => {
+			document.querySelectorAll(".music-item").forEach(el => el.classList.remove("selected"));
+			item.classList.add("selected");
+			socket.emit("vote", { songName: song });
+		};
+		musicList.appendChild(item);
+	});
+});
+
+socket.on("vote_result", (data) => {
+	// Optionnel : on pourrait afficher le gagnant sur le téléphone aussi
+	console.log("Winner is:", data.winner);
+});
+
 document.querySelectorAll(".btn[data-color]").forEach((btn) => {
-	btn.addEventListener("pointerdown", (e) => {
-		e.preventDefault();
+	btn.addEventListener("pointerdown", () => {
+		// Pas de preventDefault() ici : certains navigateurs bloquent l'API Vibration si le geste est "consommé"
+		if (navigator.vibrate) navigator.vibrate(50); 
 		const color = Number(btn.dataset.color);
 		socket.emit("player_input", {
 			color,
@@ -129,8 +172,8 @@ document.querySelectorAll(".btn[data-color]").forEach((btn) => {
 });
 
 const resultStyles = {
-	"PERFECT": { bg: "#84FFC9", vibrate: [60, 30, 60], textColor: "#0a2a1a" },
-	"GOOD": { bg: "#AAB2FF", vibrate: [30], textColor: "#0a0a2a" },
+	"PERFECT": { bg: "#84FFC9", vibrate: 100, textColor: "#0a2a1a" },
+	"GOOD": { bg: "#AAB2FF", vibrate: 60, textColor: "#0a0a2a" },
 	"BAD": { bg: "#F0E040", vibrate: 0, textColor: "#1a1800" },
 	"MISS": { bg: "#FF7081", vibrate: 0, textColor: "#1a0005" },
 };
@@ -142,7 +185,10 @@ function triggerVibration(result) {
 	const style = resultStyles[result];
 	if (!style) return;
 
-	if (navigator.vibrate) navigator.vibrate(style.vibrate);
+	if (navigator.vibrate) {
+		const success = navigator.vibrate(style.vibrate);
+		console.log(`Vibration attempt (${result}): ${success}`);
+	}
 	if (flashTimeout) clearTimeout(flashTimeout);
 
 	controllerScreen.style.backgroundColor = style.bg;

@@ -24,6 +24,7 @@ var current_cooldown: float = 0.0
 var smoothed_magnitude: float = 0.0
 var bass_baseline: float = 0.0
 var is_in_beat: bool = false
+var current_max_freq: float = 150.0
 
 
 var rng := RandomNumberGenerator.new()
@@ -39,6 +40,29 @@ func start_spectrum(bus_idx: int) -> void:
 	if bus_idx >= 0:
 		analyzer_instance = AudioServer.get_bus_effect_instance(bus_idx, 0) as AudioEffectSpectrumAnalyzerInstance
 
+func set_difficulty(diff_name: String) -> void:
+	var d = diff_name.to_upper()
+	if d.ends_with("EASY"):
+		bass_threshold = 0.008
+		cooldown_time = 0.20
+	elif d.ends_with("MEDIUM"):
+		bass_threshold = 0.004
+		cooldown_time = 0.16
+	elif d.ends_with("HARD"):
+		bass_threshold = 0.002
+		cooldown_time = 0.13
+	elif d.ends_with("EXTREME"):
+		bass_threshold = 0.001
+		cooldown_time = 0.10
+		current_max_freq = 150.0
+	else:
+		# Valeur par défaut si non spécifié
+		bass_threshold = 0.004
+		cooldown_time = 0.15
+		current_max_freq = 150.0
+	
+	print("[NoteSpawner] Difficulte reglee sur: ", d, " (Threshold: ", bass_threshold, ", Cooldown: ", cooldown_time, ")")
+
 func stop() -> void:
 	is_running = false
 
@@ -51,7 +75,7 @@ func _process(delta: float) -> void:
 		current_cooldown -= delta
 		
 	if analyzer_instance != null:
-		var mag: Vector2 = analyzer_instance.get_magnitude_for_frequency_range(20.0, 150.0, AudioEffectSpectrumAnalyzerInstance.MAGNITUDE_AVERAGE)
+		var mag: Vector2 = analyzer_instance.get_magnitude_for_frequency_range(20.0, current_max_freq, AudioEffectSpectrumAnalyzerInstance.MAGNITUDE_AVERAGE)
 		var bass_energy = (mag.x + mag.y) / 2.0
 		
 		# Suivi très réactif de l'énergie (smooth)
@@ -77,6 +101,9 @@ func _process(delta: float) -> void:
 var last_col: int = -1
 
 func _spawn_bass_note() -> void:
+	if time_elapsed >= song_duration - 3.0:
+		return
+		
 	var col := rng.randi_range(0, 2)
 	if col == last_col:
 		col = (col + rng.randi_range(1, 2)) % 3
@@ -113,6 +140,7 @@ func _check_misses() -> void:
 		if time_elapsed > note.spawn_time + 0.25:
 			note.miss_animation()
 			GameManager.register_miss()
+			GameManager.emit_signal("global_note_missed", note.color, note.spawn_time)
 			to_remove.append(note)
 	for note in to_remove:
 		active_notes.erase(note)

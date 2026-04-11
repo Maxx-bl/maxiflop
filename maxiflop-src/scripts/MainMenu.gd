@@ -8,8 +8,7 @@ func _ready() -> void:
 	title_label.modulate.a = 0.0
 	var tween := create_tween()
 	tween.tween_property(title_label, "modulate:a", 1.0, 0.8)
-	tween.tween_property(start_button, "modulate:a", 1.0, 0.4)
-
+	
 	start_button.modulate.a = 0.0
 	quit_button.modulate.a = 0.0
 
@@ -17,6 +16,8 @@ func _ready() -> void:
 	var t2 := create_tween()
 	t2.tween_property(start_button, "modulate:a", 1.0, 0.3)
 	t2.tween_property(quit_button, "modulate:a", 1.0, 0.3)
+	
+	MusicManager.play_menu_music()
 
 func _on_start_pressed() -> void:
 	var tween := create_tween()
@@ -27,8 +28,13 @@ func _on_start_pressed() -> void:
 func _on_quit_pressed() -> void:
 	get_tree().quit()
 
-var time: float = 0.0
-
-func _process(delta: float) -> void:
-	time += delta
-	title_label.scale = Vector2.ONE * (1.0 + sin(time * 3.0) * 0.03)
+func _process(_delta: float) -> void:
+	# Effet de rebond fluide basé sur le BPM (progression du beat)
+	var prog = MusicManager.get_beat_progress()
+	
+	# Création d'une courbe de rebond fluide (0 -> 1 -> 0 sur un beat)
+	var bounce = sin(prog * PI)
+	var target_scale = 1.0 + (bounce * 0.15)
+	
+	# Application directe pour une fluidité maximale indexée sur le son
+	title_label.scale = Vector2.ONE * target_scale

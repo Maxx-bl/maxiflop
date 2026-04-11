@@ -21,14 +21,13 @@ config/icon="res://icon.svg"
 GameManager="*res://scripts/GameManager.gd"
 MultiplayerBridge="*res://scripts/MultiplayerBridge.gd"
 ServerManager="*res://scripts/ServerManager.gd"
+MusicManager="*res://scripts/MusicManager.gd"
 
 [display]
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/size/mode=2
-window/size/resizable=true
-window/size/borderless=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

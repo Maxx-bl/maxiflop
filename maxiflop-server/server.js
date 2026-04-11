@@ -21,11 +21,28 @@ const gameState = {
 		{ name: "Equipe2", players: [] },
 		{ name: "Equipe3", players: [] }
 	],
-	players: {}
+	players: {},
+	teamScores: { "Equipe1": 0, "Equipe2": 0, "Equipe3": 0 },
+	availableMusics: [],
+	playerVotes: {} // socket.id -> songName
 };
 
 let godotHost = null;
 let publicUrl = null;
+let cloudflaredProcess = null;
+
+function cleanupAndExit() {
+	console.log("\nArrêt du serveur et nettoyage...");
+	if (cloudflaredProcess) {
+		console.log("Fermeture du tunnel Cloudflare...");
+		cloudflaredProcess.kill();
+	}
+	process.exit(0);
+}
+
+// Gestion des signaux d'arrêt
+process.on('SIGINT', cleanupAndExit);
+process.on('SIGTERM', cleanupAndExit);
 
 function sendLobbyToGodot() {
 	if (!godotHost) return;
@@ -39,8 +56,7 @@ function sendLobbyToGodot() {
 		});
 	});
 
-	const teamScores = {};
-	gameState.teams.forEach(t => teamScores[t.name] = 0);
+	const teamScores = { ...gameState.teamScores };
 
 	godotHost.emit("lobby_update", {
 		players: playersArr,
@@ -96,10 +112,37 @@ io.on('connection', (socket) => {
 			}
 		}
 
+		if (gameState.status === "voting" && data.phase !== "voting") {
+			// Fin du vote, calculer le gagnant en agrégeant playerVotes
+			const tally = {};
+			Object.values(gameState.playerVotes).forEach(song => {
+				tally[song] = (tally[song] || 0) + 1;
+			});
+
+			let winner = "";
+			let maxVotes = -1;
+			Object.keys(tally).forEach(song => {
+				if (tally[song] > maxVotes) {
+					maxVotes = tally[song];
+					winner = song;
+				}
+			});
+			// Si pas de vote, prendre une musique au hasard
+			if (!winner && gameState.availableMusics.length > 0) {
+				winner = gameState.availableMusics[Math.floor(Math.random() * gameState.availableMusics.length)];
+			}
+			io.emit('vote_result', { winner });
+		}
+
 		io.emit('host_phase', data);
 
 		if (data.phase === "playing") {
 			gameState.status = "playing";
+		} else if (data.phase === "voting") {
+			gameState.status = "voting";
+			gameState.playerVotes = {};
+		} else if (data.phase === "reveal" || data.phase === "countdown") {
+			gameState.status = data.phase;
 		} else if (data.phase === "lobby" || data.phase === "ended") {
 			gameState.status = "lobby";
 		}
@@ -134,13 +177,6 @@ io.on('connection', (socket) => {
 	});
 
 	socket.on('player_input', (data) => {
-		io.emit('player_input', {
-			playerId: socket.id,
-			color: Number(data.color),
-			clientTs: Number(data.clientTs || Date.now()),
-			serverTs: Date.now()
-		});
-
 		if (godotHost) {
 			godotHost.emit('player_input', {
 				playerId: socket.id,
@@ -155,12 +191,41 @@ io.on('connection', (socket) => {
 		if (data.playerId) io.to(data.playerId).emit('feedback', data);
 	});
 
+	socket.on('scoreboard', (data) => {
+		if (data.players) {
+			data.players.forEach(p => {
+				if (gameState.players[p.id]) {
+					gameState.players[p.id].score = p.score;
+					gameState.players[p.id].combo = p.combo;
+					gameState.players[p.id].perfect_streak = p.perfect_streak;
+				}
+			});
+		}
+		if (data.teamScores) {
+			Object.assign(gameState.teamScores, data.teamScores);
+		}
+	});
+
+	socket.on('music_list', (data) => {
+		gameState.availableMusics = data.musics || [];
+		io.emit('music_list', gameState.availableMusics);
+	});
+
+	socket.on('vote', (data) => {
+		const songName = data.songName;
+		if (gameState.availableMusics.includes(songName)) {
+			gameState.playerVotes[socket.id] = songName;
+			console.log(`Vote de ${socket.id} pour ${songName}`);
+		}
+	});
+
 	socket.on('disconnect', () => {
 		console.log('user disconnected :', socket.id);
 
 		if (godotHost === socket) {
-			console.log('Godot Host déconnecté');
+			console.log('Godot Host déconnecté, AUTO-DESTRUCTION du serveur Node.');
 			godotHost = null;
+			cleanupAndExit();
 			return;
 		}
 
@@ -191,24 +256,34 @@ server.listen(port, "0.0.0.0", async () => {
 
 	try {
 		console.log("Démarrage du tunnel Cloudflare (cloudflared)...");
-		const cloudflared = spawn('npx', ['-y', 'cloudflared', 'tunnel', '--url', `http://localhost:${port}`], { shell: true });
+		const cmd = os.platform() === 'win32' ? 'npx.cmd' : 'npx';
+		// On passe explicitement par cmd /c sur Windows pour plus de stabilité
+		cloudflaredProcess = spawn(cmd, ['-y', 'cloudflared', 'tunnel', '--url', `http://localhost:${port}`], { shell: true });
 
 		let outputBuffer = '';
-		cloudflared.stderr.on('data', (data) => {
-			outputBuffer += data.toString();
+		cloudflaredProcess.stderr.on('data', (data) => {
+			const str = data.toString();
+			outputBuffer += str;
+			
+			// On logge tout en mode "debug" pour aider l'utilisateur
+			if (str.includes("INF") || str.includes("ERR")) {
+				process.stdout.write("[Cloudflare] " + str);
+			}
+
 			const match = outputBuffer.match(/https:\/\/[a-zA-Z0-9-]+\.trycloudflare\.com/);
 			if (match && !publicUrl) {
 				publicUrl = match[0];
-				console.log(`Tunnel public Cloudflare: ${publicUrl}`);
+				console.log(`\n=== TUNNEL PRÊT ===\nURL publique: ${publicUrl}\n===================\n`);
 				if (godotHost) godotHost.emit('public_url', { url: publicUrl });
 			}
 		});
 
-		cloudflared.on('close', (code) => {
+		cloudflaredProcess.on('close', (code) => {
 			console.log(`Le tunnel Cloudflare s'est fermé avec le code ${code}`);
+			cloudflaredProcess = null;
 		});
 
-		cloudflared.on('error', (err) => {
+		cloudflaredProcess.on('error', (err) => {
 			console.log("Erreur de lancement de cloudflared:", err.message);
 		});
 	} catch (e) {

@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://b6gw21jt56fma"
+path="res://.godot/imported/Chuckyy x Skrilla – “Just Dance”.mp3-e2fb392767120c489d3b1a3bc80782e8.mp3str"
+
+[deps]
+
+source_file="res://assets/Chuckyy x Skrilla – “Just Dance”.mp3"
+dest_files=["res://.godot/imported/Chuckyy x Skrilla – “Just Dance”.mp3-e2fb392767120c489d3b1a3bc80782e8.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
