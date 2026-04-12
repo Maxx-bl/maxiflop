@@ -9,7 +9,7 @@ func _ready() -> void:
 	if menu_music is AudioStreamMP3:
 		menu_music.loop = true
 	music_player.stream = menu_music
-	music_player.bus = "Master"
+	music_player.bus = "MenuMusic"
 	add_child(music_player)
 	
 	music_player.volume_db = -80.0

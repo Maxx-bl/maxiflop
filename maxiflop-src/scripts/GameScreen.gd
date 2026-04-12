@@ -66,6 +66,8 @@ func _ready() -> void:
 	ghost_player = AudioStreamPlayer.new()
 	ghost_player.bus = "PhantomBus"
 	add_child(ghost_player)
+	
+	music_player.bus = "InGameMusic"
 	# ------------------------
 
 	GameManager.combo_changed.connect(_on_combo_changed)

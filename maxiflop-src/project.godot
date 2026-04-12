@@ -16,8 +16,13 @@ run/main_scene="res://scenes/MainMenu.tscn"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[audio]
+
+main/bus_layout="res://default_bus_layout.tres"
+
 [autoload]
 
+SettingsManager="*res://scripts/SettingsManager.gd"
 GameManager="*res://scripts/GameManager.gd"
 MultiplayerBridge="*res://scripts/MultiplayerBridge.gd"
 ServerManager="*res://scripts/ServerManager.gd"

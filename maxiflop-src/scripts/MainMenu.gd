@@ -2,6 +2,7 @@ extends Node2D
 
 @onready var title_label: Label = $TitleLabel
 @onready var start_button: Button = $StartButton
+@onready var settings_button: Button = $SettingsButton
 @onready var quit_button: Button = $QuitButton
 
 func _ready() -> void:
@@ -10,12 +11,14 @@ func _ready() -> void:
 	tween.tween_property(title_label, "modulate:a", 1.0, 0.8)
 	
 	start_button.modulate.a = 0.0
+	settings_button.modulate.a = 0.0
 	quit_button.modulate.a = 0.0
 
 	await get_tree().create_timer(0.6).timeout
 	var t2 := create_tween()
-	t2.tween_property(start_button, "modulate:a", 1.0, 0.3)
-	t2.tween_property(quit_button, "modulate:a", 1.0, 0.3)
+	t2.tween_property(start_button, "modulate:a", 1.0, 0.2)
+	t2.tween_property(settings_button, "modulate:a", 1.0, 0.2)
+	t2.tween_property(quit_button, "modulate:a", 1.0, 0.2)
 	
 	MusicManager.play_menu_music()
 
@@ -24,6 +27,12 @@ func _on_start_pressed() -> void:
 	tween.tween_property(self , "modulate:a", 0.0, 0.3)
 	await tween.finished
 	get_tree().change_scene_to_file("res://scenes/GameScreen.tscn")
+
+func _on_settings_pressed() -> void:
+	var tween := create_tween()
+	tween.tween_property(self , "modulate:a", 0.0, 0.2)
+	await tween.finished
+	get_tree().change_scene_to_file("res://scenes/SettingsMenu.tscn")
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()
