@@ -288,15 +288,13 @@ func _process(delta: float) -> void:
 		progress_bar.value = clamp((elapsed / song_duration) * 100.0, 0, 100)
 
 	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and GameManager.is_playing:
-		br_ramp_timer += delta
-		if br_ramp_timer >= 10.0:
-			br_ramp_timer = 0.0
-			# Accélération plus agressive !
-			note_spawner.bass_threshold = max(0.00001, note_spawner.bass_threshold * 0.6)
-			note_spawner.cooldown_time = max(0.01, note_spawner.cooldown_time * 0.7)
-			print("[BR Mode] Difficulté boostée ! Threshold: ", note_spawner.bass_threshold, " Cooldown: ", note_spawner.cooldown_time)
+		# Accélération fluide Crescendo : +1 de difficulté chaque minute (45s pour être agressif)
+		var difficulty_factor = 1.0 + (elapsed / 45.0)
+		note_spawner.set_difficulty_scaling(difficulty_factor)
 		
-		# En BR, pas de fin de partie basée sur elapsed si on loop
+		# Feedback optionnel dans la console (toutes les quelques secondes)
+		if int(elapsed) % 20 == 0 and elapsed > 0 and int(elapsed * 10) % 10 == 0:
+			print("[BR Mode] Difficulté crescendo: %.2f" % difficulty_factor)
 	else:
 		# Fade out progressif sur les 10 dernieres secondes si le track est cut
 		if song_duration == 120.0 and elapsed >= 110.0:
@@ -629,8 +627,9 @@ func _on_global_note_missed(color: int, spawn_time: float) -> void:
 	for p_id in players.keys():
 		var judged: Dictionary = player_judged_notes.get(p_id, {})
 		if not judged.has(note_key):
-			_mark_judged_note(p_id, note_key)
-			_apply_remote_result(p_id, {"result": "MISS", "timeout": true})
+			# On ne marque pas encore comme juge pour laisser le sursis de lag
+			# Mais on envoie le signal de timeout
+			_apply_remote_result(p_id, {"result": "MISS", "timeout": true, "note_key": note_key})
 
 func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void:
 	if not players.has(player_id):
@@ -645,18 +644,31 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 	if result == "MISS":
 		combo = 0
 		perfect_streak = 0
-		# Pénalité systématique pour tout type de MISS (vide, timeout, timing)
 		points = - GameManager.PENALTY_EMPTY
 		
-		# Logique Battle Royale : Élimination
+		# Logique Battle Royale : Élimination avec sursis de lag
 		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
-			if alive_players.has(player_id):
-				alive_players.erase(player_id)
-				eliminated_count += 1
-				MultiplayerBridge.send_elimination(player_id)
-				print("[BR] Joueur éliminé: ", player_id)
-				_check_br_victory()
+			if result_payload.get("timeout", false):
+				# C'est une note passee. On donne 400ms de sursis pour le lag
+				var note_key = result_payload.get("note_key", "")
+				get_tree().create_timer(0.4).timeout.connect(func():
+					# On verifie si le joueur a finalement touche la note via un signal arrive plus tard
+					var judged = player_judged_notes.get(player_id, {})
+					if not judged.has(note_key):
+						# Toujours pas touche ? Ok, elimination confirmee
+						if alive_players.has(player_id):
+							_finalize_elimination(player_id)
+				)
+			else:
+				# C'est une faute directe (mauvaise couleur) : Elimination immediate
+				if alive_players.has(player_id):
+					_finalize_elimination(player_id)
 	else:
+		# Succes ! On marque la note comme jugee
+		var note_key = result_payload.get("note_key", "")
+		if not note_key.is_empty():
+			_mark_judged_note(player_id, note_key)
+			
 		combo = int(result_payload.get("combo", combo + 1))
 		perfect_streak = int(result_payload.get("perfect_streak", perfect_streak))
 
@@ -679,6 +691,15 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 	MultiplayerBridge.send_feedback(player_id, result, points, combo, score, rank)
 	MultiplayerBridge.send_scoreboard(_build_player_array(), team_scores)
 	_refresh_right_panel()
+
+func _finalize_elimination(player_id: String) -> void:
+	if not alive_players.has(player_id): return
+	
+	alive_players.erase(player_id)
+	eliminated_count += 1
+	MultiplayerBridge.send_elimination(player_id)
+	print("[BR] Elimination confirmee : ", player_id)
+	_check_br_victory()
 
 func _build_player_array() -> Array:
 	var arr: Array = []

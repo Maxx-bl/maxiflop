@@ -29,6 +29,9 @@ var current_max_freq: float = 150.0
 var treble_baseline: float = 0.0
 var is_in_treble: bool = false
 
+var _actual_cooldown_calculated: float = 0.15
+var _actual_threshold_calculated: float = 0.004
+var last_col: int = -1
 
 var rng := RandomNumberGenerator.new()
 
@@ -40,6 +43,9 @@ func start_spectrum(bus_idx: int) -> void:
 	smoothed_magnitude = 0.0
 	bass_baseline = 0.0
 	is_in_beat = false
+	_actual_cooldown_calculated = cooldown_time
+	_actual_threshold_calculated = bass_threshold
+	
 	if bus_idx >= 0:
 		analyzer_instance = AudioServer.get_bus_effect_instance(bus_idx, 0) as AudioEffectSpectrumAnalyzerInstance
 		if analyzer_instance:
@@ -63,14 +69,25 @@ func set_difficulty(diff_name: String) -> void:
 	elif d.ends_with("EXTREME"):
 		bass_threshold = 0.001
 		cooldown_time = 0.10
-		current_max_freq = 150.0
 	else:
-		# Valeur par défaut si non spécifié
 		bass_threshold = 0.004
 		cooldown_time = 0.15
-		current_max_freq = 150.0
 	
-	print("[NoteSpawner] Difficulte reglee sur: ", d, " (Threshold: ", bass_threshold, ", Cooldown: ", cooldown_time, ")")
+	_actual_cooldown_calculated = cooldown_time
+	_actual_threshold_calculated = bass_threshold
+	print("[NoteSpawner] Difficulte initiale: ", d, " (Threshold: ", bass_threshold, ", Cooldown: ", cooldown_time, ")")
+
+func set_difficulty_scaling(factor: float) -> void:
+	# factor augmente avec le temps (1.0 -> 2.0...)
+	var current_threshold = bass_threshold / factor
+	var current_cooldown_limit = cooldown_time / factor
+	
+	# SECURITÉ ANTI-OVERLAP
+	var fall_speed = (hit_y - spawn_y) / approach_time
+	var min_safe_cooldown = 100.0 / fall_speed # 100px min entre notes
+	
+	_actual_cooldown_calculated = max(current_cooldown_limit, min_safe_cooldown)
+	_actual_threshold_calculated = max(0.00005, current_threshold)
 
 func stop() -> void:
 	is_running = false
@@ -87,45 +104,36 @@ func _process(delta: float) -> void:
 		var mag: Vector2 = analyzer_instance.get_magnitude_for_frequency_range(20.0, current_max_freq, AudioEffectSpectrumAnalyzerInstance.MAGNITUDE_AVERAGE)
 		var bass_energy = (mag.x + mag.y) / 2.0
 		
-		# Suivi très réactif de l'énergie (smooth)
 		smoothed_magnitude = lerp(smoothed_magnitude, bass_energy, delta * 30.0)
-		
-		# Suivi très lent pour estimer l'ambiance globale de basse (bruit de fond / nappe)
 		bass_baseline = lerp(bass_baseline, bass_energy, delta * 1.5)
 		
-		var dynamic_threshold = bass_baseline + bass_threshold
+		var dynamic_threshold = bass_baseline + _actual_threshold_calculated
 		
-		# [BASSES] Detection de type "Schmitt trigger" (Hysteresis) adaptatif
+		# BASSES
 		if smoothed_magnitude > dynamic_threshold:
 			if not is_in_beat and current_cooldown <= 0:
 				_spawn_bass_note()
-				current_cooldown = cooldown_time
+				current_cooldown = _actual_cooldown_calculated
 			is_in_beat = true
-		elif smoothed_magnitude < dynamic_threshold - (bass_threshold * 0.5):
-			# Réarmer le beat quand l'énergie retombe bas
+		elif smoothed_magnitude < dynamic_threshold - (_actual_threshold_calculated * 0.5):
 			is_in_beat = false
-
-		# [MELODIE] Detection additionnelle pour densifier en mode Battle Royale
+		
+		# MELODIE (BR seulement)
 		if is_looping:
-			var mag_treble: Vector2 = analyzer_instance.get_magnitude_for_frequency_range(300.0, 5000.0, AudioEffectSpectrumAnalyzerInstance.MAGNITUDE_AVERAGE)
-			var treble_energy = (mag_treble.x + mag_treble.y) / 2.0
+			var mag_t: Vector2 = analyzer_instance.get_magnitude_for_frequency_range(300.0, 5000.0, AudioEffectSpectrumAnalyzerInstance.MAGNITUDE_AVERAGE)
+			var treble_energy = (mag_t.x + mag_t.y) / 2.0
 			treble_baseline = lerp(treble_baseline, treble_energy, delta * 2.0)
-			
-			# Seuil beaucoup plus sensible pour la melodie (plus de notes)
-			var dyn_treble_threshold = treble_baseline + (bass_threshold * 1.0)
+			var dyn_treble_threshold = treble_baseline + (_actual_threshold_calculated * 0.8)
 			
 			if treble_energy > dyn_treble_threshold:
 				if not is_in_treble and current_cooldown <= 0:
 					_spawn_bass_note()
-					# Cooldown tres court pour une densite maximale (Massacre !)
-					current_cooldown = cooldown_time * 0.3
+					current_cooldown = _actual_cooldown_calculated * 0.5
 				is_in_treble = true
 			elif treble_energy < dyn_treble_threshold * 0.7:
 				is_in_treble = false
 
 	_check_misses()
-
-var last_col: int = -1
 
 func _spawn_bass_note() -> void:
 	if not is_looping and time_elapsed >= song_duration - 3.0:
@@ -136,11 +144,8 @@ func _spawn_bass_note() -> void:
 		col = (col + rng.randi_range(1, 2)) % 3
 	last_col = col
 	
-	# Le ghost player entend la basse mtn
-	# L'auditeur l'entendra exactement dans approach_time secondes
 	var note_strike_time = time_elapsed + approach_time
 	_spawn_note(col, note_strike_time)
-
 
 func _spawn_note(col: int, arrive_time: float) -> void:
 	if note_scene == null:
@@ -164,6 +169,7 @@ func _check_misses() -> void:
 		if note.has_been_hit or note.is_missed:
 			to_remove.append(note)
 			continue
+		# Host-side detection: si la note dépasse de 250ms le temps de spawn
 		if time_elapsed > note.spawn_time + 0.25:
 			note.miss_animation()
 			GameManager.register_miss()
@@ -175,10 +181,8 @@ func _check_misses() -> void:
 func get_notes_near_hit(col: int, hit_y_pos: float) -> Array:
 	var result := []
 	for note in active_notes:
-		if not is_instance_valid(note):
-			continue
-		if note.has_been_hit or note.is_missed:
-			continue
+		if not is_instance_valid(note): continue
+		if note.has_been_hit or note.is_missed: continue
 		if note.color == col:
 			if abs(note.position.y - hit_y_pos) <= 50:
 				result.append(note)
@@ -189,16 +193,12 @@ func get_best_note_for_timing(col: int, song_time: float, max_window: float = 0.
 	var best_note = null
 	var best_error := 999.0
 	for note in active_notes:
-		if not is_instance_valid(note):
-			continue
-		if note.has_been_hit or note.is_missed:
-			continue
-		if note.color != col:
-			continue
+		if not is_instance_valid(note): continue
+		if note.has_been_hit or note.is_missed: continue
+		if note.color != col: continue
 		var err: float = abs(float(note.spawn_time) - song_time)
 		if err <= max_window and err < best_error:
 			best_error = err
 			best_note = note
-	if best_note == null:
-		return {}
+	if best_note == null: return {}
 	return {"note": best_note, "timing_error": best_error}
