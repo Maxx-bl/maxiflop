@@ -44,8 +44,13 @@ func _process(_delta: float) -> void:
 		var text := packet.get_string_from_utf8()
 		_handle_message(text)
 
-func send_game_phase(phase: String, remaining: int = 0) -> void:
-	_emit_socketio("host_phase", {"phase": phase, "remaining": remaining})
+func send_game_phase(phase: String, remaining: int = 0, extra_data: Dictionary = {}) -> void:
+	var payload = {"phase": phase, "remaining": remaining}
+	payload.merge(extra_data)
+	_emit_socketio("host_phase", payload)
+
+func send_elimination(player_id: String) -> void:
+	_emit_socketio("player_eliminated", {"playerId": player_id})
 
 func send_feedback(player_id: String, result: String, points: int, combo: int, score: int, rank: int) -> void:
 	_emit_socketio("feedback", {

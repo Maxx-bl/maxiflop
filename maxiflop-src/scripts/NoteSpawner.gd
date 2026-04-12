@@ -13,6 +13,7 @@ signal note_spawned(note: Area2D)
 
 var time_elapsed: float = 0.0
 var is_running: bool = false
+var is_looping: bool = false
 var song_duration: float = 30.0
 
 var active_notes: Array = []
@@ -25,6 +26,8 @@ var smoothed_magnitude: float = 0.0
 var bass_baseline: float = 0.0
 var is_in_beat: bool = false
 var current_max_freq: float = 150.0
+var treble_baseline: float = 0.0
+var is_in_treble: bool = false
 
 
 var rng := RandomNumberGenerator.new()
@@ -39,6 +42,12 @@ func start_spectrum(bus_idx: int) -> void:
 	is_in_beat = false
 	if bus_idx >= 0:
 		analyzer_instance = AudioServer.get_bus_effect_instance(bus_idx, 0) as AudioEffectSpectrumAnalyzerInstance
+		if analyzer_instance:
+			print("[NoteSpawner] Analyse spectrale demarree sur le bus ", bus_idx)
+		else:
+			print("[NoteSpawner] ERREUR : Impossible de recuperer l'instance de l'analyseur sur le bus ", bus_idx)
+	else:
+		print("[NoteSpawner] ERREUR : Index de bus invalide (", bus_idx, ")")
 
 func set_difficulty(diff_name: String) -> void:
 	var d = diff_name.to_upper()
@@ -86,7 +95,7 @@ func _process(delta: float) -> void:
 		
 		var dynamic_threshold = bass_baseline + bass_threshold
 		
-		# Detection de type "Schmitt trigger" (Hysteresis) adaptatif
+		# [BASSES] Detection de type "Schmitt trigger" (Hysteresis) adaptatif
 		if smoothed_magnitude > dynamic_threshold:
 			if not is_in_beat and current_cooldown <= 0:
 				_spawn_bass_note()
@@ -96,12 +105,30 @@ func _process(delta: float) -> void:
 			# Réarmer le beat quand l'énergie retombe bas
 			is_in_beat = false
 
+		# [MELODIE] Detection additionnelle pour densifier en mode Battle Royale
+		if is_looping:
+			var mag_treble: Vector2 = analyzer_instance.get_magnitude_for_frequency_range(300.0, 5000.0, AudioEffectSpectrumAnalyzerInstance.MAGNITUDE_AVERAGE)
+			var treble_energy = (mag_treble.x + mag_treble.y) / 2.0
+			treble_baseline = lerp(treble_baseline, treble_energy, delta * 2.0)
+			
+			# Seuil beaucoup plus sensible pour la melodie (plus de notes)
+			var dyn_treble_threshold = treble_baseline + (bass_threshold * 1.0)
+			
+			if treble_energy > dyn_treble_threshold:
+				if not is_in_treble and current_cooldown <= 0:
+					_spawn_bass_note()
+					# Cooldown tres court pour une densite maximale (Massacre !)
+					current_cooldown = cooldown_time * 0.3
+				is_in_treble = true
+			elif treble_energy < dyn_treble_threshold * 0.7:
+				is_in_treble = false
+
 	_check_misses()
 
 var last_col: int = -1
 
 func _spawn_bass_note() -> void:
-	if time_elapsed >= song_duration - 3.0:
+	if not is_looping and time_elapsed >= song_duration - 3.0:
 		return
 		
 	var col := rng.randi_range(0, 2)

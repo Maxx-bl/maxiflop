@@ -21,8 +21,10 @@ extends Node2D
 @onready var team_a_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamATrack/TeamAProgress
 @onready var team_b_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamBTrack/TeamBProgress
 @onready var team_c_progress: ProgressBar = $HUD/RightPanel/VBox/RacePanel/TeamCTrack/TeamCProgress
+@onready var race_panel: Control = $HUD/RightPanel/VBox/RacePanel
 @onready var top5_label: RichTextLabel = $HUD/RightPanel/VBox/LeaderboardPanel/LeaderboardVBox/Top5Label
 @onready var error_toast: PanelContainer = $HUD/ErrorToast
+@onready var error_label: Label = $HUD/ErrorToast/Label
 @onready var qr_texture: TextureRect = $HUD/RightPanel/VBox/QRCodeTexture
 @onready var qr_http: HTTPRequest = $HUD/RightPanel/VBox/QRHTTPRequest
 @onready var result_team_scores_label: RichTextLabel = $HUD/ResultPanel/VBox/TeamScoresLabel
@@ -42,6 +44,10 @@ var join_url_ready: bool = false
 var loading_timer: float = 0.0
 var players: Dictionary = {}
 var player_judged_notes: Dictionary = {}
+var alive_players: Array = []
+var eliminated_count: int = 0
+var initial_br_players: int = 0
+var br_ramp_timer: float = 0.0
 
 var voting_time: float = 15.0
 var is_voting: bool = false
@@ -141,7 +147,16 @@ func _enter_waiting_state() -> void:
 	start_match_button.visible = true
 	start_match_button.disabled = false
 	count_down.visible = false
-	MultiplayerBridge.send_game_phase("lobby")
+	
+	# Masquer le race panel SEULEMENT en BR
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+		race_panel.visible = false
+	else:
+		race_panel.visible = true
+	var extra = {"gameMode": "NORMAL"}
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+		extra = {"gameMode": "BATTLE_ROYALE"}
+	MultiplayerBridge.send_game_phase("lobby", 0, extra)
 
 func _start_voting() -> void:
 	is_waiting_start = false
@@ -206,8 +221,15 @@ func _start_countdown() -> void:
 	MultiplayerBridge.send_game_phase("countdown")
 	_refresh_right_panel()
 	
+	if GameManager.current_mode != GameManager.GameMode.BATTLE_ROYALE:
+		race_panel.visible = true
+	
 	# Fondus sonore : la musique du menu disparaît pour laisser place au jeu
 	MusicManager.fade_out(1.5)
+	
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+		if music_player.stream:
+			music_player.stream.loop = true
 
 func _process(delta: float) -> void:
 	if not join_url_ready and is_waiting_start:
@@ -240,7 +262,11 @@ func _process(delta: float) -> void:
 	if reveal_timer > 0:
 		reveal_timer -= delta
 		if reveal_timer <= 0:
-			_start_countdown()
+			if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+				# En BR, on relaxe la vérification d'équilibrage
+				_start_countdown()
+			else:
+				_start_countdown()
 		return
 
 	if is_counting_down:
@@ -255,27 +281,62 @@ func _process(delta: float) -> void:
 		return
 
 	elapsed += delta
-	progress_bar.value = (elapsed / song_duration) * 100.0
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+		progress_bar.visible = false
+	else:
+		progress_bar.visible = true
+		progress_bar.value = clamp((elapsed / song_duration) * 100.0, 0, 100)
 
-	# Fade out progressif sur les 10 dernieres secondes si le track est cut
-	if song_duration == 120.0 and elapsed >= 110.0:
-		var fade_factor = clamp((elapsed - 110.0) / 10.0, 0.0, 1.0)
-		music_player.volume_db = lerp(0.0, -80.0, fade_factor)
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and GameManager.is_playing:
+		br_ramp_timer += delta
+		if br_ramp_timer >= 10.0:
+			br_ramp_timer = 0.0
+			# Accélération plus agressive !
+			note_spawner.bass_threshold = max(0.00001, note_spawner.bass_threshold * 0.6)
+			note_spawner.cooldown_time = max(0.01, note_spawner.cooldown_time * 0.7)
+			print("[BR Mode] Difficulté boostée ! Threshold: ", note_spawner.bass_threshold, " Cooldown: ", note_spawner.cooldown_time)
+		
+		# En BR, pas de fin de partie basée sur elapsed si on loop
+	else:
+		# Fade out progressif sur les 10 dernieres secondes si le track est cut
+		if song_duration == 120.0 and elapsed >= 110.0:
+			var fade_factor = clamp((elapsed - 110.0) / 10.0, 0.0, 1.0)
+			music_player.volume_db = lerp(0.0, -80.0, fade_factor)
 
-	if elapsed >= song_duration:
-		GameManager.end_game()
+		if elapsed >= song_duration:
+			GameManager.end_game()
 
 func _begin_game() -> void:
 	is_counting_down = false
 	count_down.visible = false
 	voting_panel.visible = false
-	MultiplayerBridge.send_game_phase("playing")
+	
+	var extra = {"gameMode": "NORMAL"}
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+		extra = {"gameMode": "BATTLE_ROYALE"}
+		# Initialiser les survivants à partir des joueurs réels présents
+		alive_players = players.keys().duplicate()
+		initial_br_players = alive_players.size()
+		eliminated_count = 0
+		br_ramp_timer = 0.0
+		print("[BR] Match lance avec ", initial_br_players, " survivants.")
+		_refresh_right_panel()
+		
+	MultiplayerBridge.send_game_phase("playing", 0, extra)
 	player_judged_notes.clear()
 	elapsed = 0.0
 	progress_bar.value = 0.0
 	music_player.volume_db = 0.0 # reset volume in case of quick restart
 	if music_player.stream != null:
-		song_duration = min(120.0, float(music_player.stream.get_length()))
+		var stream_len = float(music_player.stream.get_length())
+		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+			song_duration = stream_len # Pas de limite en BR
+			note_spawner.is_looping = true
+		else:
+			song_duration = min(120.0, stream_len)
+			note_spawner.is_looping = false
+			
+		ghost_player.stop() # Securite
 		ghost_player.stream = music_player.stream
 		
 	note_spawner.song_duration = song_duration
@@ -327,7 +388,7 @@ func _on_vote_result(song_name: String) -> void:
 	var stream = load(path)
 	if stream:
 		music_player.stream = stream
-		song_duration = min(120.0, float(stream.get_length()))
+		song_duration = float(stream.get_length())
 	
 	reveal_timer = 4.0
 	
@@ -368,6 +429,10 @@ func _on_game_over() -> void:
 	is_waiting_start = true
 	is_counting_down = false
 	is_game_over = true
+	
+	if music_player.stream:
+		music_player.stream.loop = false
+		
 	start_match_button.visible = true
 	start_match_button.disabled = false
 	warmup_label.visible = true
@@ -420,18 +485,35 @@ func _refresh_result_panel() -> void:
 	var color_c := Color("#f0e040")
 	var max_score = max(score_a, max(score_b, score_c))
 
-	if score_a == max_score and score_b < max_score and score_c < max_score:
-		result_winner_label.text = "L'équipe bleue remporte la partie !"
-		result_winner_label.add_theme_color_override("font_color", color_a)
-	elif score_b == max_score and score_a < max_score and score_c < max_score:
-		result_winner_label.text = "L'équipe rouge remporte la partie !"
-		result_winner_label.add_theme_color_override("font_color", color_b)
-	elif score_c == max_score and score_a < max_score and score_b < max_score:
-		result_winner_label.text = "L'équipe jaune remporte la partie !"
-		result_winner_label.add_theme_color_override("font_color", color_c)
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+		if alive_players.size() > 0:
+			var winner_id = alive_players[0]
+			var winner_name = players[winner_id].get("name", "Inconnu")
+			result_winner_label.text = "VAINQUEUR : %s !" % winner_name.to_upper()
+			result_winner_label.add_theme_color_override("font_color", Color.GOLD)
+		else:
+			if initial_br_players <= 1:
+				result_winner_label.text = "Fin de l'entrainement !"
+				result_winner_label.add_theme_color_override("font_color", Color.AQUAMARINE)
+			else:
+				result_winner_label.text = "Tout le monde est mort..."
+				result_winner_label.add_theme_color_override("font_color", Color.GRAY)
+		
+		# Masquer le détail des équipes en BR
+		result_team_scores_label.text = "[center][b]MODE BATTLE ROYALE[/b]\nMusique : %s[/center]" % selected_song
 	else:
-		result_winner_label.text = "Egalité !"
-		result_winner_label.add_theme_color_override("font_color", Color.WHITE)
+		if score_a == max_score and score_b < max_score and score_c < max_score:
+			result_winner_label.text = "L'équipe bleue remporte la partie !"
+			result_winner_label.add_theme_color_override("font_color", color_a)
+		elif score_b == max_score and score_a < max_score and score_c < max_score:
+			result_winner_label.text = "L'équipe rouge remporte la partie !"
+			result_winner_label.add_theme_color_override("font_color", color_b)
+		elif score_c == max_score and score_a < max_score and score_b < max_score:
+			result_winner_label.text = "L'équipe jaune remporte la partie !"
+			result_winner_label.add_theme_color_override("font_color", color_c)
+		else:
+			result_winner_label.text = "Egalité !"
+			result_winner_label.add_theme_color_override("font_color", Color.WHITE)
 
 	var ranked := _get_sorted_players()
 	var lines := ["[center][b]TOP 5 JOUEURS[/b][/center]"]
@@ -565,6 +647,15 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 		perfect_streak = 0
 		# Pénalité systématique pour tout type de MISS (vide, timeout, timing)
 		points = - GameManager.PENALTY_EMPTY
+		
+		# Logique Battle Royale : Élimination
+		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+			if alive_players.has(player_id):
+				alive_players.erase(player_id)
+				eliminated_count += 1
+				MultiplayerBridge.send_elimination(player_id)
+				print("[BR] Joueur éliminé: ", player_id)
+				_check_br_victory()
 	else:
 		combo = int(result_payload.get("combo", combo + 1))
 		perfect_streak = int(result_payload.get("perfect_streak", perfect_streak))
@@ -614,31 +705,36 @@ func _refresh_right_panel() -> void:
 	var in_lobby: bool = is_waiting_start and not is_game_over
 	
 	if not in_lobby:
-		var count_a = 0
-		var count_b = 0
-		var count_c = 0
-		for p_id in players:
-			var t: String = str(players[p_id].get("team", ""))
-			if t == "Equipe1": count_a += 1
-			elif t == "Equipe2": count_b += 1
-			elif t == "Equipe3": count_c += 1
-			
-		team_a_score_label.text = "Equipe bleue: %d" % int(team_scores.get("Equipe1", 0))
-		team_b_score_label.text = "Equipe rouge: %d" % int(team_scores.get("Equipe2", 0))
-		team_c_score_label.text = "Equipe jaune: %d" % int(team_scores.get("Equipe3", 0))
-		lobby_count_label.text = "Musique: %s" % selected_song
+		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+			team_a_score_label.text = "Survivants : %d" % alive_players.size()
+			team_b_score_label.text = "Éliminés : %d" % eliminated_count
+			team_c_score_label.text = ""
+			lobby_count_label.text = "Musique: %s" % selected_song
+		else:
+			team_a_score_label.text = "Equipe bleue: %d" % int(team_scores.get("Equipe1", 0))
+			team_b_score_label.text = "Equipe rouge: %d" % int(team_scores.get("Equipe2", 0))
+			team_c_score_label.text = "Equipe jaune: %d" % int(team_scores.get("Equipe3", 0))
+			lobby_count_label.text = "Musique: %s" % selected_song
 	else:
-		var count_a = 0
-		var count_b = 0
-		var count_c = 0
-		for p_id in players:
-			var t: String = str(players[p_id].get("team", ""))
-			if t == "Equipe1": count_a += 1
-			elif t == "Equipe2": count_b += 1
-			elif t == "Equipe3": count_c += 1
-		team_a_score_label.text = "Joueurs équipe bleue : %d" % count_a
-		team_b_score_label.text = "Joueurs équipe rouge : %d" % count_b
-		team_c_score_label.text = "Joueurs équipe jaune : %d" % count_c
+		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+			team_a_score_label.text = ""
+			team_b_score_label.text = ""
+			team_c_score_label.text = ""
+			race_panel.visible = false
+		else:
+			var count_a = 0
+			var count_b = 0
+			var count_c = 0
+			for p_id in players:
+				var t: String = str(players[p_id].get("team", ""))
+				if t == "Equipe1": count_a += 1
+				elif t == "Equipe2": count_b += 1
+				elif t == "Equipe3": count_c += 1
+			team_a_score_label.text = "Joueurs équipe bleue : %d" % count_a
+			team_b_score_label.text = "Joueurs équipe rouge : %d" % count_b
+			team_c_score_label.text = "Joueurs équipe jaune : %d" % count_c
+			race_panel.visible = true
+			
 		lobby_count_label.text = "Joueurs connectes: %d" % players.size()
 	var total := float(int(team_scores.get("Equipe1", 0)) + int(team_scores.get("Equipe2", 0)) + int(team_scores.get("Equipe3", 0)))
 	if total <= 0.0:
@@ -652,10 +748,13 @@ func _refresh_right_panel() -> void:
 
 	# En lobby : afficher QR code + lien, masquer classement
 	# En jeu ou Resultat : afficher classement
-	# En lobby : afficher QR code + lien, masquer classement
 	qr_texture.visible = is_waiting_start and join_url_ready # visible in lobby & result
 	join_link_label.visible = is_waiting_start
-	top5_label.visible = not is_waiting_start
+	
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and not is_waiting_start:
+		top5_label.visible = false # Pas de leaderboard en plein BR, on voit les survivants
+	else:
+		top5_label.visible = not is_waiting_start
 
 	var ranked := _get_sorted_players()
 	var lines := ["[b]TOP 5 JOUEURS[/b]"]
@@ -740,19 +839,19 @@ func _on_start_match_pressed() -> void:
 	if GameManager.is_playing:
 		return
 		
-	if not _verifier_equilibrage():
-		error_toast.visible = true
-		error_toast.modulate.a = 0.0
-		error_toast.position.y = -50
-		var err_tween = create_tween()
-		err_tween.set_parallel(true)
-		err_tween.tween_property(error_toast, "position:y", 20.0, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-		err_tween.tween_property(error_toast, "modulate:a", 1.0, 0.2)
-		var seq_tween = create_tween()
-		seq_tween.tween_interval(3.0)
-		seq_tween.tween_property(error_toast, "modulate:a", 0.0, 0.3)
-		seq_tween.chain().tween_callback(func(): error_toast.visible = false)
-		return
+	# Vérification spécifique au mode Battle Royale
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+		if players.size() < 1:
+			_show_error("Il faut au moins 1 joueur !")
+			return
+	else:
+		# Mode Normal : Vérification de l'équilibre des équipes
+		if not _verifier_equilibrage():
+			if players.size() == 0:
+				_show_error("Pas assez de joueurs !")
+			else:
+				_show_error("Equipes desequilibrees !")
+			return
 		
 	warmup_label.remove_theme_color_override("font_color")
 	
@@ -797,3 +896,34 @@ func _verifier_equilibrage() -> bool:
 		return false
 		
 	return true
+
+func _check_br_victory() -> void:
+	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and GameManager.is_playing:
+		var current_alive = alive_players.size()
+		
+		# Cas Entraînement (Solo) : on s'arrête quand on meurt
+		if initial_br_players <= 1:
+			if current_alive == 0:
+				print("[BR] Entrainement solo termine (Erreur).")
+				GameManager.end_game()
+		else:
+			# Cas Compétition : le dernier gagne
+			if current_alive <= 1:
+				print("[BR] Victoire ! Un seul survivant.")
+				GameManager.end_game()
+
+func _show_error(message: String) -> void:
+	error_label.text = message
+	error_toast.visible = true
+	error_toast.modulate.a = 0.0
+	error_toast.position.y = -50
+	
+	var err_tween = create_tween()
+	err_tween.set_parallel(true)
+	err_tween.tween_property(error_toast, "position:y", 20.0, 0.4).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	err_tween.tween_property(error_toast, "modulate:a", 1.0, 0.2)
+	
+	var seq_tween = create_tween()
+	seq_tween.tween_interval(3.0)
+	seq_tween.tween_property(error_toast, "modulate:a", 0.0, 0.3)
+	seq_tween.chain().tween_callback(func(): error_toast.visible = false)

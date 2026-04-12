@@ -37,7 +37,9 @@ func _start_server() -> void:
 
 	print("[ServerManager] Lancement : %s %s" % [node_exe, server_path])
 
+	# Lancement silencieux en arrière-plan
 	var pid := OS.create_process(node_exe, [server_path])
+
 	if pid > 0:
 		_server_pid = pid
 		print("[ServerManager] Serveur démarré (PID %d)" % pid)
