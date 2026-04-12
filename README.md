@@ -1,113 +1,81 @@
-# 🎵 Maxiflop
+# 🚀 Maxiflop
 
-Jeu de rythme multijoueur en équipe inspiré de **Osu! Taiko**. Un écran principal orchestre la partie pendant que les joueurs utilisent leurs téléphones comme manettes via un navigateur web.
+Jeu de rythme multijoueur en équipe inspiré de **Osu! Taiko**. Un écran principal orchestre la partie pendant que les joueurs utilisent leurs téléphones comme manettes via un navigateur web. Le jeu intègre un système de vote, des équipes, et une jouabilité accessible en ligne via un tunnel.
 
 ## Équipe
-
 Florence **Regnier-Beck** · Maxandre **Berson-Lefuel** · Pompaline **Wan**
 
 ---
 
 ## Concept
-
-Des notes colorées (bleu, jaune, rouge) tombent sur l'écran principal. Les joueurs doivent appuyer sur le bouton correspondant au bon moment depuis leur téléphone. Plus le timing est précis, plus les points sont élevés. Les joueurs sont répartis aléatoirement en deux équipes — l'équipe avec le score cumulé le plus élevé remporte la partie.
+Des notes colorées tombent sur l'écran principal. Les joueurs doivent appuyer sur le bouton correspondant au bon moment depuis leur téléphone. Plus le timing est précis, plus les points sont élevés. Les joueurs choisissent entre plusieurs équipes, et doivent s'équilibrer pour que la partie se lance. L'équipe avec le score cumulé le plus élevé remporte la partie !
 
 ---
 
 ## Fonctionnalités
-
-- **Multijoueur local** : rejoindre via QR code ou URL Wi-Fi, sans installation
-- **Manette web** : interface navigateur responsive, format paysage en jeu
-- **Équipes aléatoires** : répartition automatique en équipe bleue ou rouge
-- **Scoring** : PERFECT / GOOD / BAD avec multiplicateur de combo (x2 à x4)
-- **Pénalité** : −400 pts pour tout clic dans le vide
-- **Retour haptique** : vibration + flash de couleur à chaque note sur mobile
-- **Classement live** : Top 5 joueurs et progression des équipes en temps réel
-- **Génération aléatoire** : beatmap différente à chaque partie (notes simples, doubles simultanées, demi-beats)
-- **Durée fixe** : 30 secondes par partie
+- **Multijoueur Facilité** : Le jeu déploie automatiquement un tunnel (Cloudflare) permettant aux joueurs de rejoindre via Internet en scannant simplement un QR Code.
+- **Manette Web** : Interface sur navigateur responsive (pas d'application à installer).
+- **Choix d'Équipe et Équilibrage** : Les joueurs choisissent parmi trois équipes (Equipe 1, 2 ou 3). Le jeu empêche le lancement si les équipes sont trop déséquilibrées (écart > 2).
+- **Vote de Musique** : Les joueurs peuvent voter pour leur musique préférée dans le lobby avant de jouer.
+- **Scoring & Feedback** : Système de score (PERFECT, GOOD, BAD, MISS, Pénalité de clic dans le vide) avec combo de groupe et retour en temps réel sur l'écran du joueur.
+- **Classement Live** : Mise à jour en temps réel des statistiques entre le serveur, l'écran hôte (Godot) et les smartphones.
 
 ---
 
 ## Stack technique
 
-| Composant     | Technologie                        |
-| ------------- | ---------------------------------- |
-| Jeu (host)    | Godot 4.4 · GDScript               |
-| Serveur       | Node.js · Express · WebSocket (ws) |
-| Manette       | HTML / CSS / JavaScript            |
-| Communication | WebSocket (ws://)                  |
+| Composant     | Technologie                                  |
+| ------------- | -------------------------------------------- |
+| Jeu (host)    | Godot 4.4 · GDScript                         |
+| Serveur       | Node.js · Express · Socket.io · Child Process|
+| Tunnel        | Cloudflared (npx) / localhost.run            |
+| Manette       | HTML / CSS / JavaScript (Vanilla)            |
+| Communication | Socket.IO (Bidirectionnel Temps Réel)        |
 
 ---
 
 ## Structure du projet
 
 ```
-maxiflop-src/          → Projet Godot (scènes, scripts)
-  scenes/
-    MainMenu.tscn
-    GameScreen.tscn
-    Note.tscn
-  scripts/
-    GameManager.gd     → Autoload : score, combo, événements
-    MultiplayerBridge.gd → Autoload : communication WebSocket host
-    ServerManager.gd   → Autoload : lance/arrête le serveur Node.js
-    GameScreen.gd      → Logique principale de la partie
-    NoteSpawner.gd     → Génération aléatoire de la beatmap
-    HitZone.gd         → Détection des hits et pénalités
-    Note.gd            → Comportement et animation des notes
-
-maxiflop-server/       → Serveur Node.js
-  server.js            → Lobby, WebSocket, gestion des joueurs
-
-maxiflop-smartphone/   → Interface manette
-  index.html
-  style.css
-  script.js
+maxiflop-src/          → Projet Godot (scènes, scripts, beatmaps, logique client host)
+maxiflop-server/       → Serveur backend Node.js (serveur de jeu / bridge)
+maxiflop-smartphone/   → Interface web de la manette (servie par Express)
 ```
 
 ---
 
 ## Lancement
 
-### Prérequis
+### En mode Éditeur Godot
+1. Ouvre le projet dans Godot.
+2. Appuie sur **F5** (ou le bouton ▶️).
+3. Le serveur Node.js et le tunnel public Cloudflare démarrent automatiquement en arrière-plan via un script Godot !
 
-- [Godot 4.4](https://godotengine.org/)
-- [Node.js](https://nodejs.org/) (≥ 18)
+### En mode Exécutable (.x86_64 / .exe)
+> ⚠️ Le dossier `maxiflop-server/` **doit être dans le même répertoire** que l'exécutable compilé.
 
-### En développement
-
-```bash
-# Lancer le serveur manuellement (si ServerManager désactivé)
-cd maxiflop-server
-npm install
-npm start
+Structure attendue :
+```
+maxiflop/
+├── maxiflop.x86_64     ← Exécutable Godot
+├── maxiflop-server/    ← Serveur Node.js (doit contenir le sous-dossier node_modules/)
+└── maxiflop-smartphone/← Fichiers de la manette (index.html, css, js)
 ```
 
-Puis lancer la scène `MainMenu.tscn` dans l'éditeur Godot.
-
-### En production (exécutable exporté)
-
-Le serveur Node.js est lancé automatiquement par `ServerManager.gd` au démarrage du jeu. Placer `maxiflop-server/` et `maxiflop-smartphone/` dans le même dossier que l'exécutable.
-
-```
-Maxiflop.exe
-maxiflop-server/
-  server.js
-  node_modules/
-maxiflop-smartphone/
-  index.html
-  style.css
-  script.js
-```
+1. Assure-toi que `node` est installé sur la machine (`node --version`).
+2. Lance l'exécutable. Le serveur Node.js démarre tout seul.
 
 ---
 
-## Rejoindre une partie
+## Connexion des joueurs
 
-1. Lancer le jeu sur l'écran principal (host)
-2. Scanner le **QR code** affiché en salle d'attente, ou ouvrir l'URL indiquée (`http://192.168.x.x:8080`) sur son téléphone
-3. Choisir un pseudo et rejoindre
-4. Le host clique sur **Lancer la partie** → décompte de 5 secondes → GO !
+1. **Host** : Lancer le jeu principal.
+2. **Tunnel** : Après environ 5 secondes, le tunnel Cloudflare s'ouvre, le **QR Code** sur l'écran se met à jour avec l'URL publique générée.
+3. **Clients (Smartphones)** : Les joueurs scannent le QR Code, saisissent leur pseudo, choisissent une équipe, et votent pour la musique.
+4. **Lancement** : Le bouton **"Lancer la partie"** se débloque quand les équipes sont équilibrées. Le compte à rebours démarre !
+
+> **En cas de problème réseaux (QR Code mort / Cloudflare HS) :**
+> Lancer dans un terminal : `ssh -o StrictHostKeyChecking=no -R 80:localhost:3000 nokey@localhost.run` et copier le lien `.lhr.life` dans la case **`Join Url Override`** de l'inspecteur de la scène `GameScreen` dans Godot.
 
 ---
 
@@ -115,10 +83,10 @@ maxiflop-smartphone/
 
 | Résultat  | Points | Condition               |
 | --------- | ------ | ----------------------- |
-| PERFECT   | 300    | Timing < 50 ms          |
-| GOOD      | 100    | Timing < 150 ms         |
-| BAD       | 50     | Timing < 250 ms         |
+| PERFECT   | 300    | Timing très précis      |
+| GOOD      | 100    | Timing correct          |
+| BAD       | 50     | Timing limite           |
 | MISS      | 0      | Note ratée              |
 | Clic vide | −400   | Aucune note à proximité |
 
-Le score d'équipe est la somme des scores individuels. Le combo x2 se déclenche à partir de 5 notes consécutives (x3 à 10, x4 à 20).
+Le score d'équipe est la somme des scores individuels. Maintenir le combo débloque des multiplicateurs.
