@@ -171,18 +171,49 @@ input {
 
 .team-selection-title { margin-bottom: 10px; }
 
-.team-buttons {
+.team-btns {
 	display: flex;
-	gap: 10px;
+	flex-direction: row;
+	gap: 15px;
 	justify-content: center;
+	margin: 20px 0;
 }
 
 .join-team-btn {
-	font-size: 16px;
-	padding: 15px;
+	width: 75px;
+	height: 75px;
+	border: none;
+	border-radius: 50%;
+	font-weight: bold;
+	color: white;
+	font-size: 14px;
+	box-shadow: inset 0 -6px 0 rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: uppercase;
 }
 
-.join-team-btn.yellow { color: black; }
+#btn-join-br {
+	width: 100px;
+	height: 100px;
+	border: none;
+	border-radius: 50%;
+	background: var(--blue);
+	color: #10202b;
+	font-weight: bold;
+	font-size: 14px;
+	box-shadow: inset 0 -8px 0 rgba(0, 0, 0, 0.2);
+	cursor: pointer;
+	margin: 20px auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.join-team-btn.yellow { color: #524b00; }
 
 .join-team-btn.disabled {
 	opacity: 0.5;
@@ -315,4 +346,30 @@ body { user-select: none; touch-action: manipulation; }
 .legend-item.impossible { color: #000000; background: #ffffff; border-bottom: 2px solid #000000; }
 .music-item.diff-impossible { border-left: 6px solid #ffffff; }
 .music-item.diff-impossible.selected { background: rgba(255, 255, 255, 0.2); border-color: #ffffff; }
+
+
+#eliminated-screen {
+	background: rgba(10, 5, 5, 0.95);
+	backdrop-filter: blur(10px);
+	z-index: 999;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.glitch-text {
+	font-size: 4rem;
+	margin: 0;
+	color: #ff3333;
+	text-shadow: 0 0 20px rgba(255, 51, 51, 0.8);
+	animation: pulse 2s infinite;
+}
+
+.sub-text {
+	opacity: 0.6;
+	font-size: 0.9rem;
+	margin-top: 20px;
+}
 
