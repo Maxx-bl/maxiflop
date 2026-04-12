@@ -5,7 +5,7 @@
   "description": "Serveur lobby + websocket pour Maxiflop",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "npm install && node server.js"
   },
   "dependencies": {
     "cloudflared": "^0.7.1",

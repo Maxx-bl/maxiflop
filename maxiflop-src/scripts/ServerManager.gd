@@ -19,6 +19,14 @@ func _start_server() -> void:
 
 	# Normaliser le chemin selon l'OS
 	server_path = server_path.simplify_path()
+	var server_dir := server_path.get_base_dir()
+
+	# Vérifier que les packages sont à jour (npm install)
+	print("[ServerManager] Vérification des packages (npm install)...")
+	if OS.get_name() == "Windows":
+		OS.execute("cmd.exe", ["/c", "cd /d \"" + server_dir + "\" && npm install"])
+	else:
+		OS.execute("sh", ["-c", "cd \"" + server_dir + "\" && npm install"])
 
 	# Trouver node selon l'OS
 	var node_exe: String
