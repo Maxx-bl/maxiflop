@@ -36,13 +36,19 @@ var last_col: int = -1
 var rng := RandomNumberGenerator.new()
 
 func start_spectrum(bus_idx: int) -> void:
+	# Reset state variables
 	time_elapsed = 0.0
 	is_running = true
 	rng.randomize()
 	current_cooldown = 0.0
 	smoothed_magnitude = 0.0
 	bass_baseline = 0.0
+	treble_baseline = 0.0
 	is_in_beat = false
+	is_in_treble = false
+	current_max_freq = 150.0 # Reset filter frequency
+	
+	# Apply defaults from diff setting
 	_actual_cooldown_calculated = cooldown_time
 	_actual_threshold_calculated = bass_threshold
 	

@@ -30,6 +30,7 @@ extends Node2D
 @onready var result_team_scores_label: RichTextLabel = $HUD/ResultPanel/VBox/TeamScoresLabel
 @onready var result_winner_label: Label = $HUD/ResultPanel/VBox/WinnerLabel
 @onready var result_top5_label: RichTextLabel = $HUD/ResultPanel/VBox/ResultTop5Label
+@onready var lobby_qr_texture: TextureRect = $HUD/LobbyQRTexture
 
 @export var song_duration: float = 30.0
 @export var join_url_override: String = ""
@@ -61,13 +62,15 @@ var difficulty_label: Label
 
 func _ready() -> void:
 	# --- PhantomBus Setup ---
-	AudioServer.add_bus()
-	phantom_bus_idx = AudioServer.bus_count - 1
-	AudioServer.set_bus_name(phantom_bus_idx, "PhantomBus")
-	AudioServer.set_bus_mute(phantom_bus_idx, true)
-	var analyzer := AudioEffectSpectrumAnalyzer.new()
-	analyzer.buffer_length = 0.1
-	AudioServer.add_bus_effect(phantom_bus_idx, analyzer)
+	phantom_bus_idx = AudioServer.get_bus_index("PhantomBus")
+	if phantom_bus_idx == -1:
+		AudioServer.add_bus()
+		phantom_bus_idx = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(phantom_bus_idx, "PhantomBus")
+		AudioServer.set_bus_mute(phantom_bus_idx, true)
+		var analyzer := AudioEffectSpectrumAnalyzer.new()
+		analyzer.buffer_length = 0.1
+		AudioServer.add_bus_effect(phantom_bus_idx, analyzer)
 	
 	ghost_player = AudioStreamPlayer.new()
 	ghost_player.bus = "PhantomBus"
@@ -296,9 +299,10 @@ func _process(delta: float) -> void:
 		if int(elapsed) % 20 == 0 and elapsed > 0 and int(elapsed * 10) % 10 == 0:
 			print("[BR Mode] Difficulté crescendo: %.2f" % difficulty_factor)
 	else:
-		# Fade out progressif sur les 10 dernieres secondes si le track est cut
-		if song_duration == 120.0 and elapsed >= 110.0:
-			var fade_factor = clamp((elapsed - 110.0) / 10.0, 0.0, 1.0)
+		# Fade out progressif sur les 3 dernieres secondes si le track est cut
+		var fade_start := song_duration - 3.0
+		if elapsed >= fade_start:
+			var fade_factor = clamp((elapsed - fade_start) / 3.0, 0.0, 1.0)
 			music_player.volume_db = lerp(0.0, -80.0, fade_factor)
 
 		if elapsed >= song_duration:
@@ -769,7 +773,8 @@ func _refresh_right_panel() -> void:
 
 	# En lobby : afficher QR code + lien, masquer classement
 	# En jeu ou Resultat : afficher classement
-	qr_texture.visible = is_waiting_start and join_url_ready # visible in lobby & result
+	qr_texture.visible = is_waiting_start and join_url_ready
+	lobby_qr_texture.visible = is_waiting_start and join_url_ready
 	join_link_label.visible = is_waiting_start
 	
 	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and not is_waiting_start:
@@ -814,7 +819,9 @@ func _on_public_url_received(url: String) -> void:
 func _on_qr_downloaded(_result: int, _code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
 	var img := Image.new()
 	if img.load_png_from_buffer(body) == OK:
-		qr_texture.texture = ImageTexture.create_from_image(img)
+		var tex = ImageTexture.create_from_image(img)
+		qr_texture.texture = tex
+		lobby_qr_texture.texture = tex
 
 func _set_join_url() -> void:
 	var join_url := join_url_override.strip_edges()

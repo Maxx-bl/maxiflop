@@ -216,6 +216,15 @@ offset_bottom = 10.0
 theme_override_styles/fill = SubResource("StyleBoxFlat_progress_song")
 show_percentage = false
 
+[node name="LobbyQRTexture" type="TextureRect" parent="HUD"]
+visible = false
+offset_left = 245.0
+offset_top = 205.0
+offset_right = 595.0
+offset_bottom = 555.0
+pivot_offset = Vector2(175, 175)
+stretch_mode = 5
+
 [node name="ComboLabel" type="Label" parent="HUD"]
 visible = false
 offset_left = 40.0
@@ -247,9 +256,9 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="WarmupLabel" type="Label" parent="HUD"]
-offset_top = 220.0
+offset_top = 100.0
 offset_right = 840.0
-offset_bottom = 320.0
+offset_bottom = 200.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
 theme_override_font_sizes/font_size = 56
 text = "Salle d'attente"
@@ -258,9 +267,9 @@ vertical_alignment = 1
 
 [node name="StartMatchButton" type="Button" parent="HUD"]
 offset_left = 240.0
-offset_top = 340.0
+offset_top = 585.0
 offset_right = 600.0
-offset_bottom = 410.0
+offset_bottom = 655.0
 theme_override_font_sizes/font_size = 28
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
