@@ -52,6 +52,7 @@ var eliminated_count: int = 0
 var initial_br_players: int = 0
 var br_ramp_timer: float = 0.0
 var br_empty_hits: Dictionary = {}
+var br_miss_streak: Dictionary = {}
 
 var voting_time: float = 15.0
 var is_voting: bool = false
@@ -384,6 +385,7 @@ func _begin_game() -> void:
 		eliminated_count = 0
 		br_ramp_timer = 0.0
 		br_empty_hits.clear()
+		br_miss_streak.clear()
 		br_kill_feed.clear()
 		_refresh_kill_feed()
 		print("[BR] Match lance avec ", initial_br_players, " survivants.")
@@ -730,7 +732,7 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 		# Logique Battle Royale : Élimination
 		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
 			if result_payload.get("timeout", false):
-				# C'est une note passée (timeout) — reset du compteur de spam vide
+				# Note ratée (timeout) — reset du compteur de spam vide
 				br_empty_hits[player_id] = 0
 				var note_key = result_payload.get("note_key", "")
 				get_tree().create_timer(0.6).timeout.connect(func():
@@ -751,7 +753,7 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 					if alive_players.has(player_id):
 						print("[BR] Elimination par spam dans le vide : ", player_id, " (count=", count, ")")
 						_finalize_elimination(player_id)
-			# else: cas impossible (MISS sans timeout ni empty), on ignore
+			# else: cas impossible, on ignore
 	else:
 		# Succes ! On marque la note comme jugee
 		var note_key = result_payload.get("note_key", "")
@@ -761,6 +763,7 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 		# Reset du compteur de spam dans le vide (le joueur a touché une note)
 		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
 			br_empty_hits[player_id] = 0
+			br_miss_streak[player_id] = 0
 		
 		combo = int(result_payload.get("combo", combo + 1))
 		perfect_streak = int(result_payload.get("perfect_streak", perfect_streak))

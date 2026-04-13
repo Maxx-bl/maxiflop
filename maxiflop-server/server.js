@@ -206,6 +206,7 @@ io.on('connection', (socket) => {
 			gameState.status = data.phase;
 		} else if (data.phase === "lobby" || data.phase === "ended") {
 			gameState.status = "lobby";
+			gameState.playerVotes = {};
 		}
 
 		// Maintenant on prévient les clients

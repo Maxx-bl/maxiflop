@@ -380,3 +380,145 @@
 [2026-04-13T17:15:59.848Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
 [2026-04-13T17:16:57.877Z] Phase changed to: ended (NORMAL)
 [2026-04-13T17:16:57.877Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T19:30:46.293Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T19:31:12.027Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:31:12.028Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T19:31:16.816Z] VOTE SUCCESS from Maq5: -> Alan Walker - Fade - HARD
+[2026-04-13T19:31:26.928Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:31:26.929Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:31:30.940Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:31:30.941Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:31:36.346Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T19:31:36.347Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:31:39.274Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:31:39.275Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:32:52.812Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T19:33:24.459Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:33:24.460Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T19:33:28.257Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:30.742Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:30.970Z] VOTE SUCCESS from Fex2: -> Desmeon - Hellcat - HARD
+[2026-04-13T19:33:31.377Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:31.765Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:31.975Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:32.198Z] VOTE SUCCESS from Fex2: -> Desmeon - Hellcat - HARD
+[2026-04-13T19:33:32.388Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:32.615Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:32.815Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:32.997Z] VOTE SUCCESS from Fex2: -> Desmeon - Hellcat - HARD
+[2026-04-13T19:33:33.147Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:33.387Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:33.587Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:33.797Z] VOTE SUCCESS from Fex2: -> Desmeon - Hellcat - HARD
+[2026-04-13T19:33:33.997Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:34.207Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:34.429Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:34.927Z] VOTE SUCCESS from Fex2: -> Diff. Heaven & EH!DE - My Heart - HARD
+[2026-04-13T19:33:35.244Z] VOTE SUCCESS from Fex2: -> Desmeon - Hellcat - HARD
+[2026-04-13T19:33:35.497Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:35.776Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:35.996Z] VOTE SUCCESS from Fex2: -> Spektrem - Shine - MEDIUM
+[2026-04-13T19:33:36.237Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:36.477Z] VOTE SUCCESS from Fex2: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:33:37.757Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:38.263Z] VOTE SUCCESS from Fex2: -> Alan Walker - Fade - HARD
+[2026-04-13T19:33:39.361Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:33:39.362Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:33:43.374Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:33:43.374Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:33:48.779Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T19:33:48.780Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:34:17.707Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:34:17.707Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:38:43.839Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T19:38:55.160Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:38:55.161Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T19:38:58.065Z] VOTE SUCCESS from YeuV: -> Alan Walker - Fade - HARD
+[2026-04-13T19:39:10.068Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:39:10.069Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:39:14.075Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:39:14.075Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:39:19.480Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T19:39:19.481Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:40:09.995Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:40:09.996Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:40:13.177Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T19:40:13.177Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-13T19:40:14.552Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:40:14.552Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T19:40:15.866Z] VOTE SUCCESS from YeuV: -> DEAF KEV - Invincible - HARD
+[2026-04-13T19:40:16.507Z] VOTE SUCCESS from YeuV: -> Alan Walker - Fade - HARD
+[2026-04-13T19:40:20.817Z] VOTE SUCCESS from YeuV: -> Jo C. & Sex Whales - We Are - HARD
+[2026-04-13T19:40:29.454Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:40:29.455Z] VOTE Ended. Winner: Jo C. & Sex Whales - We Are - HARD
+[2026-04-13T19:40:33.461Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:40:33.462Z] VOTE Ended. Winner: Jo C. & Sex Whales - We Are - HARD
+[2026-04-13T19:40:38.867Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T19:40:38.867Z] VOTE Ended. Winner: Jo C. & Sex Whales - We Are - HARD
+[2026-04-13T19:41:29.999Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:41:29.999Z] VOTE Ended. Winner: Jo C. & Sex Whales - We Are - HARD
+[2026-04-13T19:41:32.817Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T19:41:32.818Z] VOTE Ended. Winner: Jo C. & Sex Whales - We Are - HARD
+[2026-04-13T19:41:33.860Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:41:33.860Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T19:41:36.286Z] VOTE SUCCESS from YeuV: -> OMFG - Hello - EASY
+[2026-04-13T19:41:48.767Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:41:48.768Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-13T19:41:52.773Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:41:52.774Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-13T19:41:58.179Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T19:41:58.180Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-13T19:42:29.306Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:42:29.307Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-13T19:42:31.785Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T19:42:31.786Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-13T19:42:32.591Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:42:32.592Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T19:42:33.735Z] VOTE SUCCESS from YeuV: -> Electro-Light - Symbolism - EASY
+[2026-04-13T19:42:47.493Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:42:47.494Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T19:42:51.499Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:42:51.500Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T19:42:56.905Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T19:42:56.906Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T19:43:29.117Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:43:29.117Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T19:43:31.389Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T19:43:31.390Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T19:43:33.098Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:43:33.099Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T19:43:34.706Z] VOTE SUCCESS from YeuV: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:43:48.000Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:43:48.001Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:43:52.007Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:43:52.007Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:43:57.413Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T19:43:57.414Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:44:30.321Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:44:30.322Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:44:38.477Z] Phase changed to: lobby (NORMAL)
+[2026-04-13T19:44:38.477Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:44:39.121Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:44:39.122Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T19:44:40.720Z] VOTE SUCCESS from YeuV: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:44:54.024Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:44:54.024Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:44:58.030Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:44:58.030Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:45:03.435Z] Phase changed to: playing (NORMAL)
+[2026-04-13T19:45:03.436Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:46:32.627Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:46:32.627Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:46:37.287Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T19:46:37.287Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T19:46:38.294Z] Phase changed to: voting (NORMAL)
+[2026-04-13T19:46:38.295Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T19:46:40.622Z] VOTE SUCCESS from YeuV: -> Warriyo - Mortals - EXTREME
+[2026-04-13T19:46:53.202Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T19:46:53.203Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T19:46:57.208Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T19:46:57.209Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T19:47:02.614Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T19:47:02.615Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T19:48:24.491Z] Phase changed to: ended (NORMAL)
+[2026-04-13T19:48:24.492Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
