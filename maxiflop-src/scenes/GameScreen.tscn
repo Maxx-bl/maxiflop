@@ -1,10 +1,14 @@
-[gd_scene load_steps=17 format=3 uid="uid://cfyaf4ikyente"]
+[gd_scene load_steps=21 format=3 uid="uid://cfyaf4ikyente"]
 
-[ext_resource type="Script" uid="uid://d34qiog5r04a8" path="res://scripts/GameScreen.gd" id="1"]
-[ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
-[ext_resource type="Script" uid="uid://dkacnraee3abq" path="res://scripts/HitZone.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/GameScreen.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/NoteSpawner.gd" id="2"]
+[ext_resource type="Script" path="res://scenes/fond_game.gd" id="2_5m6a2"]
+[ext_resource type="Script" path="res://scripts/HitZone.gd" id="3"]
+[ext_resource type="Texture2D" uid="uid://dyvouf8b51x5b" path="res://assets/GameScreenBack/Space Background.png" id="3_5vdj1"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
 [ext_resource type="AudioStream" uid="uid://dcf34i1jfenko" path="res://assets/test_kick_6s.wav" id="5_xpdqc"]
+[ext_resource type="Texture2D" uid="uid://bter32ehur1r7" path="res://assets/GameScreenBack/star3.png" id="5_yklkw"]
+[ext_resource type="FontFile" uid="uid://b4ve68u3poffy" path="res://assets/Ecriture/PixelifySans-VariableFont_wght.ttf" id="9_x2v7n"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ring_blue"]
 bg_color = Color(0, 0, 0, 0)
@@ -141,6 +145,27 @@ bg_color = Color(0.08, 0.06, 0.18, 0.97)
 script = ExtResource("1")
 song_duration = 60.0
 
+[node name="fond_game" type="ParallaxBackground" parent="."]
+script = ExtResource("2_5m6a2")
+
+[node name="CoucheCielNuit" type="ParallaxLayer" parent="fond_game"]
+motion_mirroring = Vector2(0, 720)
+
+[node name="SpriteCielNuit" type="Sprite2D" parent="fond_game/CoucheCielNuit"]
+texture_filter = 1
+position = Vector2(766.25, 362)
+scale = Vector2(7.6575, 3.64)
+texture = ExtResource("3_5vdj1")
+
+[node name="CoucheEtoile3" type="ParallaxLayer" parent="fond_game"]
+motion_mirroring = Vector2(0, 720)
+
+[node name="spriteStar" type="Sprite2D" parent="fond_game/CoucheEtoile3"]
+texture_filter = 1
+position = Vector2(766, 360)
+scale = Vector2(7.65, 3.59)
+texture = ExtResource("5_yklkw")
+
 [node name="Background" type="ColorRect" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -241,6 +266,7 @@ offset_top = 150.0
 offset_right = 840.0
 offset_bottom = 450.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+theme_override_fonts/font = ExtResource("9_x2v7n")
 theme_override_font_sizes/font_size = 200
 text = "5"
 horizontal_alignment = 1
@@ -251,6 +277,7 @@ offset_top = 220.0
 offset_right = 840.0
 offset_bottom = 320.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+theme_override_fonts/font = ExtResource("9_x2v7n")
 theme_override_font_sizes/font_size = 56
 text = "Salle d'attente"
 horizontal_alignment = 1
@@ -261,6 +288,7 @@ offset_left = 240.0
 offset_top = 340.0
 offset_right = 600.0
 offset_bottom = 410.0
+theme_override_fonts/font = ExtResource("9_x2v7n")
 theme_override_font_sizes/font_size = 28
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
@@ -286,8 +314,8 @@ vertical_alignment = 1
 [node name="RightPanel" type="PanelContainer" parent="HUD"]
 offset_left = 852.0
 offset_top = 16.0
-offset_right = 1270.0
-offset_bottom = 704.0
+offset_right = 1269.0
+offset_bottom = 747.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_rightpanel")
 
 [node name="VBox" type="VBoxContainer" parent="HUD/RightPanel"]
