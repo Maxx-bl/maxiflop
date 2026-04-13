@@ -84,16 +84,20 @@ func set_difficulty(diff_name: String) -> void:
 	print("[NoteSpawner] Difficulte initiale: ", d, " (Threshold: ", bass_threshold, ", Cooldown: ", cooldown_time, ")")
 
 func set_difficulty_scaling(factor: float) -> void:
-	# factor augmente avec le temps (1.0 -> 2.0...)
+	# factor augmente avec le temps (1.0 -> 2.0 -> 5.0+...)
 	var current_threshold = bass_threshold / factor
 	var current_cooldown_limit = cooldown_time / factor
 	
-	# SECURITÉ ANTI-OVERLAP
-	var fall_speed = (hit_y - spawn_y) / approach_time
-	var min_safe_cooldown = 100.0 / fall_speed # 100px min entre notes
+	# Gap anti-overlap dynamique : 70px au début, descend à 40px avec le temps
+	var fall_speed_val = (hit_y - spawn_y) / approach_time
+	var gap_px = lerp(70.0, 40.0, clampf((factor - 1.0) / 3.0, 0.0, 1.0))
+	var min_safe_cooldown = gap_px / fall_speed_val
 	
 	_actual_cooldown_calculated = max(current_cooldown_limit, min_safe_cooldown)
 	_actual_threshold_calculated = max(0.00005, current_threshold)
+	
+	# Élargir la plage de fréquences basses analysée pour capturer plus de beats
+	current_max_freq = lerp(150.0, 350.0, clampf((factor - 1.0) / 4.0, 0.0, 1.0))
 
 func stop() -> void:
 	is_running = false
@@ -129,12 +133,12 @@ func _process(delta: float) -> void:
 			var mag_t: Vector2 = analyzer_instance.get_magnitude_for_frequency_range(300.0, 5000.0, AudioEffectSpectrumAnalyzerInstance.MAGNITUDE_AVERAGE)
 			var treble_energy = (mag_t.x + mag_t.y) / 2.0
 			treble_baseline = lerp(treble_baseline, treble_energy, delta * 2.0)
-			var dyn_treble_threshold = treble_baseline + (_actual_threshold_calculated * 0.8)
+			var dyn_treble_threshold = treble_baseline + (_actual_threshold_calculated * 1.5)
 			
 			if treble_energy > dyn_treble_threshold:
 				if not is_in_treble and current_cooldown <= 0:
 					_spawn_bass_note()
-					current_cooldown = _actual_cooldown_calculated * 0.5
+					current_cooldown = _actual_cooldown_calculated
 				is_in_treble = true
 			elif treble_energy < dyn_treble_threshold * 0.7:
 				is_in_treble = false
@@ -176,14 +180,14 @@ func _check_misses() -> void:
 			to_remove.append(note)
 			continue
 
-		# Host-side detection: si la note dépasse de 400ms le temps de spawn (plus tolérant pour le lag)
-		if time_elapsed > note.spawn_time + 0.40 and not note.is_missed:
+		# Host-side detection: si la note dépasse de 800ms le temps de spawn (tolérant pour le lag réseau)
+		if time_elapsed > note.spawn_time + 0.80 and not note.is_missed:
 			note.miss_animation()
 			GameManager.register_miss()
 			GameManager.global_note_missed.emit(note.color, note.spawn_time)
 		
-		# Suppression physique de l'array seulement après 1.2s pour laisser une fenêtre aux réponses réseau
-		if time_elapsed > note.spawn_time + 1.2:
+		# Suppression physique après 1.6s pour laisser une fenêtre aux réponses réseau
+		if time_elapsed > note.spawn_time + 1.6:
 			to_remove.append(note)
 			note.queue_free()
 			

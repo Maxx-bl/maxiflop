@@ -140,3 +140,243 @@
 [2026-04-13T16:00:35.598Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
 [2026-04-13T16:00:48.294Z] Phase changed to: ended (NORMAL)
 [2026-04-13T16:00:48.295Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:10:10.085Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T16:10:22.352Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:10:22.353Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T16:10:31.850Z] VOTE SUCCESS from 7jd1: -> Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:10:32.889Z] VOTE SUCCESS from 7jd1: -> Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:10:37.254Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:10:37.255Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:10:41.260Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:10:41.261Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:10:46.666Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:10:46.667Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:13:22.845Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:13:22.845Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:18:09.608Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T16:18:11.922Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:18:26.255Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:18:26.256Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T16:18:31.246Z] VOTE SUCCESS from VCI8: -> Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:18:34.210Z] VOTE SUCCESS from VCI8: -> Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:18:34.513Z] VOTE SUCCESS from VCI8: -> Disfigure - Blank - MEDIUM
+[2026-04-13T16:18:35.269Z] VOTE SUCCESS from VCI8: -> Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:18:41.158Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:18:41.158Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:18:45.164Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:18:45.164Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:18:50.570Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:18:50.570Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:19:14.933Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:19:14.934Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:21:58.977Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T16:22:11.321Z] Phase changed to: lobby (NORMAL)
+[2026-04-13T16:22:19.023Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:23:04.001Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:23:04.001Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T16:23:06.078Z] VOTE SUCCESS from HoHE: -> Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:23:18.902Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:23:18.903Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:23:22.896Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:23:22.897Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:23:28.302Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:23:28.303Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:23:53.217Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:23:53.218Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:29:45.160Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T16:29:57.983Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:29:57.984Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T16:30:00.673Z] VOTE SUCCESS from FFMu: -> Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:30:12.892Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:30:12.893Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:30:16.898Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:30:16.899Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:30:22.304Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:30:22.304Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:32:52.387Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:32:52.388Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:33:00.712Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:33:00.713Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:33:01.355Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:33:01.355Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T16:33:03.610Z] VOTE SUCCESS from FFMu: -> Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:16.257Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:33:16.258Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:20.269Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:33:20.270Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:25.675Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:33:25.676Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:32.021Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:33:32.021Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:33.912Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:33:33.913Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:34.590Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:33:34.591Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T16:33:35.781Z] VOTE SUCCESS from FFMu: -> Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:36.236Z] VOTE SUCCESS from FFMu: -> Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:49.492Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:33:49.493Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:53.498Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:33:53.499Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:33:58.904Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:33:58.905Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:34:06.001Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:34:06.002Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:34:15.262Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:34:15.263Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T16:34:15.862Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:34:15.863Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T16:34:17.195Z] VOTE SUCCESS from FFMu: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:34:24.766Z] VOTE SUCCESS from FFMu: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:34:30.764Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:34:30.765Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:34:34.770Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:34:34.771Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:34:40.176Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:34:40.177Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:34:49.079Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:34:49.080Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:34:55.534Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:34:55.534Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:39:54.739Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T16:40:07.491Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:40:07.492Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T16:40:10.621Z] VOTE SUCCESS from en_L: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:40:22.392Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:40:22.393Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:40:26.398Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:40:26.399Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:40:31.804Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:40:31.805Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:41:56.408Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:41:56.409Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:42:32.171Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:42:32.172Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T16:42:36.189Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:42:36.190Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T16:42:43.343Z] VOTE SUCCESS from en_L: -> Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:42:51.091Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:42:51.092Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:42:55.091Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:42:55.092Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:43:00.497Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:43:00.498Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:44:26.071Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:44:26.071Z] VOTE Ended. Winner: Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-13T16:46:59.334Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T16:47:00.946Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:47:16.212Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:47:16.213Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T16:47:18.456Z] VOTE SUCCESS from vbNe: -> Electro-Light - Symbolism - EASY
+[2026-04-13T16:47:20.324Z] VOTE SUCCESS from vbNe: -> Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:47:31.114Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:47:31.115Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:47:35.120Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:47:35.121Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:47:40.526Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:47:40.527Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:51:11.715Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:51:11.716Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:51:16.497Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:51:16.497Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:54:43.322Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T16:55:03.413Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:55:03.414Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T16:55:05.310Z] VOTE SUCCESS from RMX2: -> Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:55:18.315Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:55:18.316Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:55:22.321Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:55:22.322Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:55:27.727Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:55:27.727Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:56:09.726Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:56:09.727Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:56:11.502Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:56:11.503Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:56:12.187Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:56:12.188Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T16:56:13.369Z] VOTE SUCCESS from RMX2: -> Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:56:27.089Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:56:27.089Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:56:31.095Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:56:31.096Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:56:36.501Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:56:36.502Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:57:19.148Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:57:19.149Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:57:21.536Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:57:21.537Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:57:22.385Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:57:22.385Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T16:57:25.184Z] VOTE SUCCESS from RMX2: -> Warriyo - Mortals - EXTREME
+[2026-04-13T16:57:37.287Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:57:37.287Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T16:57:41.293Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:57:41.294Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T16:57:46.699Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:57:46.699Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T16:58:30.104Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:58:30.105Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T16:58:36.576Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:58:36.577Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T16:58:37.438Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:58:37.438Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T16:58:40.000Z] VOTE SUCCESS from RMX2: -> Sub Urban - Cradles - EASY
+[2026-04-13T16:58:52.328Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:58:52.328Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T16:58:56.340Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:58:56.340Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T16:59:01.746Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:59:01.746Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T16:59:45.860Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:59:45.860Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T17:02:24.541Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T17:02:37.832Z] Phase changed to: voting (NORMAL)
+[2026-04-13T17:02:37.833Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T17:02:39.560Z] VOTE SUCCESS from cSi4: -> Sub Urban - Cradles - EASY
+[2026-04-13T17:02:52.734Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T17:02:52.735Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T17:02:56.749Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T17:02:56.749Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T17:03:02.152Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T17:03:02.153Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T17:07:28.193Z] Phase changed to: ended (NORMAL)
+[2026-04-13T17:07:28.194Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T17:07:41.587Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T17:07:41.587Z] VOTE Ended. Winner: Sub Urban - Cradles - EASY
+[2026-04-13T17:07:42.259Z] Phase changed to: voting (NORMAL)
+[2026-04-13T17:07:42.260Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T17:07:45.237Z] VOTE SUCCESS from cSi4: -> Electro-Light - Symbolism - EASY
+[2026-04-13T17:07:57.161Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T17:07:57.162Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:08:01.168Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T17:08:01.169Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:08:06.574Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T17:08:06.575Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:12:33.374Z] Phase changed to: ended (NORMAL)
+[2026-04-13T17:12:33.374Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:14:01.360Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T17:14:10.863Z] Phase changed to: voting (NORMAL)
+[2026-04-13T17:14:10.863Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T17:14:11.599Z] VOTE SUCCESS from VZR4: -> Electro-Light - Symbolism - EASY
+[2026-04-13T17:14:25.759Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T17:14:25.760Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:14:29.771Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T17:14:29.772Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:14:35.177Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T17:14:35.177Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:15:32.333Z] Phase changed to: ended (NORMAL)
+[2026-04-13T17:15:32.334Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:15:34.958Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T17:15:34.958Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-13T17:15:35.533Z] Phase changed to: voting (NORMAL)
+[2026-04-13T17:15:35.534Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T17:15:37.268Z] VOTE SUCCESS from VZR4: -> Warriyo - Mortals - EXTREME
+[2026-04-13T17:15:50.435Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T17:15:50.436Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T17:15:54.442Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T17:15:54.442Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T17:15:59.847Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T17:15:59.848Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T17:16:57.877Z] Phase changed to: ended (NORMAL)
+[2026-04-13T17:16:57.877Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME

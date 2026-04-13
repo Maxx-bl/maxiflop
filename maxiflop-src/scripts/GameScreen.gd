@@ -51,6 +51,7 @@ var alive_players: Array = []
 var eliminated_count: int = 0
 var initial_br_players: int = 0
 var br_ramp_timer: float = 0.0
+var br_empty_hits: Dictionary = {}
 
 var voting_time: float = 15.0
 var is_voting: bool = false
@@ -62,6 +63,8 @@ var phantom_bus_idx: int = -1
 var voting_panel: PanelContainer
 var difficulty_label: Label
 var vote_stats_label: RichTextLabel
+var kill_feed_label: RichTextLabel
+var br_kill_feed: Array = []
 
 func _ready() -> void:
 	# --- PhantomBus Setup ---
@@ -104,6 +107,7 @@ func _ready() -> void:
 	MultiplayerBridge.vote_result_received.connect(_on_vote_result)
 	MultiplayerBridge.vote_update_received.connect(_on_vote_update)
 	_setup_voting_ui()
+	_setup_kill_feed()
 	_enter_waiting_state()
 
 func _setup_voting_ui() -> void:
@@ -153,6 +157,32 @@ func _setup_voting_ui() -> void:
 	voting_panel.clip_contents = true
 	
 	voting_panel.visible = false
+
+func _setup_kill_feed() -> void:
+	# Créer le label du kill feed dans le même parent que top5_label
+	var leaderboard_vbox = top5_label.get_parent()
+	kill_feed_label = RichTextLabel.new()
+	kill_feed_label.bbcode_enabled = true
+	kill_feed_label.fit_content = true
+	kill_feed_label.scroll_active = false
+	kill_feed_label.custom_minimum_size = Vector2(0, 0)
+	kill_feed_label.add_theme_font_size_override("normal_font_size", 18)
+	kill_feed_label.visible = false
+	leaderboard_vbox.add_child(kill_feed_label)
+
+func _refresh_kill_feed() -> void:
+	if kill_feed_label == null:
+		return
+	if br_kill_feed.is_empty():
+		kill_feed_label.text = "[center][color=gray]Aucune élimination[/color][/center]"
+		return
+	var lines: Array = ["[b]ÉLIMINATIONS[/b]"]
+	for entry in br_kill_feed:
+		var t = int(entry.get("time", 0))
+		var mins = t / 60
+		var secs = t % 60
+		lines.append("[color=#ff5555]%s[/color] [color=gray](%d:%02d)[/color]" % [str(entry.get("name", "?")), mins, secs])
+	kill_feed_label.text = "\n".join(lines)
 
 func _enter_waiting_state() -> void:
 	result_panel.visible = false
@@ -320,13 +350,16 @@ func _process(delta: float) -> void:
 		progress_bar.value = clamp((elapsed / song_duration) * 100.0, 0, 100)
 
 	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and GameManager.is_playing:
-		# Accélération fluide Crescendo : +1 de difficulté chaque minute (45s pour être agressif)
-		var difficulty_factor = 1.0 + (elapsed / 45.0)
+		# Accélération exponentielle : courbe pow(1.3) pour une montée progressive puis explosive
+		var difficulty_factor = 1.0 + pow(elapsed / 60.0, 1.3)
 		note_spawner.set_difficulty_scaling(difficulty_factor)
 		
+		# Timer affiché sur le panel de droite
+		team_c_score_label.text = "Temps : %d s" % int(elapsed)
+		
 		# Feedback optionnel dans la console (toutes les quelques secondes)
-		if int(elapsed) % 20 == 0 and elapsed > 0 and int(elapsed * 10) % 10 == 0:
-			print("[BR Mode] Difficulté crescendo: %.2f" % difficulty_factor)
+		if int(elapsed) % 15 == 0 and elapsed > 0 and int(elapsed * 10) % 10 == 0:
+			print("[BR Mode] Difficulté crescendo: %.2f (cooldown: %.3f, threshold: %.5f)" % [difficulty_factor, note_spawner._actual_cooldown_calculated, note_spawner._actual_threshold_calculated])
 	else:
 		# Fade out progressif sur les 3 dernieres secondes si le track est cut
 		var fade_start := song_duration - 3.0
@@ -350,6 +383,9 @@ func _begin_game() -> void:
 		initial_br_players = alive_players.size()
 		eliminated_count = 0
 		br_ramp_timer = 0.0
+		br_empty_hits.clear()
+		br_kill_feed.clear()
+		_refresh_kill_feed()
 		print("[BR] Match lance avec ", initial_br_players, " survivants.")
 		_refresh_right_panel()
 		
@@ -665,12 +701,15 @@ func _evaluate_remote_hit(player_id: String, color: int) -> Dictionary:
 	}
 
 func _on_global_note_missed(color: int, spawn_time: float) -> void:
+	if not GameManager.is_playing:
+		return
 	var note_key := "%d:%d" % [color, int(round(spawn_time * 1000.0))]
 	for p_id in players.keys():
+		# Ignorer les joueurs déjà éliminés
+		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and not alive_players.has(p_id):
+			continue
 		var judged: Dictionary = player_judged_notes.get(p_id, {})
 		if not judged.has(note_key):
-			# On ne marque pas encore comme juge pour laisser le sursis de lag
-			# Mais on envoie le signal de timeout
 			_apply_remote_result(p_id, {"result": "MISS", "timeout": true, "note_key": note_key})
 
 func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void:
@@ -691,27 +730,38 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 		# Logique Battle Royale : Élimination
 		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
 			if result_payload.get("timeout", false):
-				# C'est une note passée (timeout)
+				# C'est une note passée (timeout) — reset du compteur de spam vide
+				br_empty_hits[player_id] = 0
 				var note_key = result_payload.get("note_key", "")
 				get_tree().create_timer(0.6).timeout.connect(func():
+					if not GameManager.is_playing:
+						return
 					var judged = player_judged_notes.get(player_id, {})
 					if not judged.has(note_key):
 						if alive_players.has(player_id):
+							print("[BR] Elimination par note ratée: ", player_id, " note_key=", note_key)
 							_finalize_elimination(player_id)
 				)
 			elif result_payload.get("empty", false):
-				# C'est un clic dans le vide (misclick) : PAS de mort, juste pénalité de score
-				pass
-			else:
-				# C'est une faute directe (mauvaise couleur, etc.) : Elimination immédiate
-				if alive_players.has(player_id):
-					_finalize_elimination(player_id)
+				# Clic dans le vide : on incrémente le compteur de spam
+				var count = br_empty_hits.get(player_id, 0) + 1
+				br_empty_hits[player_id] = count
+				if count >= 2:
+					# 2 clics consécutifs dans le vide = élimination
+					if alive_players.has(player_id):
+						print("[BR] Elimination par spam dans le vide : ", player_id, " (count=", count, ")")
+						_finalize_elimination(player_id)
+			# else: cas impossible (MISS sans timeout ni empty), on ignore
 	else:
 		# Succes ! On marque la note comme jugee
 		var note_key = result_payload.get("note_key", "")
 		if not note_key.is_empty():
 			_mark_judged_note(player_id, note_key)
-			
+		
+		# Reset du compteur de spam dans le vide (le joueur a touché une note)
+		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
+			br_empty_hits[player_id] = 0
+		
 		combo = int(result_payload.get("combo", combo + 1))
 		perfect_streak = int(result_payload.get("perfect_streak", perfect_streak))
 
@@ -742,6 +792,17 @@ func _finalize_elimination(player_id: String) -> void:
 	eliminated_count += 1
 	MultiplayerBridge.send_elimination(player_id)
 	print("[BR] Elimination confirmee : ", player_id)
+	
+	# Kill feed : ajouter le joueur éliminé
+	var player_name = "Inconnu"
+	if players.has(player_id):
+		player_name = str(players[player_id].get("name", "Inconnu"))
+	br_kill_feed.insert(0, {"name": player_name, "time": int(elapsed)})
+	if br_kill_feed.size() > 8:
+		br_kill_feed.resize(8)
+	_refresh_kill_feed()
+	_refresh_right_panel()
+	
 	_check_br_victory()
 
 func _build_player_array() -> Array:
@@ -772,7 +833,7 @@ func _refresh_right_panel() -> void:
 		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
 			team_a_score_label.text = "Survivants : %d" % alive_players.size()
 			team_b_score_label.text = "Éliminés : %d" % eliminated_count
-			team_c_score_label.text = ""
+			team_c_score_label.text = "Temps : %d s" % int(elapsed)
 			lobby_count_label.text = "Musique: %s" % selected_song
 		else:
 			team_a_score_label.text = "Equipe bleue: %d" % int(team_scores.get("Equipe1", 0))
@@ -816,9 +877,11 @@ func _refresh_right_panel() -> void:
 	join_link_label.visible = is_waiting_start or is_game_over
 	
 	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and not is_waiting_start:
-		top5_label.visible = false # Pas de leaderboard en plein BR, on voit les survivants
+		top5_label.visible = false
+		if kill_feed_label: kill_feed_label.visible = true
 	else:
 		top5_label.visible = not is_waiting_start
+		if kill_feed_label: kill_feed_label.visible = false
 
 	var ranked := _get_sorted_players()
 	var lines := ["[b]TOP 5 JOUEURS[/b]"]
