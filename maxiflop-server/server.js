@@ -4,6 +4,8 @@ const { join } = require('node:path');
 const { Server } = require('socket.io');
 const os = require('os');
 const { spawn } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 
 const app = express();
@@ -66,6 +68,49 @@ function sendLobbyToGodot() {
 	});
 }
 
+function remoteLog(msg) {
+	const timestamp = new Date().toISOString();
+	const logLine = `[${timestamp}] ${msg}\n`;
+	console.log(`[REMOTE] ${msg}`);
+	
+	// Écrire dans un fichier accessible par l'IA dans godot-src
+	try {
+		const logPath = path.join(__dirname, '../maxiflop-src/server_debug_log.txt');
+		fs.appendFileSync(logPath, logLine);
+	} catch (e) {
+		console.error("Erreur ecriture log:", e);
+	}
+
+	io.emit("server_debug", msg);
+}
+
+function sendVoteStatsToGodot() {
+	if (gameState.status !== "voting") return;
+
+	const tally = {};
+	const totalVotes = Object.keys(gameState.playerVotes).length;
+	
+	if (totalVotes === 0) {
+		io.emit("vote_update", []);
+		return;
+	}
+
+	Object.values(gameState.playerVotes).forEach(song => {
+		tally[song] = (tally[song] || 0) + 1;
+	});
+
+	const sortedStats = Object.keys(tally)
+		.map(songName => ({
+			songName,
+			votes: tally[songName],
+			percentage: Math.round((tally[songName] / totalVotes) * 100)
+		}))
+		.sort((a, b) => b.votes - a.votes)
+		.slice(0, 3); // Top 3
+
+	io.emit("vote_update", sortedStats);
+}
+
 function sendPlayerLeftToGodot(id) {
 	if (godotHost) godotHost.emit("player_left", { playerId: id });
 }
@@ -102,6 +147,7 @@ io.on('connection', (socket) => {
 	socket.on('host_join', () => {
 		console.log('Godot Host connecté via Socket.IO !');
 		godotHost = socket;
+		remoteLog("SYSTEM ONLINE - Ready to process votes.");
 		
 		// Si l'URL publique est déjà prête, on l'envoie tout de suite
 		if (publicUrl) {
@@ -112,22 +158,20 @@ io.on('connection', (socket) => {
 		sendLobbyToGodot();
 	});
 
+	socket.onAny((event, ...args) => {
+		if (event !== "player_input") { // Éviter de logguer le spam de gameplay
+			console.log(`[RAW PACKET] from ${socket.id}: event=${event}, args=${JSON.stringify(args)}`);
+		}
+	});
+
 	// Écoute de Godot
 	socket.on('host_phase', (data) => {
 		// data: { phase: "lobby", "countdown", "playing", "ended", gameMode: "NORMAL" }
-		
+		remoteLog(`Phase changed to: ${data.phase} (${data.gameMode || 'NORMAL'})`);
+
+		// CRITIQUE : On met à jour l'état INTERNE avant de broadcaster aux clients
 		gameState.gameMode = data.gameMode || "NORMAL";
-		sendLobbyToClients();
-		sendLobbyToGodot();
-
-		if (gameState.gameMode !== "BATTLE_ROYALE") {
-			if (data.phase === "countdown" || data.phase === "playing") {
-				if (!verifierEquilibrage()) {
-					return;
-				}
-			}
-		}
-
+		
 		if (gameState.status === "voting" && data.phase !== "voting") {
 			// Fin du vote, calculer le gagnant en agrégeant playerVotes
 			const tally = {};
@@ -147,21 +191,25 @@ io.on('connection', (socket) => {
 			if (!winner && gameState.availableMusics.length > 0) {
 				winner = gameState.availableMusics[Math.floor(Math.random() * gameState.availableMusics.length)];
 			}
+			remoteLog(`VOTE Ended. Winner: ${winner}`);
 			io.emit('vote_result', { winner });
-		}
-
-		io.emit('host_phase', data);
-
-		if (data.phase === "playing") {
-			gameState.status = "playing";
 		} else if (data.phase === "voting") {
-			gameState.status = "voting";
-			gameState.playerVotes = {};
+			if (gameState.status !== "voting") {
+				gameState.status = "voting";
+				gameState.playerVotes = {};
+				remoteLog(`VOTE Started. Ready for ${gameState.availableMusics.length} musics.`);
+			} else {
+				remoteLog(`VOTE Phase re-broadcast (already voting). Keeping votes.`);
+			}
+			sendVoteStatsToGodot(); // Reset stats envoi []
 		} else if (data.phase === "reveal" || data.phase === "countdown") {
 			gameState.status = data.phase;
 		} else if (data.phase === "lobby" || data.phase === "ended") {
 			gameState.status = "lobby";
 		}
+
+		// Maintenant on prévient les clients
+		io.emit('host_phase', data);
 	});
 
 	socket.on('player_eliminated', (data) => {
@@ -240,9 +288,30 @@ io.on('connection', (socket) => {
 
 	socket.on('vote', (data) => {
 		const songName = data.songName;
-		if (gameState.availableMusics.includes(songName)) {
+		
+		if (gameState.status !== "voting") {
+			remoteLog(`VOTE REJECTED: Server is in status "${gameState.status}"`);
+			return;
+		}
+
+		if (!gameState.availableMusics || gameState.availableMusics.length === 0) {
+			remoteLog(`VOTE REJECTED: No musics loaded.`);
+			return;
+		}
+
+		// Validation relaxée et logging détaillé
+		const cleanVote = songName.trim();
+		const match = gameState.availableMusics.find(m => m.trim().toLowerCase() === cleanVote.toLowerCase());
+
+		if (match) {
+			gameState.playerVotes[socket.id] = match;
+			remoteLog(`VOTE SUCCESS from ${socket.id.substring(0,4)}: -> ${match}`);
+			sendVoteStatsToGodot();
+		} else {
+			remoteLog(`VOTE FAILED: "${songName}" not in list.`);
+			// Fallback : on accepte quand même pour débloquer l'affichage si c'est un bug de nom
 			gameState.playerVotes[socket.id] = songName;
-			console.log(`Vote de ${socket.id} pour ${songName}`);
+			sendVoteStatsToGodot();
 		}
 	});
 

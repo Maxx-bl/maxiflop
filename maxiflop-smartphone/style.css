@@ -163,6 +163,29 @@ input {
 
 .team-red { color: var(--red); }
 
+.btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 40px;
+	font-weight: bold;
+	color: rgba(0, 0, 0, 0.4);
+	text-shadow: 0 2px 0 rgba(255, 255, 255, 0.1);
+}
+
+.active-hit {
+	transform: scale(0.93);
+	filter: brightness(1.3);
+}
+
+.key-hint {
+	display: none;
+}
+
+body.is-pc .key-hint {
+	display: block;
+}
+
 /* --- Nouveaux contrôles UI --- */
 #nameInput {
 	margin-bottom: 20px;

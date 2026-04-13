@@ -7,18 +7,33 @@ signal player_input_received(payload: Dictionary)
 signal player_left(player_id: String)
 signal public_url_received(url: String)
 signal vote_result_received(song_name: String)
+signal vote_update_received(stats: Array)
+signal server_debug_received(message: String)
 
 # L'URL qui imite la toute première connexion d'un client HTTP Socket.IO via WebSocket
 @export var server_url: String = "ws://127.0.0.1:3000/socket.io/?EIO=4&transport=websocket"
 
 var _socket := WebSocketPeer.new()
 var _is_connected := false
+var last_public_url: String = ""
 
 func connect_as_host() -> void:
 	if _is_connected:
+		print("[MultiplayerBridge] Déjà connecté, saut du délai et de la connexion.")
+		emit_signal("connected_to_server")
+		if last_public_url != "":
+			emit_signal("public_url_received", last_public_url)
 		return
-	# Attendre 3s que le serveur Node.js et localtunnel soient prêts
+
+	var state = _socket.get_ready_state()
+	if state != WebSocketPeer.STATE_CLOSED:
+		_socket.close()
+		_is_connected = false
+		await get_tree().create_timer(0.5).timeout
+
+	# Attendre que le serveur Node.js et localtunnel soient prêts au premier lancement
 	await get_tree().create_timer(3.0).timeout
+	
 	var err := _socket.connect_to_url(server_url)
 	if err != OK:
 		push_warning("Connexion WS impossible: %s" % str(err))
@@ -110,21 +125,28 @@ func _handle_message(text: String) -> void:
 			var event_name = str(parsed[0])
 			var msg = parsed[1]
 			
-			if typeof(msg) == TYPE_DICTIONARY:
-				match event_name:
-					"lobby_update":
-						var players: Array = msg.get("players", [])
-						var team_scores: Dictionary = msg.get("teamScores", {})
-						if msg.has("publicUrl") and msg.get("publicUrl") != null:
-							var pu = str(msg.get("publicUrl"))
-							if pu != "":
-								emit_signal("public_url_received", pu)
-						emit_signal("lobby_updated", players, team_scores)
-					"player_input":
-						emit_signal("player_input_received", msg)
-					"player_left":
-						emit_signal("player_left", str(msg.get("playerId", "")))
-					"public_url":
-						emit_signal("public_url_received", str(msg.get("url", "")))
-					"vote_result":
-						emit_signal("vote_result_received", str(msg.get("winner", "")))
+			match event_name:
+				"lobby_update":
+					var players: Array = msg.get("players", [])
+					var team_scores: Dictionary = msg.get("teamScores", {})
+					if msg.has("publicUrl") and msg.get("publicUrl") != null:
+						var pu = str(msg.get("publicUrl"))
+						if pu != "":
+							last_public_url = pu
+							emit_signal("public_url_received", pu)
+					emit_signal("lobby_updated", players, team_scores)
+				"player_input":
+					emit_signal("player_input_received", msg)
+				"player_left":
+					emit_signal("player_left", str(msg.get("playerId", "")))
+				"public_url":
+					var pu := str(msg.get("url", ""))
+					last_public_url = pu
+					emit_signal("public_url_received", pu)
+				"vote_result":
+					emit_signal("vote_result_received", str(msg.get("winner", "")))
+				"server_debug":
+					print("[SERVER] ", msg)
+				"vote_update":
+					print("[DEBUG] Bridge received vote_update: ", msg)
+					emit_signal("vote_update_received", msg if typeof(msg) == TYPE_ARRAY else [])

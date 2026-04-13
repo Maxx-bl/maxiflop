@@ -11,7 +11,12 @@ extends Node2D
 @onready var count_down: Label = $HUD/CountdownLabel
 @onready var result_panel: Control = $HUD/ResultPanel
 @onready var warmup_label: Label = $HUD/WarmupLabel
-@onready var start_match_button: Button = $HUD/StartMatchButton
+@onready var lobby_frame: PanelContainer = $HUD/LobbyFrame
+@onready var lobby_qr_texture: TextureRect = $HUD/LobbyFrame/VBox/LobbyQRTexture
+@onready var start_match_button: Button = $HUD/LobbyFrame/VBox/StartMatchButton
+@onready var lobby_back_button: Button = $HUD/LobbyBackButton
+@onready var qr_http: HTTPRequest = $HUD/RightPanel/VBox/QRHTTPRequest
+
 @onready var right_panel: PanelContainer = $HUD/RightPanel
 @onready var team_a_score_label: Label = $HUD/RightPanel/VBox/TeamAScore
 @onready var team_b_score_label: Label = $HUD/RightPanel/VBox/TeamBScore
@@ -25,12 +30,9 @@ extends Node2D
 @onready var top5_label: RichTextLabel = $HUD/RightPanel/VBox/LeaderboardPanel/LeaderboardVBox/Top5Label
 @onready var error_toast: PanelContainer = $HUD/ErrorToast
 @onready var error_label: Label = $HUD/ErrorToast/Label
-@onready var qr_texture: TextureRect = $HUD/RightPanel/VBox/QRCodeTexture
-@onready var qr_http: HTTPRequest = $HUD/RightPanel/VBox/QRHTTPRequest
 @onready var result_team_scores_label: RichTextLabel = $HUD/ResultPanel/VBox/TeamScoresLabel
 @onready var result_winner_label: Label = $HUD/ResultPanel/VBox/WinnerLabel
 @onready var result_top5_label: RichTextLabel = $HUD/ResultPanel/VBox/ResultTop5Label
-@onready var lobby_qr_texture: TextureRect = $HUD/LobbyQRTexture
 
 @export var song_duration: float = 30.0
 @export var join_url_override: String = ""
@@ -59,6 +61,7 @@ var ghost_player: AudioStreamPlayer
 var phantom_bus_idx: int = -1
 var voting_panel: PanelContainer
 var difficulty_label: Label
+var vote_stats_label: RichTextLabel
 
 func _ready() -> void:
 	# --- PhantomBus Setup ---
@@ -90,13 +93,16 @@ func _ready() -> void:
 	result_panel.visible = false
 	combo_label.visible = false
 	start_match_button.pressed.connect(_on_start_match_pressed)
+	lobby_back_button.pressed.connect(_on_lobby_back_button_pressed)
 	qr_http.request_completed.connect(_on_qr_downloaded)
-	qr_texture.texture = null
+	# qr_texture removed as requested
+	lobby_frame.visible = false
 	_refresh_right_panel()
 	MultiplayerBridge.connect_as_host()
 	MultiplayerBridge.request_lobby()
 	GameManager.global_note_missed.connect(_on_global_note_missed)
 	MultiplayerBridge.vote_result_received.connect(_on_vote_result)
+	MultiplayerBridge.vote_update_received.connect(_on_vote_update)
 	_setup_voting_ui()
 	_enter_waiting_state()
 
@@ -135,20 +141,30 @@ func _setup_voting_ui() -> void:
 	warmup_label.custom_minimum_size = Vector2(600, 0)
 	count_down.custom_minimum_size = Vector2(600, 0)
 	
+	vote_stats_label = RichTextLabel.new()
+	vote_stats_label.bbcode_enabled = true
+	vote_stats_label.fit_content = true
+	vote_stats_label.custom_minimum_size = Vector2(600, 0)
+	vote_stats_label.add_theme_font_size_override("normal_font_size", 28)
+	vbox.add_child(vote_stats_label)
+	
 	# Largeur fixe pour forcer le retour à la ligne automatique (autowrap)
-	voting_panel.custom_minimum_size = Vector2(600, 150)
+	voting_panel.custom_minimum_size = Vector2(600, 350) # Plus grand pour le top 3
 	voting_panel.clip_contents = true
 	
 	voting_panel.visible = false
 
 func _enter_waiting_state() -> void:
+	result_panel.visible = false
 	is_waiting_start = true
 	is_counting_down = false
 	is_game_over = false
 	warmup_label.visible = true
 	warmup_label.text = "Salle d'attente"
+	lobby_frame.visible = true
 	start_match_button.visible = true
 	start_match_button.disabled = false
+	lobby_back_button.visible = true
 	count_down.visible = false
 	
 	# Masquer le race panel SEULEMENT en BR
@@ -165,11 +181,16 @@ func _start_voting() -> void:
 	is_waiting_start = false
 	is_counting_down = false
 	is_voting = true
+	# Reset local timer and UI state immediately
 	voting_time = 15.0
 	voting_panel.visible = true
+	lobby_frame.visible = false
+	lobby_back_button.visible = false
 	difficulty_label.visible = false
 	warmup_label.visible = true
 	warmup_label.text = "VOTE POUR LA MUSIQUE"
+	vote_stats_label.text = "[center][color=gray]Aucun vote pour le moment[/color][/center]"
+	vote_stats_label.visible = true
 	count_down.visible = true
 	count_down.text = "15"
 	count_down.add_theme_font_size_override("font_size", 120)
@@ -204,6 +225,8 @@ func _start_voting() -> void:
 	)
 	
 	MultiplayerBridge.send_music_list(musics)
+	# Petit délai pour laisser le serveur traiter la liste avant le changement de phase
+	await get_tree().create_timer(0.1).timeout
 	MultiplayerBridge.send_game_phase("voting")
 	_refresh_right_panel()
 
@@ -214,6 +237,9 @@ func _start_countdown() -> void:
 	is_game_over = false
 	countdown_time = 5.0
 	voting_panel.visible = true
+	vote_stats_label.visible = false
+	lobby_frame.visible = false
+	lobby_back_button.visible = false
 	warmup_label.visible = true
 	warmup_label.text = "PRÊT ?"
 	start_match_button.visible = false
@@ -257,9 +283,12 @@ func _process(delta: float) -> void:
 		if display > 0:
 			count_down.text = str(display)
 		else:
-			is_voting = false
-			MultiplayerBridge.send_game_phase("reveal")
-			count_down.text = "!"
+			# Temps écoulé, mais on reste en is_voting=true jusqu'au vote_result_received
+			# On n'envoie "reveal" qu'une seule fois via l'idantifiant du timer
+			if voting_time > -1.0: # Petit buffer pour ne pas spammer
+				count_down.text = "!"
+				if voting_time + delta > 0: # C'est la première fois qu'on passe en dessous de 0
+					MultiplayerBridge.send_game_phase("reveal")
 		return
 
 	if reveal_timer > 0:
@@ -350,8 +379,13 @@ func _begin_game() -> void:
 		ghost_player.play(note_spawner.approach_time)
 
 func _on_vote_result(song_name: String) -> void:
+	# On accepte le résultat même si le timer local est à 0 (is_voting est toujours true)
+	if not is_voting: return
+	is_voting = false
+	
 	selected_song = song_name
-	warmup_label.text = "MUSIQUE CHOISIE :"
+	vote_stats_label.visible = false
+	warmup_label.text = "MUSIQUE SÉLECTIONNÉE :"
 	
 	# Extraire la difficulté du nom du fichier (ex: "- EASY")
 	var display_name = song_name
@@ -427,6 +461,7 @@ func _on_game_over() -> void:
 	music_player.stop()
 	if ghost_player:
 		ghost_player.stop()
+	lobby_frame.visible = false
 	MultiplayerBridge.send_game_phase("ended")
 	is_waiting_start = true
 	is_counting_down = false
@@ -437,6 +472,7 @@ func _on_game_over() -> void:
 		
 	start_match_button.visible = true
 	start_match_button.disabled = false
+	lobby_back_button.visible = true
 	warmup_label.visible = true
 	warmup_label.text = "Partie terminee"
 	result_panel.visible = true
@@ -528,7 +564,7 @@ func _refresh_result_panel() -> void:
 	result_top5_label.text = "\n".join(lines)
 
 func _on_restart_pressed() -> void:
-	_on_start_match_pressed()
+	_enter_waiting_state()
 	
 func _on_menu_pressed() -> void: get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
 
@@ -584,13 +620,14 @@ func _on_player_input_received(payload: Dictionary) -> void:
 	_apply_remote_result(player_id, result)
 
 func _evaluate_remote_hit(player_id: String, color: int) -> Dictionary:
-	var best: Dictionary = note_spawner.get_best_note_for_timing(color, elapsed, GameManager.WINDOW_BAD)
+	# Fenêtre étendue à 0.8s pour le réseau
+	var best: Dictionary = note_spawner.get_best_note_for_timing(color, elapsed, 0.8)
 	if best.is_empty():
 		return {"result": "MISS", "points": 0, "empty": true}
 
 	var note = best.get("note", null)
 	var timing_error := float(best.get("timing_error", 999.0))
-	var result := "MISS"
+	var result := "BAD" # Par défaut si hors des fenêtres classiques mais trouvé par le 0.8s
 	var base_points := 0
 
 	if timing_error <= GameManager.WINDOW_PERFECT:
@@ -602,9 +639,10 @@ func _evaluate_remote_hit(player_id: String, color: int) -> Dictionary:
 	elif timing_error <= GameManager.WINDOW_BAD:
 		result = "BAD"
 		base_points = GameManager.SCORE_BAD
-
-	if result == "MISS":
-		return {"result": "MISS", "points": 0}
+	else:
+		# Note trouvée dans la fenêtre de lag (0.25 - 0.8s) : Coup BAD mais valide
+		result = "BAD"
+		base_points = GameManager.SCORE_BAD
 
 	var player_data: Dictionary = players[player_id]
 	var next_combo := int(player_data.get("combo", 0)) + 1
@@ -650,21 +688,22 @@ func _apply_remote_result(player_id: String, result_payload: Dictionary) -> void
 		perfect_streak = 0
 		points = - GameManager.PENALTY_EMPTY
 		
-		# Logique Battle Royale : Élimination avec sursis de lag
+		# Logique Battle Royale : Élimination
 		if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE:
 			if result_payload.get("timeout", false):
-				# C'est une note passee. On donne 400ms de sursis pour le lag
+				# C'est une note passée (timeout)
 				var note_key = result_payload.get("note_key", "")
-				get_tree().create_timer(0.4).timeout.connect(func():
-					# On verifie si le joueur a finalement touche la note via un signal arrive plus tard
+				get_tree().create_timer(0.6).timeout.connect(func():
 					var judged = player_judged_notes.get(player_id, {})
 					if not judged.has(note_key):
-						# Toujours pas touche ? Ok, elimination confirmee
 						if alive_players.has(player_id):
 							_finalize_elimination(player_id)
 				)
+			elif result_payload.get("empty", false):
+				# C'est un clic dans le vide (misclick) : PAS de mort, juste pénalité de score
+				pass
 			else:
-				# C'est une faute directe (mauvaise couleur) : Elimination immediate
+				# C'est une faute directe (mauvaise couleur, etc.) : Elimination immédiate
 				if alive_players.has(player_id):
 					_finalize_elimination(player_id)
 	else:
@@ -773,9 +812,8 @@ func _refresh_right_panel() -> void:
 
 	# En lobby : afficher QR code + lien, masquer classement
 	# En jeu ou Resultat : afficher classement
-	qr_texture.visible = is_waiting_start and join_url_ready
-	lobby_qr_texture.visible = is_waiting_start and join_url_ready
-	join_link_label.visible = is_waiting_start
+	lobby_qr_texture.visible = (is_waiting_start or is_game_over) and join_url_ready
+	join_link_label.visible = is_waiting_start or is_game_over
 	
 	if GameManager.current_mode == GameManager.GameMode.BATTLE_ROYALE and not is_waiting_start:
 		top5_label.visible = false # Pas de leaderboard en plein BR, on voit les survivants
@@ -820,7 +858,6 @@ func _on_qr_downloaded(_result: int, _code: int, _headers: PackedStringArray, bo
 	var img := Image.new()
 	if img.load_png_from_buffer(body) == OK:
 		var tex = ImageTexture.create_from_image(img)
-		qr_texture.texture = tex
 		lobby_qr_texture.texture = tex
 
 func _set_join_url() -> void:
@@ -897,6 +934,30 @@ func _on_start_match_pressed() -> void:
 	MultiplayerBridge.send_scoreboard(_build_player_array(), team_scores)
 	_refresh_right_panel()
 	_start_voting()
+
+func _on_lobby_back_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://scenes/MainMenu.tscn")
+
+func _on_vote_update(stats: Array) -> void:
+	if not is_voting: return
+	
+	# DEBUG : Compte les votes totaux
+	var total_debug := 0
+	for s in stats: total_debug += int(s.get("votes", 0))
+	print("[DEBUG] GameScreen received ", stats.size(), " items. Total votes: ", total_debug)
+
+	if stats.is_empty():
+		vote_stats_label.text = "[center][color=gray]Aucun vote pour le moment[/color][/center]"
+		return
+		
+	var text = "[center][b]CLASSEMENT ACTUEL :[/b]\n\n"
+	for i in range(stats.size()):
+		var entry = stats[i]
+		var color = "yellow" if i == 0 else "white"
+		text += "[color=%s]%d. %s - %d%%[/color]\n" % [color, i + 1, entry.songName, entry.percentage]
+	
+	text += "[/center]"
+	vote_stats_label.text = text
 
 func _verifier_equilibrage() -> bool:
 	var team_counts := {"Equipe1": 0, "Equipe2": 0, "Equipe3": 0}

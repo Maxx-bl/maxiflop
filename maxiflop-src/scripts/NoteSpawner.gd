@@ -172,15 +172,21 @@ func _check_misses() -> void:
 		if not is_instance_valid(note):
 			to_remove.append(note)
 			continue
-		if note.has_been_hit or note.is_missed:
+		if note.has_been_hit:
 			to_remove.append(note)
 			continue
-		# Host-side detection: si la note dépasse de 250ms le temps de spawn
-		if time_elapsed > note.spawn_time + 0.25:
+
+		# Host-side detection: si la note dépasse de 400ms le temps de spawn (plus tolérant pour le lag)
+		if time_elapsed > note.spawn_time + 0.40 and not note.is_missed:
 			note.miss_animation()
 			GameManager.register_miss()
-			GameManager.emit_signal("global_note_missed", note.color, note.spawn_time)
+			GameManager.global_note_missed.emit(note.color, note.spawn_time)
+		
+		# Suppression physique de l'array seulement après 1.2s pour laisser une fenêtre aux réponses réseau
+		if time_elapsed > note.spawn_time + 1.2:
 			to_remove.append(note)
+			note.queue_free()
+			
 	for note in to_remove:
 		active_notes.erase(note)
 

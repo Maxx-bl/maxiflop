@@ -1,0 +1,142 @@
+[2026-04-13T15:35:59.489Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T15:36:09.350Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:36:09.351Z] VOTE Started. Ready for 14 musics.
+[2026-04-13T15:36:10.242Z] VOTE SUCCESS from FZ3J: -> Electro-Light - Symbolism - EASY
+[2026-04-13T15:36:10.553Z] VOTE SUCCESS from FZ3J: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T15:36:10.911Z] VOTE SUCCESS from FZ3J: -> OMFG - Hello - EASY
+[2026-04-13T15:36:11.275Z] VOTE SUCCESS from FZ3J: -> Sub Urban - Cradles - EASY
+[2026-04-13T15:36:12.011Z] VOTE SUCCESS from FZ3J: -> Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:36:12.272Z] VOTE SUCCESS from FZ3J: -> Elektronomia - Sky High - EXTREME
+[2026-04-13T15:36:12.581Z] VOTE SUCCESS from FZ3J: -> Different Heaven & EH!DE - My Heart - HARD
+[2026-04-13T15:36:24.252Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:36:24.253Z] VOTE Ended. Winner: Different Heaven & EH!DE - My Heart - HARD
+[2026-04-13T15:36:28.264Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:36:28.265Z] VOTE Ended. Winner: Different Heaven & EH!DE - My Heart - HARD
+[2026-04-13T15:36:33.670Z] Phase changed to: playing (NORMAL)
+[2026-04-13T15:36:33.670Z] VOTE Ended. Winner: Different Heaven & EH!DE - My Heart - HARD
+[2026-04-13T15:39:04.298Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T15:39:15.945Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:39:15.945Z] VOTE Started. Ready for 14 musics.
+[2026-04-13T15:39:16.850Z] VOTE SUCCESS from gVL2: -> OMFG - Hello - EASY
+[2026-04-13T15:39:17.674Z] VOTE SUCCESS from gVL2: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-13T15:39:18.777Z] VOTE SUCCESS from gVL2: -> Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:39:19.246Z] VOTE SUCCESS from gVL2: -> Elektronomia - Sky High - EXTREME
+[2026-04-13T15:39:20.431Z] VOTE SUCCESS from gVL2: -> Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:39:24.272Z] VOTE SUCCESS from gVL2: -> Electro-Light - Symbolism - EASY
+[2026-04-13T15:39:26.538Z] VOTE SUCCESS from gVL2: -> Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:39:30.829Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:39:30.829Z] VOTE Ended. Winner: Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:39:34.842Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:39:34.842Z] VOTE Ended. Winner: Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:39:40.246Z] Phase changed to: playing (NORMAL)
+[2026-04-13T15:39:40.247Z] VOTE Ended. Winner: Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:41:40.256Z] Phase changed to: ended (NORMAL)
+[2026-04-13T15:41:40.256Z] VOTE Ended. Winner: Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:41:40.638Z] Phase changed to: lobby (NORMAL)
+[2026-04-13T15:41:40.639Z] VOTE Ended. Winner: Julius Dreisig & Zeus X Crona - Invisible - EXTREME
+[2026-04-13T15:41:41.172Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:41:41.172Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T15:41:46.568Z] VOTE SUCCESS from gVL2: -> Warriyo - Mortals - EXTREME
+[2026-04-13T15:41:56.081Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:41:56.081Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T15:42:00.086Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:42:00.086Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T15:42:05.492Z] Phase changed to: playing (NORMAL)
+[2026-04-13T15:42:05.493Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T15:44:05.500Z] Phase changed to: ended (NORMAL)
+[2026-04-13T15:44:05.501Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-13T15:47:17.976Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T15:47:34.024Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:47:34.025Z] VOTE Started. Ready for 15 musics.
+[2026-04-13T15:47:35.685Z] VOTE SUCCESS from 3kd_: -> Jo Cohen & Sex Whales - We Are - EXTREME
+[2026-04-13T15:47:48.919Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:47:48.920Z] VOTE Ended. Winner: Jo Cohen & Sex Whales - We Are - EXTREME
+[2026-04-13T15:47:52.926Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:47:52.926Z] VOTE Ended. Winner: Jo Cohen & Sex Whales - We Are - EXTREME
+[2026-04-13T15:47:58.331Z] Phase changed to: playing (NORMAL)
+[2026-04-13T15:47:58.332Z] VOTE Ended. Winner: Jo Cohen & Sex Whales - We Are - EXTREME
+[2026-04-13T15:49:58.347Z] Phase changed to: ended (NORMAL)
+[2026-04-13T15:49:58.348Z] VOTE Ended. Winner: Jo Cohen & Sex Whales - We Are - EXTREME
+[2026-04-13T15:52:48.603Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-13T15:53:01.350Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:53:01.351Z] VOTE Started. Ready for 17 musics.
+[2026-04-13T15:53:03.232Z] VOTE SUCCESS from a9nr: -> Alan Walker - Fade - EXTREME
+[2026-04-13T15:53:03.658Z] VOTE SUCCESS from a9nr: -> Alan Walker - Spectre - EXTREME
+[2026-04-13T15:53:04.220Z] VOTE SUCCESS from a9nr: -> Alan Walker - Fade - EXTREME
+[2026-04-13T15:53:05.367Z] VOTE SUCCESS from a9nr: -> Alan Walker - Spectre - EXTREME
+[2026-04-13T15:53:05.671Z] VOTE SUCCESS from a9nr: -> Alan Walker - Fade - EXTREME
+[2026-04-13T15:53:16.250Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:53:16.251Z] VOTE Ended. Winner: Alan Walker - Fade - EXTREME
+[2026-04-13T15:53:20.238Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:53:20.239Z] VOTE Ended. Winner: Alan Walker - Fade - EXTREME
+[2026-04-13T15:53:25.650Z] Phase changed to: playing (NORMAL)
+[2026-04-13T15:53:25.651Z] VOTE Ended. Winner: Alan Walker - Fade - EXTREME
+[2026-04-13T15:55:25.653Z] Phase changed to: ended (NORMAL)
+[2026-04-13T15:55:25.654Z] VOTE Ended. Winner: Alan Walker - Fade - EXTREME
+[2026-04-13T15:55:28.654Z] Phase changed to: lobby (NORMAL)
+[2026-04-13T15:55:28.654Z] VOTE Ended. Winner: Alan Walker - Fade - EXTREME
+[2026-04-13T15:55:29.290Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:55:29.290Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T15:55:31.039Z] VOTE SUCCESS from a9nr: -> Alan Walker - Spectre - EXTREME
+[2026-04-13T15:55:44.192Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:55:44.193Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:55:48.198Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:55:48.199Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:55:53.604Z] Phase changed to: playing (NORMAL)
+[2026-04-13T15:55:53.605Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:57:53.607Z] Phase changed to: ended (NORMAL)
+[2026-04-13T15:57:53.608Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:05.241Z] Phase changed to: lobby (NORMAL)
+[2026-04-13T15:58:05.242Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:07.999Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T15:58:08.000Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:13.218Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:58:13.219Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T15:58:21.158Z] VOTE SUCCESS from a9nr: -> Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:28.121Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:58:28.122Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:32.127Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:58:32.128Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:37.533Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T15:58:37.534Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:48.024Z] Phase changed to: ended (NORMAL)
+[2026-04-13T15:58:48.025Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:50.678Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T15:58:50.679Z] VOTE Ended. Winner: Alan Walker - Spectre - EXTREME
+[2026-04-13T15:58:51.782Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:58:51.783Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T15:58:54.534Z] VOTE SUCCESS from a9nr: -> Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:06.683Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:59:06.684Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:10.689Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:59:10.690Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:16.095Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T15:59:16.096Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:27.374Z] Phase changed to: ended (NORMAL)
+[2026-04-13T15:59:27.374Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:29.962Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T15:59:29.963Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:30.726Z] Phase changed to: voting (NORMAL)
+[2026-04-13T15:59:30.726Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T15:59:32.118Z] VOTE SUCCESS from a9nr: -> Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:45.628Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T15:59:45.629Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:49.634Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T15:59:49.634Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T15:59:55.040Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T15:59:55.040Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:00:07.022Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:00:07.023Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:00:10.622Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-13T16:00:10.623Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:00:11.283Z] Phase changed to: voting (NORMAL)
+[2026-04-13T16:00:11.284Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-13T16:00:14.119Z] VOTE SUCCESS from a9nr: -> Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:00:26.185Z] Phase changed to: reveal (NORMAL)
+[2026-04-13T16:00:26.186Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:00:30.191Z] Phase changed to: countdown (NORMAL)
+[2026-04-13T16:00:30.192Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:00:35.597Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-13T16:00:35.598Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-13T16:00:48.294Z] Phase changed to: ended (NORMAL)
+[2026-04-13T16:00:48.295Z] VOTE Ended. Winner: Crushed Candy - Oh My Gawd - MEDIUM

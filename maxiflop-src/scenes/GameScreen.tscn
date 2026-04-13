@@ -55,6 +55,20 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rightpanel"]
+content_margin_left = 24.0
+content_margin_top = 24.0
+content_margin_right = 24.0
+content_margin_bottom = 24.0
+bg_color = Color(0.12, 0.12, 0.22, 0.9)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 15
+shadow_offset = Vector2(0, 8)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
 content_margin_left = 24.0
 content_margin_top = 12.0
@@ -95,20 +109,6 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rightpanel"]
-content_margin_left = 24.0
-content_margin_top = 24.0
-content_margin_right = 24.0
-content_margin_bottom = 24.0
-bg_color = Color(0.12, 0.12, 0.22, 0.9)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 15
-shadow_offset = Vector2(0, 8)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrivee"]
 content_margin_top = 8.0
@@ -216,14 +216,34 @@ offset_bottom = 10.0
 theme_override_styles/fill = SubResource("StyleBoxFlat_progress_song")
 show_percentage = false
 
-[node name="LobbyQRTexture" type="TextureRect" parent="HUD"]
+[node name="LobbyFrame" type="PanelContainer" parent="HUD"]
 visible = false
-offset_left = 245.0
-offset_top = 205.0
-offset_right = 595.0
-offset_bottom = 555.0
-pivot_offset = Vector2(175, 175)
+offset_left = 140.0
+offset_top = 110.0
+offset_right = 700.0
+offset_bottom = 610.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rightpanel")
+
+[node name="VBox" type="VBoxContainer" parent="HUD/LobbyFrame"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="LobbyQRTexture" type="TextureRect" parent="HUD/LobbyFrame/VBox"]
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 2
+size_flags_horizontal = 4
 stretch_mode = 5
+
+[node name="StartMatchButton" type="Button" parent="HUD/LobbyFrame/VBox"]
+custom_minimum_size = Vector2(360, 70)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+text = "Lancer la partie"
 
 [node name="ComboLabel" type="Label" parent="HUD"]
 visible = false
@@ -265,16 +285,16 @@ text = "Salle d'attente"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StartMatchButton" type="Button" parent="HUD"]
-offset_left = 240.0
-offset_top = 585.0
-offset_right = 600.0
-offset_bottom = 655.0
-theme_override_font_sizes/font_size = 28
+[node name="LobbyBackButton" type="Button" parent="HUD"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 160.0
+offset_bottom = 70.0
+theme_override_font_sizes/font_size = 20
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-text = "Lancer la partie"
+text = "Retour"
 
 [node name="ErrorToast" type="PanelContainer" parent="HUD"]
 visible = false
@@ -303,11 +323,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_rightpanel")
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="QRCodeTexture" type="TextureRect" parent="HUD/RightPanel/VBox"]
-custom_minimum_size = Vector2(180, 180)
-layout_mode = 2
-stretch_mode = 5
-
 [node name="QRHTTPRequest" type="HTTPRequest" parent="HUD/RightPanel/VBox"]
 
 [node name="LobbyCount" type="Label" parent="HUD/RightPanel/VBox"]
@@ -319,8 +334,9 @@ text = "Joueurs connectes: 0"
 [node name="JoinLink" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.65, 0.8, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 24
 text = "Rejoindre: http://127.0.0.1:3000"
+horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="ArriveeHeader" type="PanelContainer" parent="HUD/RightPanel/VBox"]
@@ -331,7 +347,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_arrivee")
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
-text = "ARRIVEE"
 horizontal_alignment = 1
 
 [node name="RacePanel" type="HBoxContainer" parent="HUD/RightPanel/VBox"]

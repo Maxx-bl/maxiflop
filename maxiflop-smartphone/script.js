@@ -188,9 +188,45 @@ socket.on("eliminated", (data) => {
 	}
 });
 
+// Détections PC / Mobile pour les hints clavier
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+if (!isTouchDevice) {
+	document.body.classList.add("is-pc");
+	// Ajouter visuellement les lettres X, C, V dans les boutons
+	const btnBlue = document.querySelector('.btn.blue');
+	const btnYellow = document.querySelector('.btn.yellow');
+	const btnRed = document.querySelector('.btn.red');
+	if (btnBlue) btnBlue.innerHTML = '<span class="key-hint">X</span>';
+	if (btnYellow) btnYellow.innerHTML = '<span class="key-hint">C</span>';
+	if (btnRed) btnRed.innerHTML = '<span class="key-hint">V</span>';
+}
+
+document.addEventListener("keydown", (e) => {
+	if (screens.controller.classList.contains("hidden")) return;
+	if (e.repeat) return; // Éviter le spam de touches qui fait perdre des points
+	
+	let color = -1;
+	// e.code est plus fiable que e.key pour les layouts différents (AZERTY/QWERTY)
+	if (e.code === "KeyX") color = 0; // Bleu
+	if (e.code === "KeyC") color = 1; // Jaune
+	if (e.code === "KeyV") color = 2; // Rouge
+	
+	if (color !== -1) {
+		socket.emit("player_input", {
+			color,
+			clientTs: Date.now()
+		});
+		// Simuler le feedback visuel sur la manette
+		const btn = document.querySelector(`.btn[data-color="${color}"]`);
+		if (btn) {
+			btn.classList.add("active-hit");
+			setTimeout(() => btn.classList.remove("active-hit"), 100);
+		}
+	}
+});
+
 document.querySelectorAll(".btn[data-color]").forEach((btn) => {
 	btn.addEventListener("pointerdown", () => {
-		// Pas de preventDefault() ici : certains navigateurs bloquent l'API Vibration si le geste est "consommé"
 		if (navigator.vibrate) navigator.vibrate(50); 
 		const color = Number(btn.dataset.color);
 		socket.emit("player_input", {
