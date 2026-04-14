@@ -227,16 +227,35 @@ func _start_voting() -> void:
 	count_down.add_theme_font_size_override("font_size", 120)
 	start_match_button.visible = false
 	
-	# Lister les musiques
+	# Lister les musiques (DirAccess fonctionne en éditeur, pas toujours en export PCK)
 	var musics := []
 	var dir = DirAccess.open("res://assets/musics")
 	if dir:
 		dir.list_dir_begin()
 		var file_name = dir.get_next()
 		while file_name != "":
-			if not dir.current_is_dir() and file_name.ends_with(".mp3"):
-				musics.append(file_name.replace(".mp3", ""))
+			if not dir.current_is_dir():
+				if file_name.ends_with(".mp3"):
+					musics.append(file_name.replace(".mp3", ""))
+				elif file_name.ends_with(".mp3.import"):
+					var name = file_name.replace(".mp3.import", "")
+					if not musics.has(name):
+						musics.append(name)
 			file_name = dir.get_next()
+	
+	# Fallback : lire la liste pré-générée (fiable en export)
+	if musics.is_empty():
+		print("[GameScreen] DirAccess vide, lecture de music_list.txt...")
+		var f = FileAccess.open("res://assets/musics/music_list.txt", FileAccess.READ)
+		if f:
+			while not f.eof_reached():
+				var line = f.get_line().strip_edges()
+				if line != "":
+					musics.append(line)
+			f.close()
+			print("[GameScreen] %d musiques chargées depuis music_list.txt" % musics.size())
+		else:
+			push_error("[GameScreen] ERREUR : Aucune musique trouvée ! Ni DirAccess ni music_list.txt.")
 	
 	
 	# Trier les musiques par difficulté
@@ -294,7 +313,7 @@ func _start_countdown() -> void:
 func _process(delta: float) -> void:
 	if not join_url_ready and is_waiting_start:
 		loading_timer += delta
-		if loading_timer > 10.0:
+		if loading_timer > 20.0:
 			join_url_ready = true
 			_set_join_url()
 			_load_qr_code()
@@ -303,7 +322,10 @@ func _process(delta: float) -> void:
 			var dots := ""
 			for i in range(int(loading_timer * 3) % 4):
 				dots += "."
-			join_link_label.text = "Création du lien" + dots
+			if loading_timer < 5.0:
+				join_link_label.text = "Démarrage du serveur" + dots
+			else:
+				join_link_label.text = "Attente du tunnel" + dots
 
 	if is_waiting_start:
 		return

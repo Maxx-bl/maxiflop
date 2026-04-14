@@ -17,6 +17,14 @@ var _socket := WebSocketPeer.new()
 var _is_connected := false
 var last_public_url: String = ""
 
+# --- Reconnexion automatique ---
+var _want_connection := false       # true quand on veut être connecté
+var _retry_timer: float = 0.0       # compteur pour les retentatives
+const RETRY_INTERVAL: float = 2.0   # réessayer toutes les 2 secondes
+const INITIAL_DELAY: float = 3.0    # délai initial avant la première tentative
+var _initial_delay_done := false
+var _initial_timer: float = 0.0
+
 func connect_as_host() -> void:
 	if _is_connected:
 		print("[MultiplayerBridge] Déjà connecté, saut du délai et de la connexion.")
@@ -25,39 +33,76 @@ func connect_as_host() -> void:
 			emit_signal("public_url_received", last_public_url)
 		return
 
-	var state = _socket.get_ready_state()
-	if state != WebSocketPeer.STATE_CLOSED:
-		_socket.close()
-		_is_connected = false
-		await get_tree().create_timer(0.5).timeout
-
-	# Attendre que le serveur Node.js et localtunnel soient prêts au premier lancement
-	await get_tree().create_timer(3.0).timeout
-	
-	var err := _socket.connect_to_url(server_url)
-	if err != OK:
-		push_warning("Connexion WS impossible: %s" % str(err))
+	print("[MultiplayerBridge] Connexion demandée, attente initiale de %.1fs..." % INITIAL_DELAY)
+	_want_connection = true
+	_initial_delay_done = false
+	_initial_timer = 0.0
+	_retry_timer = 0.0
 
 func disconnect_socket() -> void:
+	_want_connection = false
 	if _is_connected:
 		_socket.close()
 	_is_connected = false
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	if not _want_connection:
+		# Toujours poll si on a une connexion active
+		if _is_connected:
+			_socket.poll()
+			var state := _socket.get_ready_state()
+			if state == WebSocketPeer.STATE_CLOSED:
+				_is_connected = false
+				emit_signal("disconnected_from_server")
+		return
+
+	# --- Délai initial avant la première tentative ---
+	if not _initial_delay_done:
+		_initial_timer += delta
+		if _initial_timer < INITIAL_DELAY:
+			return
+		_initial_delay_done = true
+		print("[MultiplayerBridge] Délai initial écoulé, première tentative de connexion...")
+		_attempt_connect()
+		return
+
+	# --- Poll de la socket active ---
 	_socket.poll()
 	var state := _socket.get_ready_state()
 
-	if state == WebSocketPeer.STATE_CLOSED and _is_connected:
-		_is_connected = false
-		emit_signal("disconnected_from_server")
+	# Connexion réussie !
+	if state == WebSocketPeer.STATE_OPEN and not _is_connected:
+		# On attend le handshake Socket.IO (géré dans _handle_message)
+		pass
 
-	if state != WebSocketPeer.STATE_OPEN:
+	# Déconnexion détectée → on réessaie
+	if state == WebSocketPeer.STATE_CLOSED:
+		if _is_connected:
+			_is_connected = false
+			print("[MultiplayerBridge] Connexion perdue, reconnexion en cours...")
+			emit_signal("disconnected_from_server")
+
+		_retry_timer += delta
+		if _retry_timer >= RETRY_INTERVAL:
+			_retry_timer = 0.0
+			_attempt_connect()
 		return
 
-	while _socket.get_available_packet_count() > 0:
-		var packet := _socket.get_packet()
-		var text := packet.get_string_from_utf8()
-		_handle_message(text)
+	# Lecture des messages
+	if state == WebSocketPeer.STATE_OPEN:
+		while _socket.get_available_packet_count() > 0:
+			var packet := _socket.get_packet()
+			var text := packet.get_string_from_utf8()
+			_handle_message(text)
+
+func _attempt_connect() -> void:
+	# Créer une nouvelle WebSocketPeer pour chaque tentative (nécessaire après STATE_CLOSED)
+	_socket = WebSocketPeer.new()
+	var err := _socket.connect_to_url(server_url)
+	if err != OK:
+		push_warning("[MultiplayerBridge] Tentative de connexion échouée (err=%s), nouvelle tentative dans %.0fs..." % [str(err), RETRY_INTERVAL])
+	else:
+		print("[MultiplayerBridge] Tentative de connexion à %s ..." % server_url)
 
 func send_game_phase(phase: String, remaining: int = 0, extra_data: Dictionary = {}) -> void:
 	var payload = {"phase": phase, "remaining": remaining}
@@ -114,6 +159,7 @@ func _handle_message(text: String) -> void:
 		# Message 40: Socket.IO nous accepte officiellement ! On envoie 'host_join'
 		if not _is_connected:
 			_is_connected = true
+			print("[MultiplayerBridge] ✓ Connecté au serveur Node.js !")
 			_emit_socketio("host_join", {})
 			emit_signal("connected_to_server")
 			
@@ -141,6 +187,7 @@ func _handle_message(text: String) -> void:
 					emit_signal("player_left", str(msg.get("playerId", "")))
 				"public_url":
 					var pu := str(msg.get("url", ""))
+					print("[MultiplayerBridge] ✓ URL publique reçue : %s" % pu)
 					last_public_url = pu
 					emit_signal("public_url_received", pu)
 				"vote_result":
