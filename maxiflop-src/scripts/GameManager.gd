@@ -16,6 +16,8 @@ const PENALTY_EMPTY := 5
 const WINDOW_PERFECT := 0.05
 const WINDOW_GOOD := 0.15
 const WINDOW_BAD := 0.25
+enum GameMode { NORMAL, BATTLE_ROYALE }
+var current_mode: GameMode = GameMode.NORMAL
 
 var score: int = 0
 var combo: int = 0

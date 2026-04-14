@@ -4,9 +4,21 @@ extends Node
 var _server_pid: int = -1
 
 func _ready() -> void:
+	# NETTOYAGE : Tuer tout ancien serveur resté bloqué sur le port 3000
+	_cleanup_port_3000()
 	_start_server()
 	# Arrêter le serveur proprement à la fermeture du jeu
-	get_tree().root.close_requested.connect(_stop_server)
+	get_tree().root.close_requested.connect(stop_server)
+
+func _cleanup_port_3000() -> void:
+	print("[ServerManager] Nettoyage du port 3000...")
+	if OS.get_name() == "Windows":
+		# Commande pour trouver le PID sur le port 3000 et le tuer
+		var cmd = "for /f \"tokens=5\" %a in ('netstat -aon ^| findstr :3000') do taskkill /F /PID %a"
+		OS.execute("cmd.exe", ["/c", cmd])
+	else:
+		OS.execute("sh", ["-c", "lsof -ti:3000 | xargs kill -9"])
+	print("[ServerManager] Port 3000 nettoyé.")
 
 func _start_server() -> void:
 	# Chemin vers server.js, relatif à l'exécutable du jeu
@@ -37,19 +49,27 @@ func _start_server() -> void:
 
 	print("[ServerManager] Lancement : %s %s" % [node_exe, server_path])
 
+	# Lancement silencieux en arrière-plan
 	var pid := OS.create_process(node_exe, [server_path])
+
 	if pid > 0:
 		_server_pid = pid
 		print("[ServerManager] Serveur démarré (PID %d)" % pid)
 	else:
 		push_warning("[ServerManager] Impossible de démarrer le serveur Node.js. Lancez-le manuellement avec : node %s" % server_path)
 
-func _stop_server() -> void:
+func stop_server() -> void:
 	if _server_pid > 0:
 		print("[ServerManager] Arrêt du serveur (PID %d)" % _server_pid)
-		OS.kill(_server_pid)
+		
+		if OS.get_name() == "Windows":
+			# /F = force, /T = tree (tue les enfants comme cloudflared)
+			OS.execute("taskkill", ["/F", "/T", "/PID", str(_server_pid)])
+		else:
+			OS.kill(_server_pid)
+			
 		_server_pid = -1
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_PREDELETE:
-		_stop_server()
+		stop_server()

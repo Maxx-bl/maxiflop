@@ -11,7 +11,8 @@ const screens = {
 	waiting: document.getElementById("waiting"),
 	controller: document.getElementById("controller"),
 	vote: document.getElementById("vote"),
-	rotate: document.getElementById("rotate")
+	rotate: document.getElementById("rotate"),
+	eliminated: document.getElementById("eliminated-screen")
 };
 
 const showScreen = (key) => {
@@ -26,6 +27,11 @@ document.querySelectorAll(".join-team-btn").forEach((btn) => {
 		const teamName = btn.dataset.team;
 		joinGame(teamName);
 	});
+});
+
+document.getElementById("btn-join-br").addEventListener("click", () => {
+	// En BR, on attribue une équipe par défaut (non visible pour l'utilisateur)
+	joinGame("Equipe1");
 });
 
 function joinGame(teamName) {
@@ -67,18 +73,34 @@ socket.on("update-lobby", (gameState) => {
 		else btn.classList.remove("disabled");
 	});
 
+	// Gestion du mode Battle Royale
+	// Support du mode dans gameState ou gameState.gameMode (uniformisation)
+	const mode = gameState.gameMode || gameState.currentMode || "NORMAL";
+	const isBR = (mode === "BATTLE_ROYALE");
+	document.querySelector(".team-btns").classList.toggle("hidden", isBR);
+	document.getElementById("btn-join-br").classList.toggle("hidden", !isBR);
+	
+	const title = document.querySelector("#teamSelection p");
+	if (title) title.textContent = isBR ? "Prêt pour le massacre ?" : "Choisis ton équipe :";
+
 	const myPlayer = gameState.players[socket.id];
 	if (!myPlayer || !myPlayer.team) return;
 
-	teamInfo.textContent = `Tu es dans l'${myPlayer.team} !`;
-
-	if (!rankText.textContent.includes("Rang")) {
-		rankText.textContent = `Rang ? - ${myPlayer.team}`;
+	if (isBR) {
+		teamInfo.textContent = "Tu es prêt pour le massacre !";
+		if (!rankText.textContent.includes("ÉLIMINÉ")) {
+			rankText.textContent = `Rang ?`;
+		}
+		rankText.className = "team-br"; 
+	} else {
+		teamInfo.textContent = `Tu es dans l'${myPlayer.team} !`;
+		if (!rankText.textContent.includes("Rang")) {
+			rankText.textContent = `Rang ? - ${myPlayer.team}`;
+		}
+		if (myPlayer.team === "Equipe1") rankText.className = "team-blue";
+		else if (myPlayer.team === "Equipe2") rankText.className = "team-red";
+		else rankText.className = "team-yellow";
 	}
-
-	if (myPlayer.team === "Equipe1") rankText.className = "team-blue";
-	else if (myPlayer.team === "Equipe2") rankText.className = "team-red";
-	else rankText.className = "team-yellow";
 });
 
 // Écoute des phases de la partie, dictées par Godot
@@ -159,9 +181,52 @@ socket.on("vote_result", (data) => {
 	console.log("Winner is:", data.winner);
 });
 
+socket.on("eliminated", (data) => {
+	if (data.status) {
+		showScreen("eliminated");
+		if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 300]); // Vibration de défaite
+	}
+});
+
+// Détections PC / Mobile pour les hints clavier
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+if (!isTouchDevice) {
+	document.body.classList.add("is-pc");
+	// Ajouter visuellement les lettres X, C, V dans les boutons
+	const btnBlue = document.querySelector('.btn.blue');
+	const btnYellow = document.querySelector('.btn.yellow');
+	const btnRed = document.querySelector('.btn.red');
+	if (btnBlue) btnBlue.innerHTML = '<span class="key-hint">X</span>';
+	if (btnYellow) btnYellow.innerHTML = '<span class="key-hint">C</span>';
+	if (btnRed) btnRed.innerHTML = '<span class="key-hint">V</span>';
+}
+
+document.addEventListener("keydown", (e) => {
+	if (screens.controller.classList.contains("hidden")) return;
+	if (e.repeat) return; // Éviter le spam de touches qui fait perdre des points
+	
+	let color = -1;
+	// e.code est plus fiable que e.key pour les layouts différents (AZERTY/QWERTY)
+	if (e.code === "KeyX") color = 0; // Bleu
+	if (e.code === "KeyC") color = 1; // Jaune
+	if (e.code === "KeyV") color = 2; // Rouge
+	
+	if (color !== -1) {
+		socket.emit("player_input", {
+			color,
+			clientTs: Date.now()
+		});
+		// Simuler le feedback visuel sur la manette
+		const btn = document.querySelector(`.btn[data-color="${color}"]`);
+		if (btn) {
+			btn.classList.add("active-hit");
+			setTimeout(() => btn.classList.remove("active-hit"), 100);
+		}
+	}
+});
+
 document.querySelectorAll(".btn[data-color]").forEach((btn) => {
 	btn.addEventListener("pointerdown", () => {
-		// Pas de preventDefault() ici : certains navigateurs bloquent l'API Vibration si le geste est "consommé"
 		if (navigator.vibrate) navigator.vibrate(50); 
 		const color = Number(btn.dataset.color);
 		socket.emit("player_input", {

@@ -9,29 +9,8 @@ extends Node2D
 @onready var btn_yellow := get_node_or_null("../HitCircleYellow")
 @onready var btn_red := get_node_or_null("../HitCircleRed")
 
-const KEY_BLUE := KEY_A
-const KEY_YELLOW := KEY_S
-const KEY_RED := KEY_D
-
 func _ready() -> void:
-	GameManager.game_started.connect(_on_game_started)
-	GameManager.game_over.connect(_on_game_over)
-
-func _on_game_started() -> void:
 	pass
-
-func _on_game_over() -> void:
-	pass
-
-func _unhandled_key_input(event: InputEvent) -> void:
-	if not GameManager.is_playing:
-		return
-	if not event.pressed:
-		return
-	match event.keycode:
-		KEY_BLUE: _try_hit(0, btn_blue)
-		KEY_YELLOW: _try_hit(1, btn_yellow)
-		KEY_RED: _try_hit(2, btn_red)
 
 func press_button(col: int) -> void:
 	match col:

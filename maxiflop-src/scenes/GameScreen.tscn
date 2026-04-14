@@ -1,14 +1,10 @@
-[gd_scene load_steps=21 format=3 uid="uid://cfyaf4ikyente"]
+[gd_scene load_steps=17 format=3 uid="uid://cfyaf4ikyente"]
 
-[ext_resource type="Script" path="res://scripts/GameScreen.gd" id="1"]
-[ext_resource type="Script" path="res://scripts/NoteSpawner.gd" id="2"]
-[ext_resource type="Script" path="res://scenes/fond_game.gd" id="2_5m6a2"]
-[ext_resource type="Script" path="res://scripts/HitZone.gd" id="3"]
-[ext_resource type="Texture2D" uid="uid://dyvouf8b51x5b" path="res://assets/GameScreenBack/Space Background.png" id="3_5vdj1"]
+[ext_resource type="Script" uid="uid://d34qiog5r04a8" path="res://scripts/GameScreen.gd" id="1"]
+[ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
+[ext_resource type="Script" uid="uid://dkacnraee3abq" path="res://scripts/HitZone.gd" id="3"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
 [ext_resource type="AudioStream" uid="uid://dcf34i1jfenko" path="res://assets/test_kick_6s.wav" id="5_xpdqc"]
-[ext_resource type="Texture2D" uid="uid://bter32ehur1r7" path="res://assets/GameScreenBack/star3.png" id="5_yklkw"]
-[ext_resource type="FontFile" uid="uid://b4ve68u3poffy" path="res://assets/Ecriture/PixelifySans-VariableFont_wght.ttf" id="9_x2v7n"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ring_blue"]
 bg_color = Color(0, 0, 0, 0)
@@ -59,6 +55,20 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rightpanel"]
+content_margin_left = 24.0
+content_margin_top = 24.0
+content_margin_right = 24.0
+content_margin_bottom = 24.0
+bg_color = Color(0.12, 0.12, 0.22, 0.9)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 15
+shadow_offset = Vector2(0, 8)
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
 content_margin_left = 24.0
 content_margin_top = 12.0
@@ -100,20 +110,6 @@ corner_radius_bottom_left = 12
 shadow_color = Color(0, 0, 0, 0.3)
 shadow_size = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rightpanel"]
-content_margin_left = 24.0
-content_margin_top = 24.0
-content_margin_right = 24.0
-content_margin_bottom = 24.0
-bg_color = Color(0.12, 0.12, 0.22, 0.9)
-corner_radius_top_left = 20
-corner_radius_top_right = 20
-corner_radius_bottom_right = 20
-corner_radius_bottom_left = 20
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 15
-shadow_offset = Vector2(0, 8)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrivee"]
 content_margin_top = 8.0
 content_margin_bottom = 8.0
@@ -144,27 +140,6 @@ bg_color = Color(0.08, 0.06, 0.18, 0.97)
 [node name="GameScreen" type="Node2D"]
 script = ExtResource("1")
 song_duration = 60.0
-
-[node name="fond_game" type="ParallaxBackground" parent="."]
-script = ExtResource("2_5m6a2")
-
-[node name="CoucheCielNuit" type="ParallaxLayer" parent="fond_game"]
-motion_mirroring = Vector2(0, 720)
-
-[node name="SpriteCielNuit" type="Sprite2D" parent="fond_game/CoucheCielNuit"]
-texture_filter = 1
-position = Vector2(766.25, 362)
-scale = Vector2(7.6575, 3.64)
-texture = ExtResource("3_5vdj1")
-
-[node name="CoucheEtoile3" type="ParallaxLayer" parent="fond_game"]
-motion_mirroring = Vector2(0, 720)
-
-[node name="spriteStar" type="Sprite2D" parent="fond_game/CoucheEtoile3"]
-texture_filter = 1
-position = Vector2(766, 360)
-scale = Vector2(7.65, 3.59)
-texture = ExtResource("5_yklkw")
 
 [node name="Background" type="ColorRect" parent="."]
 anchors_preset = 15
@@ -241,6 +216,35 @@ offset_bottom = 10.0
 theme_override_styles/fill = SubResource("StyleBoxFlat_progress_song")
 show_percentage = false
 
+[node name="LobbyFrame" type="PanelContainer" parent="HUD"]
+visible = false
+offset_left = 140.0
+offset_top = 110.0
+offset_right = 700.0
+offset_bottom = 610.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_rightpanel")
+
+[node name="VBox" type="VBoxContainer" parent="HUD/LobbyFrame"]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="LobbyQRTexture" type="TextureRect" parent="HUD/LobbyFrame/VBox"]
+custom_minimum_size = Vector2(300, 300)
+layout_mode = 2
+size_flags_horizontal = 4
+stretch_mode = 5
+
+[node name="StartMatchButton" type="Button" parent="HUD/LobbyFrame/VBox"]
+custom_minimum_size = Vector2(360, 70)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 28
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+text = "Lancer la partie"
+
 [node name="ComboLabel" type="Label" parent="HUD"]
 visible = false
 offset_left = 40.0
@@ -266,34 +270,31 @@ offset_top = 150.0
 offset_right = 840.0
 offset_bottom = 450.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
-theme_override_fonts/font = ExtResource("9_x2v7n")
 theme_override_font_sizes/font_size = 200
 text = "5"
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="WarmupLabel" type="Label" parent="HUD"]
-offset_top = 220.0
+offset_top = 100.0
 offset_right = 840.0
-offset_bottom = 320.0
+offset_bottom = 200.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
-theme_override_fonts/font = ExtResource("9_x2v7n")
 theme_override_font_sizes/font_size = 56
 text = "Salle d'attente"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StartMatchButton" type="Button" parent="HUD"]
-offset_left = 240.0
-offset_top = 340.0
-offset_right = 600.0
-offset_bottom = 410.0
-theme_override_fonts/font = ExtResource("9_x2v7n")
-theme_override_font_sizes/font_size = 28
+[node name="LobbyBackButton" type="Button" parent="HUD"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 160.0
+offset_bottom = 70.0
+theme_override_font_sizes/font_size = 20
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
-text = "Lancer la partie"
+text = "Retour"
 
 [node name="ErrorToast" type="PanelContainer" parent="HUD"]
 visible = false
@@ -314,18 +315,13 @@ vertical_alignment = 1
 [node name="RightPanel" type="PanelContainer" parent="HUD"]
 offset_left = 852.0
 offset_top = 16.0
-offset_right = 1269.0
-offset_bottom = 747.0
+offset_right = 1270.0
+offset_bottom = 704.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_rightpanel")
 
 [node name="VBox" type="VBoxContainer" parent="HUD/RightPanel"]
 layout_mode = 2
 theme_override_constants/separation = 16
-
-[node name="QRCodeTexture" type="TextureRect" parent="HUD/RightPanel/VBox"]
-custom_minimum_size = Vector2(180, 180)
-layout_mode = 2
-stretch_mode = 5
 
 [node name="QRHTTPRequest" type="HTTPRequest" parent="HUD/RightPanel/VBox"]
 
@@ -338,8 +334,9 @@ text = "Joueurs connectes: 0"
 [node name="JoinLink" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.65, 0.65, 0.8, 1)
-theme_override_font_sizes/font_size = 13
+theme_override_font_sizes/font_size = 24
 text = "Rejoindre: http://127.0.0.1:3000"
+horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="ArriveeHeader" type="PanelContainer" parent="HUD/RightPanel/VBox"]
@@ -350,7 +347,6 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_arrivee")
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
-text = "ARRIVEE"
 horizontal_alignment = 1
 
 [node name="RacePanel" type="HBoxContainer" parent="HUD/RightPanel/VBox"]

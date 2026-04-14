@@ -12,6 +12,8 @@ extends Area2D
 var has_been_hit: bool = false
 var is_missed: bool = false
 var bg_particles_spawned: bool = false
+var flash_triggered: bool = false
+var flash_overlay: Panel = null
 
 const COLORS := {
 	0: Color("#5FCDE4"), # bleu
@@ -37,6 +39,16 @@ func _ready() -> void:
 	tile_panel.add_theme_stylebox_override("panel", style)
 	tile_panel.pivot_offset = tile_panel.size / 2.0
 
+	# Créer un overlay blanc pour le flash du perfect
+	flash_overlay = Panel.new()
+	flash_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flash_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var flash_style = style.duplicate()
+	flash_style.bg_color = Color.WHITE
+	flash_overlay.add_theme_stylebox_override("panel", flash_style)
+	flash_overlay.modulate.a = 0.0
+	tile_panel.add_child(flash_overlay)
+
 	var shape := RectangleShape2D.new()
 	shape.size = tile_panel.size
 	collision.shape = shape
@@ -54,6 +66,14 @@ func _process(delta: float) -> void:
 		if not bg_particles_spawned:
 			bg_particles_spawned = true
 			_spawn_background_burst()
+		
+		# Flash perfect visuel
+		if not flash_triggered:
+			flash_triggered = true
+			var flash_tween = create_tween()
+			flash_tween.tween_property(flash_overlay, "modulate:a", 1.0, 0.05)
+			flash_tween.tween_interval(0.05) # Petit maintien
+			flash_tween.tween_property(flash_overlay, "modulate:a", 0.0, 0.2) # Plus lent
 	else:
 		position.y += fall_speed * delta
 
@@ -106,4 +126,3 @@ func miss_animation() -> void:
 	tween.set_parallel(true)
 	tween.tween_property(tile_panel, "scale", Vector2(0.8, 0.8), 0.2)
 	tween.tween_property(tile_panel, "modulate", Color(1.0, 0.2, 0.2, 0.0), 0.2)
-	tween.chain().tween_callback(queue_free)
