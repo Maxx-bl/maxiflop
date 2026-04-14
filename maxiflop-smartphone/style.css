@@ -1,3 +1,6 @@
+/* ============== IMPORT DE LA POLICE ============== */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 /* ============== VARIABLES DE COULEURS ============== */
 :root {
     --color-purple: #C89BFF;
@@ -9,6 +12,21 @@
     --color-dark: #1a1a2e;
     --color-darker: #0f0f1e;
     --color-light: #f0f0f0;
+}
+
+/* ============== RESET & BODY ============== */
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Press Start 2P', cursive;
+    color: var(--color-light);
+    background: linear-gradient(135deg, var(--color-dark) 0%, #2a2a4e 100%);
+    position: relative;
+    image-rendering: pixelated;
+    user-select: none;
+    touch-action: manipulation;
 }
 
 /* ============== RESET ============== */
@@ -27,6 +45,9 @@ body {
     background: linear-gradient(135deg, var(--color-dark) 0%, #2a2a4e 100%);
     position: relative;
     image-rendering: pixelated;
+	display: flex;
+    justify-content: center; 
+    align-items: center;
 }
 
 /* ============== PARALLAX BACKGROUND ============== */
@@ -64,543 +85,335 @@ body {
     }
 }
 
-/* ============== SECTIONS ============== */
+
+/* ============== ROTATION DU JEU ============== */
+@media (orientation: portrait) {
+    body.playing {
+        transform: rotate(90deg);
+        transform-origin: center center;
+        width: 100vh;
+        height: 100vw;
+        position: fixed;
+        top: calc((100vh - 100vw) / 2);
+        left: calc((100vw - 100vh) / 2);
+    }
+}
+
+/* ============== SECTIONS (SCREENS) ============== */
 .screen {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease;
-}
-
-.screen.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.screen.hidden {
-    display: none;
-}
-
-/* ============== PAGE D'ACCUEIL ============== */
-.login-container {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3rem;
-    width: 90%;
-    max-width: 500px;
-}
-
-.title-section {
-    text-align: center;
-    animation: bounce-in 0.6s ease-out;
-}
-
-.pixel-title {
-    font-size: 3rem;
-    font-weight: 900;
-    background: linear-gradient(90deg, var(--color-cyan), var(--color-purple), var(--color-mauve));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 0 20px rgba(200, 155, 255, 0.3);
-    letter-spacing: 2px;
-    margin-bottom: 0.5rem;
-}
-
-.pixel-title.small {
-    font-size: 1.5rem;
-}
-
-.dancing-title {
-    animation: dance 1.2s ease-in-out infinite;
-}
-
-@keyframes dance {
-    0%, 100% {
-        transform: translateY(0) rotate(0deg) scaleY(1);
-    }
-    25% {
-        transform: translateY(-10px) rotate(-2deg) scaleY(1.05);
-    }
-    50% {
-        transform: translateY(0) rotate(0deg) scaleY(1);
-    }
-    75% {
-        transform: translateY(-10px) rotate(2deg) scaleY(1.05);
-    }
-}
-
-.subtitle-text {
-    font-size: 0.8rem;
-    color: var(--color-cyan);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-/* ============== LOGIN BOX ============== */
-.login-box {
     background: rgba(15, 15, 30, 0.8);
     backdrop-filter: blur(10px);
     border: 3px solid var(--color-purple);
     border-radius: 12px;
-    padding: 2.5rem;
-    width: 100%;
-    box-shadow:
-        0 0 20px rgba(200, 155, 255, 0.2),
-        inset 0 0 20px rgba(200, 155, 255, 0.05);
-    animation: slide-up 0.6s ease-out;
-    overflow: hidden;
-}
-
-.input-group {
-    margin-bottom: 0.5rem;
+    padding: 2.5rem 1.5rem;
+    width: min(90%, 500px);
+    box-shadow: 0 0 20px rgba(200, 155, 255, 0.2), inset 0 0 20px rgba(200, 155, 255, 0.05);
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    animation: slide-up 0.6s ease-out;
 }
 
-.input-label {
-    font-size: 1rem;
+.screen.hidden {
+    display: none !important;
+    opacity: 0;
+}
+
+/* ============== TYPOGRAPHIE ============== */
+h1 {
+    font-size: 2.2rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, var(--color-cyan), var(--color-purple), var(--color-mauve));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(200, 155, 255, 0.3);
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    animation: dance 1.2s ease-in-out infinite;
+    line-height: 1.3;
+}
+
+h2 {
+    font-size: 1.3rem;
+    color: var(--color-cyan);
+    margin-bottom: 1.5rem;
+    line-height: 1.4;
+}
+
+h3 {
+    font-size: 0.8rem;
+    color: var(--color-mint);
+    margin-top: 20px;
+}
+
+.subtitle, #teamInfo, #teamSelection p {
+    font-size: 0.65rem;
     color: var(--color-cyan);
     letter-spacing: 1px;
     text-transform: uppercase;
+    line-height: 1.5;
+    margin-bottom: 1rem;
 }
 
-.pixel-input {
+/* ============== INPUTS ============== */
+input {
     background: rgba(95, 205, 228, 0.1);
     border: 2px solid var(--color-cyan);
     border-radius: 6px;
-    padding: 0.8rem 1rem;
+    padding: 1rem;
     font-family: 'Press Start 2P', cursive;
     font-size: 0.7rem;
     color: var(--color-light);
     transition: all 0.3s ease;
     outline: none;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
 }
 
-.pixel-input::placeholder {
-    color: rgba(95, 205, 228, 0.4);
-}
-
-.pixel-input:focus {
+input::placeholder { color: rgba(95, 205, 228, 0.4); }
+input:focus {
     background: rgba(95, 205, 228, 0.2);
     border-color: var(--color-mauve);
     box-shadow: 0 0 15px rgba(95, 205, 228, 0.3);
 }
 
-.error-msg {
+.status {
     font-size: 0.6rem;
     color: var(--color-pink);
     min-height: 1rem;
-    visibility: hidden;
+    margin-top: 10px;
 }
 
-.error-msg.show {
-    visibility: visible;
-}
-
-/* ============== BUTTONS ============== */
-.button-group {
-    display: flex;
-    gap: 1rem;
-    width: 100%;
-    justify-content: space-between;
-    margin-top: 1.5rem;
-}
-
-.pixel-btn {
-    flex: 1;
-    padding: 1rem;
-    border: 2px solid;
-    border-radius: 8px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 0.7rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    letter-spacing: 1px;
-    position: relative;
-    overflow: hidden;
-}
-
-.pixel-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: inherit;
-    filter: brightness(1.2);
-    transition: left 0.3s ease;
-    z-index: -1;
-}
-
-.pixel-btn:hover::before {
-    left: 0;
-}
-
-.btn-quit {
-    background: linear-gradient(135deg, #ff7081, #ff8fa3);
-    border-color: var(--color-pink);
-    color: white;
-    box-shadow: 
-        0 0 15px rgba(255, 112, 129, 0.3),
-        inset 0 0 10px rgba(255, 255, 255, 0.1);
-}
-
-.btn-quit:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-        0 5px 20px rgba(255, 112, 129, 0.5),
-        inset 0 0 10px rgba(255, 255, 255, 0.2);
-}
-
-.btn-quit:active {
-    transform: translateY(0);
-}
-
-.btn-play {
-    background: linear-gradient(135deg, #5fcde4, #7dd9ed);
-    border-color: var(--color-cyan);
-    color: white;
-    box-shadow: 
-        0 0 15px rgba(95, 205, 228, 0.3),
-        inset 0 0 10px rgba(255, 255, 255, 0.1);
-}
-
-.btn-play:hover {
-    transform: translateY(-2px);
-    box-shadow: 
-        0 5px 20px rgba(95, 205, 228, 0.5),
-        inset 0 0 10px rgba(255, 255, 255, 0.2);
-}
-
-.btn-play:active {
-    transform: translateY(0);
-}
-
-.team-button-group {
+/* ============== BOUTONS (EQUIPES & JEU) ============== */
+.team-btns {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 0.5rem;
+    gap: 10px;
     width: 100%;
-    margin-top: 0.3rem;
-    padding: 0 0.5rem;
+    margin-bottom: 20px;
 }
 
-.team-label-choose {
-    margin-bottom: 0.1rem;
-}
-
-.team-btn-home {
+.join-team-btn, .btn {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0;
-    padding: 0.8rem 0.5rem;
     border: 3px solid;
     border-radius: 8px;
     font-family: 'Press Start 2P', cursive;
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.08s ease;
-    letter-spacing: 0.5px;
-    position: relative;
-    overflow: visible;
-    user-select: none;
-    box-shadow:
-        0 4px 0 0,
-        0 6px 10px rgba(0, 0, 0, 0.4);
-    margin-bottom: 0.1rem;
-    min-height: 50px;
+    box-shadow: 0 4px 0 0, 0 6px 10px rgba(0, 0, 0, 0.4);
+    min-height: 60px;
+    width: 100%;
+    color: white;
 }
 
-.team-btn-home:hover {
+.join-team-btn:hover {
     transform: translateY(-2px);
-    box-shadow:
-        0 6px 0 0,
-        0 8px 14px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 6px 0 0, 0 8px 14px rgba(0, 0, 0, 0.5);
 }
 
-.team-btn-home:active {
-    transform: translateY(1px);
-    box-shadow:
-        0 1px 0 0,
-        0 2px 4px rgba(0, 0, 0, 0.3);
+.join-team-btn:active, .btn:active, .active-hit {
+    transform: translateY(2px) !important;
+    box-shadow: 0 1px 0 0, 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    filter: brightness(1.2);
 }
 
-.team-btn-home:disabled {
+.join-team-btn.disabled {
     opacity: 0.4;
     cursor: not-allowed;
-    transform: none;
+    filter: grayscale(80%);
 }
 
-.team-btn-home-blue {
-    background: linear-gradient(135deg, #aab2ff, #c0c6ff);
-    border-color: #5d63c9;
-    color: white;
-    box-shadow:
-        0 4px 0 #5d63c9,
-        0 6px 10px rgba(170, 178, 255, 0.4);
+/* Couleurs des équipes (S'applique à l'accueil ET à la manette) */
+.blue {
+    background: linear-gradient(135deg, #5fcde1, #5ad7ed);
+    border-color: #5d95c9;
+	color: #0f0f1e;
+    box-shadow: 0 4px 0 #5d95c9, 0 6px 10px rgba(170, 178, 255, 0.4);
 }
-
-.team-btn-home-blue:hover {
-    box-shadow:
-        0 6px 0 #5d63c9,
-        0 8px 14px rgba(170, 178, 255, 0.6);
-}
-
-.team-btn-home-blue:active {
-    box-shadow:
-        0 1px 0 #5d63c9,
-        0 2px 4px rgba(170, 178, 255, 0.3);
-}
-
-.team-btn-home-yellow {
+.yellow {
     background: linear-gradient(135deg, #f5ff84, #f8ffa8);
     border-color: #f4ea62;
     color: #0f0f1e;
-    font-weight: 900;
-    box-shadow:
-        0 4px 0 #f4ea62,
-        0 6px 10px rgba(245, 255, 132, 0.4);
+    box-shadow: 0 4px 0 #f4ea62, 0 6px 10px rgba(245, 255, 132, 0.4);
 }
-
-.team-btn-home-yellow:hover {
-    box-shadow:
-        0 6px 0 #d8cf4f,
-        0 8px 14px rgba(255, 253, 132, 0.6);
-}
-
-.team-btn-home-yellow:active {
-    box-shadow:
-        0 1px 0 #f4ea62,
-        0 2px 4px rgba(251, 255, 132, 0.3);
-}
-
-.team-btn-home-red {
+.red {
     background: linear-gradient(135deg, #ff7081, #ff9aab);
     border-color: #e85464;
-    color: white;
-    box-shadow:
-        0 4px 0 #e85464,
-        0 6px 10px rgba(255, 112, 129, 0.4);
+	color: #0f0f1e;
+    box-shadow: 0 4px 0 #e85464, 0 6px 10px rgba(255, 112, 129, 0.4);
 }
 
-.team-btn-home-red:hover {
-    box-shadow:
-        0 6px 0 #e85464,
-        0 8px 14px rgba(255, 112, 129, 0.6);
+
+/* ============== PAGE MANETTE (CONTROLLER) ============== */
+#controller {
+    /* Override de la box de base pour prendre tout l'écran */
+    max-width: 900px;
+    width: 96%;
+    height: 90vh;
+    padding: 15px;
+    justify-content: space-between;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
 }
 
-.team-btn-home-red:active {
-    box-shadow:
-        0 1px 0 #e85464,
-        0 2px 4px rgba(255, 112, 129, 0.3);
-}
-
-/* ============== PAGE SÉLECTION D'ÉQUIPE ============== */
-.team-select-container {
-    position: relative;
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2.5rem;
-    width: 90%;
-    max-width: 600px;
-}
-
-.team-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-    width: 100%;
-}
-
-.team-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.8rem;
-    padding: 2rem;
-    border: 3px solid;
-    border-radius: 12px;
+.scoreWrap {
     background: rgba(15, 15, 30, 0.8);
-    backdrop-filter: blur(10px);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: 'Press Start 2P', cursive;
-    position: relative;
-    overflow: hidden;
-}
-
-.team-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
+    backdrop-filter: blur(5px);
+    border: 2px solid var(--color-purple);
+    border-radius: 8px;
+    padding: 15px 20px;
     width: 100%;
-    height: 100%;
-    background: inherit;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-.team-btn:hover::before {
-    opacity: 0.3;
-}
-
-.team-blue {
-    border-color: var(--color-blue);
-    box-shadow: 0 0 15px rgba(170, 178, 255, 0.2);
-}
-
-.team-blue:hover {
-    box-shadow: 0 0 25px rgba(170, 178, 255, 0.5);
-    transform: translateY(-3px);
-}
-
-.team-blue:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.team-red {
-    border-color: var(--color-pink);
-    box-shadow: 0 0 15px rgba(255, 112, 129, 0.2);
-}
-
-.team-red:hover {
-    box-shadow: 0 0 25px rgba(255, 112, 129, 0.5);
-    transform: translateY(-3px);
-}
-
-.team-red:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.team-yellow {
-    border-color: var(--color-mint);
-    box-shadow: 0 0 15px rgba(233, 236, 63, 0.2);
-}
-
-.team-yellow:hover {
-    box-shadow: 0 0 15px rgba(233, 236, 63, 0.2);
-    transform: translateY(-3px);
-}
-
-.team-yellow:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.team-label {
-    font-size: 1rem;
-    font-weight: bold;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-}
-
-.player-count {
+#scoreText {
     font-size: 1.5rem;
     font-weight: bold;
-    display: inline-block;
-    min-width: 2rem;
-    text-align: center;
-}
-
-.team-blue .player-count {
-    color: var(--color-blue);
-}
-
-.team-red .player-count {
-    color: var(--color-pink);
-}
-
-.team-yellow .player-count {
     color: var(--color-mint);
 }
 
-#teamErrorMsg {
-    position: absolute;
-    bottom: -3rem;
-    left: 0;
-    right: 0;
-    text-align: center;
+#rankText {
+    font-size: 0.6rem;
+    color: var(--color-muted);
 }
 
-/* ============== ANIMATIONS ============== */
-@keyframes bounce-in {
-    from {
-        opacity: 0;
-        transform: translateY(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.buttons {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    flex: 1;
+    margin-bottom: 20px;
+}
+
+.buttons .btn {
+    height: 100%;
+    border-radius: 12px;
+}
+
+#feedback {
+    font-size: 1rem;
+    color: var(--color-cyan);
+    text-transform: uppercase;
+}
+
+/* ============== PAGE VOTE MUSIQUE ============== */
+#vote { max-width: 600px; }
+
+.music-list {
+    width: 100%;
+    max-height: 350px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-right: 5px;
+    margin-top: 15px;
+}
+
+.music-list::-webkit-scrollbar { width: 6px; }
+.music-list::-webkit-scrollbar-track { background: transparent; }
+.music-list::-webkit-scrollbar-thumb { background: var(--color-purple); border-radius: 10px; }
+
+.music-item {
+    background: rgba(26, 26, 46, 0.9);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    line-height: 1.5;
+}
+
+.music-item:hover { border-color: var(--color-cyan); }
+.music-item.selected {
+    background: rgba(95, 205, 228, 0.2);
+    border-color: var(--color-cyan);
+    box-shadow: 0 0 15px rgba(95, 205, 228, 0.3);
+}
+
+.diff-legend {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.5rem;
+    width: 100%;
+}
+
+.legend-item {
+    padding: 6px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.legend-item.easy { color: #4ade80; border-bottom: 2px solid #4ade80; }
+.legend-item.medium { color: #fb923c; border-bottom: 2px solid #fb923c; }
+.legend-item.hard { color: var(--color-pink); border-bottom: 2px solid var(--color-pink); }
+.legend-item.extreme { color: var(--color-purple); border-bottom: 2px solid var(--color-purple); }
+
+.music-item.diff-easy { border-left: 6px solid #4ade80; }
+.music-item.diff-medium { border-left: 6px solid #fb923c; }
+.music-item.diff-hard { border-left: 6px solid var(--color-pink); }
+.music-item.diff-extreme { border-left: 6px solid var(--color-purple); }
+
+/* ============== ANIMATIONS & DIVERS ============== */
+.rotate-icon {
+    font-size: 4rem;
+    animation: rotate-hint 2s infinite ease-in-out;
+    margin-bottom: 20px;
+}
+
+#eliminated-screen {
+    border-color: var(--color-pink);
+    box-shadow: 0 0 20px rgba(255, 112, 129, 0.2);
+}
+
+.glitch-text {
+    font-size: 2.5rem;
+    color: var(--color-pink);
+    text-shadow: 0 0 20px rgba(255, 112, 129, 0.8);
+    animation: pulse 2s infinite;
+    margin: 0;
+}
+
+@keyframes dance {
+    0%, 100% { transform: translateY(0) rotate(0deg) scaleY(1); }
+    25% { transform: translateY(-5px) rotate(-2deg) scaleY(1.05); }
+    50% { transform: translateY(0) rotate(0deg) scaleY(1); }
+    75% { transform: translateY(-5px) rotate(2deg) scaleY(1.05); }
 }
 
 @keyframes slide-up {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulse {
-    0%, 100% {
-        box-shadow: 0 0 15px rgba(200, 155, 255, 0.3);
-    }
-    50% {
-        box-shadow: 0 0 30px rgba(200, 155, 255, 0.6);
-    }
+    0%, 100% { text-shadow: 0 0 15px rgba(255, 112, 129, 0.4); }
+    50% { text-shadow: 0 0 30px rgba(255, 112, 129, 0.8); }
 }
 
-/* ============== RESPONSIVE ============== */
-@media (max-width: 600px) {
-    .pixel-title {
-        font-size: 2rem;
-    }
-
-    .login-box {
-        padding: 1.5rem;
-    }
-
-    .pixel-btn {
-        font-size: 0.6rem;
-        padding: 0.8rem;
-    }
-
-    .team-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .team-btn {
-        padding: 1.5rem;
-    }
+@keyframes rotate-hint {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
 }
+
+.key-hint { display: none; }
+body.is-pc .key-hint { display: block; }
