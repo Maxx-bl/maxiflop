@@ -7,6 +7,7 @@ const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 const port = 3000;
+const { spawn } = require('child_process');
 
 app.use(express.static(join(__dirname, '../maxiflop-smartphone')));
 app.get('/', (req, res) => res.sendFile(join(__dirname, '../maxiflop-smartphone/index.html')));
@@ -21,7 +22,7 @@ const gameState = {
 	players: {},
 	teamScores: { "Equipe1": 0, "Equipe2": 0, "Equipe3": 0 },
 	availableMusics: [],
-	playerVotes: {}, 
+	playerVotes: {},
 	gameMode: "NORMAL"
 };
 
@@ -67,7 +68,7 @@ function envoyerVotesAGodot() {
 
 	const choix = {};
 	const totalVotes = Object.keys(gameState.playerVotes).length;
-	
+
 	if (totalVotes === 0) {
 		io.emit("vote_update", []);
 		return;
@@ -125,13 +126,13 @@ io.on('connection', (socket) => {
 	socket.on('host_join', () => {
 		console.log('Godot Host connecté via Socket.IO.');
 		godotHost = socket;
-		
+
 		// si l'URL publique est déjà prête, on l'envoie tout de suite
 		if (publicUrl) {
 			console.log("[Cloudflare] Envoi de l'URL publique existante à l'hôte Godot...");
 			godotHost.emit('public_url', { url: publicUrl });
 		}
-		
+
 		sendLobbyToGodot();
 	});
 
@@ -141,7 +142,7 @@ io.on('connection', (socket) => {
 
 		// maj de l'état interne -> mettre en gamemode normal avant de broadcast
 		gameState.gameMode = data.gameMode || "NORMAL";
-		
+
 		if (gameState.status === "voting" && data.phase !== "voting") {
 			// calculer le gagnant
 			const choix = {};
@@ -164,12 +165,12 @@ io.on('connection', (socket) => {
 
 			//on envoie a godot
 			io.emit('vote_result', { winner });
-			
+
 		} else if (data.phase === "voting") {
 			if (gameState.status !== "voting") {
 				gameState.status = "voting";
 				gameState.playerVotes = {};
-			} 
+			}
 			envoyerVotesAGodot();
 		} else if (data.phase === "reveal" || data.phase === "countdown") {
 			gameState.status = data.phase;
@@ -306,7 +307,7 @@ server.listen(port, "0.0.0.0", async () => {
 	console.log(`\nLocal: http://localhost:${port}`);
 	console.log("Système :", os.platform(), os.arch());
 	console.log("Node Executable :", process.execPath);
-	
+
 	const ifaces = os.networkInterfaces();
 	for (let dev in ifaces) {
 		ifaces[dev].forEach((d) => {
@@ -317,19 +318,19 @@ server.listen(port, "0.0.0.0", async () => {
 
 	try {
 		console.log("Démarrage du tunnel Cloudflare...");
-		
+
 		const bin = cloudflared.bin;
 		const tunnelArgs = ['tunnel', '--url', `http://127.0.0.1:${port}`];
-		
+
 		console.log(`[Cloudflare] Commande : ${bin} ${tunnelArgs.join(' ')}`);
-		
+
 		cloudflaredProcess = spawn(bin, tunnelArgs);
 
 		let outputBuffer = '';
 		const handleTunnelOutput = (data) => {
 			const str = data.toString();
 			outputBuffer += str;
-			
+
 			// Filtrage des logs pour la console
 			if (str.includes("INF") || str.includes("ERR") || str.includes("https://")) {
 				process.stdout.write("[Cloudflare] " + str);
@@ -339,7 +340,7 @@ server.listen(port, "0.0.0.0", async () => {
 			if (match && !publicUrl) {
 				publicUrl = match[0];
 				console.log(`\n=== TUNNEL PRÊT ===\nURL publique: ${publicUrl}\n===================\n`);
-				
+
 				if (godotHost) {
 					console.log("[Cloudflare] Envoi de l'URL à l'Hôte Godot.");
 					godotHost.emit('public_url', { url: publicUrl });
