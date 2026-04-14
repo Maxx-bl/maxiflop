@@ -236,7 +236,9 @@ func _start_voting() -> void:
 		while file_name != "":
 			if not dir.current_is_dir():
 				if file_name.ends_with(".mp3"):
-					musics.append(file_name.replace(".mp3", ""))
+					var name = file_name.replace(".mp3", "")
+					if not musics.has(name):
+						musics.append(name)
 				elif file_name.ends_with(".mp3.import"):
 					var name = file_name.replace(".mp3.import", "")
 					if not musics.has(name):
@@ -250,7 +252,7 @@ func _start_voting() -> void:
 		if f:
 			while not f.eof_reached():
 				var line = f.get_line().strip_edges()
-				if line != "":
+				if line != "" and not musics.has(line):
 					musics.append(line)
 			f.close()
 			print("[GameScreen] %d musiques chargées depuis music_list.txt" % musics.size())

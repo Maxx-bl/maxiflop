@@ -1,7 +1,7 @@
 extends Node
 
 var music_player: AudioStreamPlayer
-var menu_music = preload("res://assets/Chuckyy x Skrilla – “Just Dance”.mp3")
+var menu_music = preload("res://assets/Chuckyy x Skrilla - Just Dance.mp3")
 var bpm: float = 144.0
 
 func _ready() -> void:
