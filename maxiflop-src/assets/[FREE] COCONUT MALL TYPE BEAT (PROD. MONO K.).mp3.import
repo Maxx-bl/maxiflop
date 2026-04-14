@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://bugpah1rhr7cq"
+path="res://.godot/imported/[FREE] COCONUT MALL TYPE BEAT (PROD. MONO K.).mp3-1389b34ad0151052e888294192880ad6.mp3str"
+
+[deps]
+
+source_file="res://assets/[FREE] COCONUT MALL TYPE BEAT (PROD. MONO K.).mp3"
+dest_files=["res://.godot/imported/[FREE] COCONUT MALL TYPE BEAT (PROD. MONO K.).mp3-1389b34ad0151052e888294192880ad6.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

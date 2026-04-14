@@ -7,7 +7,7 @@
 [ext_resource type="AudioStream" uid="uid://dcf34i1jfenko" path="res://assets/test_kick_6s.wav" id="5_xpdqc"]
 [ext_resource type="FontFile" uid="uid://b4ve68u3poffy" path="res://assets/Ecriture/PixelifySans-VariableFont_wght.ttf" id="6_xvbay"]
 [ext_resource type="Texture2D" uid="uid://dyvouf8b51x5b" path="res://assets/GameScreenBack/Space Background.png" id="7_4j5qn"]
-[ext_resource type="Script" uid="uid://bw366nfgcmryo" path="res://scenes/fond.gd" id="7_wswou"]
+[ext_resource type="Script" path="res://scenes/fond.gd" id="7_wswou"]
 [ext_resource type="Texture2D" uid="uid://dpw1hqbxawj7n" path="res://assets/GameScreenBack/star2.png" id="8_sk67e"]
 [ext_resource type="Texture2D" uid="uid://gs7gtjt4kaqq" path="res://assets/mascotte/bobA.png" id="10_itox2"]
 [ext_resource type="Texture2D" uid="uid://dnunxmncnhyny" path="res://assets/mascotte/bobB.png" id="11_srnt6"]

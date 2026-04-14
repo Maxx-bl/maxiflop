@@ -1,15 +1,15 @@
 [gd_scene load_steps=30 format=3 uid="uid://ciwvrycfpep41"]
 
-[ext_resource type="Script" uid="uid://ba4j7lpidepbd" path="res://scripts/SettingsMenu.gd" id="1"]
-[ext_resource type="Script" uid="uid://ryas3c5opoo2" path="res://scenes/fond_setting.gd" id="2_6ujoi"]
+[ext_resource type="Script" uid="uid://dl1vc1uprkf0s" path="res://scripts/SettingsMenu.gd" id="1"]
+[ext_resource type="Script" path="res://scenes/fond_setting.gd" id="2_6ujoi"]
 [ext_resource type="FontFile" uid="uid://b4ve68u3poffy" path="res://assets/Ecriture/PixelifySans-VariableFont_wght.ttf" id="2_bjevb"]
 [ext_resource type="Texture2D" uid="uid://dwpo1xlj7geh4" path="res://assets/mascotte/Max.png" id="2_farsn"]
 [ext_resource type="Texture2D" uid="uid://bjeiglbahfmqr" path="res://assets/Setting/demo01_PixelSky_layer01.png" id="2_lml7s"]
-[ext_resource type="Script" uid="uid://c28wkjh5mmcll" path="res://scenes/max.gd" id="3_1opq1"]
+[ext_resource type="Script" path="res://scenes/max.gd" id="3_1opq1"]
 [ext_resource type="Texture2D" uid="uid://bhlwt4nvgt4jl" path="res://assets/Setting/demo01_PixelSky_layer02.png" id="3_j0mc1"]
 [ext_resource type="Texture2D" uid="uid://h4vfgrnujdfs" path="res://assets/mascotte/Flo.png" id="4_1a4yy"]
 [ext_resource type="Texture2D" uid="uid://gpa2ai1su52l" path="res://assets/Setting/demo01_PixelSky_layer03.png" id="4_56p73"]
-[ext_resource type="Script" uid="uid://dxehsgy1s3vpp" path="res://scenes/flo.gd" id="5_n38y6"]
+[ext_resource type="Script" path="res://scenes/flo.gd" id="5_n38y6"]
 [ext_resource type="Texture2D" uid="uid://coekop0j0i5du" path="res://assets/mascotte/Gwen.png" id="7_gxln4"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rjsgb"]
@@ -270,6 +270,30 @@ text = "Musique du menu"
 unique_name_in_owner = true
 layout_mode = 2
 value = 70.0
+
+[node name="FullscreenSection" type="HBoxContainer" parent="Content"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Content/FullscreenSection"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.518, 1, 0.788, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.5)
+theme_override_fonts/font = ExtResource("2_bjevb")
+theme_override_font_sizes/font_size = 24
+text = "Plein écran"
+
+[node name="FullscreenCheckContainer" type="Control" parent="Content/FullscreenSection"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="FullscreenCheck" type="CheckBox" parent="Content/FullscreenSection/FullscreenCheckContainer"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 24.0
+offset_bottom = 24.0
+scale = Vector2(1.4, 1.4)
+pivot_offset = Vector2(12, 12)
 
 [node name="Spacer" type="Control" parent="Content"]
 custom_minimum_size = Vector2(0, 40)
