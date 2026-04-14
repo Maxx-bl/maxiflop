@@ -205,14 +205,15 @@ input:focus {
     border: 3px solid;
     border-radius: 8px;
     font-family: 'Press Start 2P', cursive;
-    font-size: 0.55rem;
+    font-size: 0.65rem;
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.08s ease;
     box-shadow: 0 4px 0 0, 0 6px 10px rgba(0, 0, 0, 0.4);
-    min-height: 60px;
+    min-height: 80px;
     width: 100%;
+    aspect-ratio: 1;
     color: white;
 }
 
@@ -373,7 +374,20 @@ input:focus {
 .music-item.diff-hard { border-left: 6px solid var(--color-pink); }
 .music-item.diff-extreme { border-left: 6px solid var(--color-purple); }
 
-/* ============== ANIMATIONS & DIVERS ============== */
+/* ============== RESPONSIVE POUR LES BOUTONS D'EQUIPE ============== */
+@media (max-width: 600px) {
+    .join-team-btn {
+        min-height: 70px;
+        font-size: 0.6rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .join-team-btn {
+        min-height: 60px;
+        font-size: 0.55rem;
+    }
+}
 .rotate-icon {
     font-size: 4rem;
     animation: rotate-hint 2s infinite ease-in-out;
