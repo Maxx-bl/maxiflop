@@ -1,4 +1,4 @@
-[gd_scene load_steps=24 format=3 uid="uid://cfyaf4ikyente"]
+[gd_scene load_steps=42 format=3 uid="uid://cfyaf4ikyente"]
 
 [ext_resource type="Script" uid="uid://5rffvyxrumdk" path="res://scripts/GameScreen.gd" id="1"]
 [ext_resource type="Script" uid="uid://bosdajfqbseo2" path="res://scripts/NoteSpawner.gd" id="2"]
@@ -9,6 +9,9 @@
 [ext_resource type="Texture2D" uid="uid://dyvouf8b51x5b" path="res://assets/GameScreenBack/Space Background.png" id="7_4j5qn"]
 [ext_resource type="Script" uid="uid://ch3kvol4lrfkh" path="res://scenes/fond.gd" id="7_wswou"]
 [ext_resource type="Texture2D" uid="uid://dpw1hqbxawj7n" path="res://assets/GameScreenBack/star2.png" id="8_sk67e"]
+[ext_resource type="Texture2D" uid="uid://gs7gtjt4kaqq" path="res://assets/mascotte/bobA.png" id="10_itox2"]
+[ext_resource type="Texture2D" uid="uid://dnunxmncnhyny" path="res://assets/mascotte/bobB.png" id="11_srnt6"]
+[ext_resource type="Texture2D" uid="uid://dagt6tpkqyk18" path="res://assets/mascotte/bobC.png" id="12_hv6d7"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ring_blue"]
 bg_color = Color(0, 0, 0, 0)
@@ -150,6 +153,114 @@ shadow_size = 10
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_result"]
 bg_color = Color(0.08, 0.06, 0.18, 0.97)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_hshbf"]
+atlas = ExtResource("10_itox2")
+region = Rect2(0, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cjvrw"]
+atlas = ExtResource("10_itox2")
+region = Rect2(32, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jtgoe"]
+atlas = ExtResource("10_itox2")
+region = Rect2(64, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lk6j4"]
+atlas = ExtResource("10_itox2")
+region = Rect2(96, 16, 32, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_hla2o"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hshbf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cjvrw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jtgoe")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lk6j4")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qv4wl"]
+atlas = ExtResource("11_srnt6")
+region = Rect2(0, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fk3qu"]
+atlas = ExtResource("11_srnt6")
+region = Rect2(32, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qgxpl"]
+atlas = ExtResource("11_srnt6")
+region = Rect2(64, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gl8f2"]
+atlas = ExtResource("11_srnt6")
+region = Rect2(96, 16, 32, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_bpgbe"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qv4wl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fk3qu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qgxpl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gl8f2")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c6sp0"]
+atlas = ExtResource("12_hv6d7")
+region = Rect2(0, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5ro48"]
+atlas = ExtResource("12_hv6d7")
+region = Rect2(32, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pmwhp"]
+atlas = ExtResource("12_hv6d7")
+region = Rect2(64, 16, 32, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hb8ly"]
+atlas = ExtResource("12_hv6d7")
+region = Rect2(96, 16, 32, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_etjhr"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c6sp0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5ro48")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pmwhp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hb8ly")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
 [node name="GameScreen" type="Node2D"]
 script = ExtResource("1")
 song_duration = 60.0
@@ -266,6 +377,7 @@ offset_top = 395.0
 offset_right = 500.0
 offset_bottom = 445.0
 theme_override_colors/font_color = Color(0.667, 0.608, 1, 1)
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 28
 text = "x0 COMBO"
 
@@ -276,6 +388,7 @@ offset_top = 352.0
 offset_right = 300.0
 offset_bottom = 394.0
 theme_override_colors/font_color = Color(0.518, 1, 0.788, 1)
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 24
 text = "x1"
 
@@ -475,6 +588,7 @@ alignment = 1
 [node name="TitleLabel" type="Label" parent="HUD/ResultPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.518, 1, 0.788, 1)
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 44
 text = "FIN DE PARTIE"
 horizontal_alignment = 1
@@ -489,6 +603,7 @@ autowrap_mode = 2
 
 [node name="WinnerLabel" type="Label" parent="HUD/ResultPanel/VBox"]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 30
 text = "Equipe bleue remporte la partie !"
 horizontal_alignment = 1
@@ -509,6 +624,7 @@ alignment = 1
 [node name="RestartButton" type="Button" parent="HUD/ResultPanel/VBox/ButtonsHBox"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 24
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
@@ -518,6 +634,7 @@ text = "↺  Rejouer"
 [node name="MenuButton" type="Button" parent="HUD/ResultPanel/VBox/ButtonsHBox"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 24
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
@@ -532,7 +649,7 @@ motion_mirroring = Vector2(0, 721)
 
 [node name="SpriteBack" type="Sprite2D" parent="Game_screen/CoucheBack"]
 texture_filter = 1
-position = Vector2(752, 362.5)
+position = Vector2(754, 361)
 scale = Vector2(7.53, 3.605)
 texture = ExtResource("7_4j5qn")
 
@@ -544,6 +661,32 @@ texture_filter = 1
 position = Vector2(754, 363)
 scale = Vector2(7.52, 3.63)
 texture = ExtResource("8_sk67e")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(38, 189)
+rotation = 1.5708
+scale = Vector2(3.9375, 4.5)
+sprite_frames = SubResource("SpriteFrames_hla2o")
+autoplay = "default"
+frame_progress = 0.176512
+
+[node name="AnimatedSprite2D2" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(814, 396)
+rotation = -1.5708
+scale = Vector2(3.48437, 4.5)
+sprite_frames = SubResource("SpriteFrames_bpgbe")
+autoplay = "default"
+frame_progress = 0.570794
+
+[node name="AnimatedSprite2D3" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(421.406, 685.438)
+scale = Vector2(3.66211, 4.42969)
+sprite_frames = SubResource("SpriteFrames_etjhr")
+autoplay = "default"
+frame_progress = 0.675946
 
 [connection signal="pressed" from="HUD/ResultPanel/VBox/ButtonsHBox/RestartButton" to="." method="_on_restart_pressed"]
 [connection signal="pressed" from="HUD/ResultPanel/VBox/ButtonsHBox/MenuButton" to="." method="_on_menu_pressed"]
