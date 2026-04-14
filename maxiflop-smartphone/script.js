@@ -29,11 +29,6 @@ document.querySelectorAll(".join-team-btn").forEach((btn) => {
 	});
 });
 
-document.getElementById("btn-join-br").addEventListener("click", () => {
-	// En BR, on attribue une équipe par défaut (non visible pour l'utilisateur)
-	joinGame("Equipe1");
-});
-
 function joinGame(teamName) {
 	const name = nameInput.value.trim();
 	if (!name) {
@@ -78,7 +73,6 @@ socket.on("update-lobby", (gameState) => {
 	const mode = gameState.gameMode || gameState.currentMode || "NORMAL";
 	const isBR = (mode === "BATTLE_ROYALE");
 	document.querySelector(".team-btns").classList.toggle("hidden", isBR);
-	document.getElementById("btn-join-br").classList.toggle("hidden", !isBR);
 	
 	const title = document.querySelector("#teamSelection p");
 	if (title) title.textContent = isBR ? "Prêt pour le massacre ?" : "Choisis ton équipe :";
