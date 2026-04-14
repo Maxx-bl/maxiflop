@@ -27,7 +27,7 @@ Des notes colorées tombent sur l'écran principal. Les joueurs doivent appuyer 
 | Composant     | Technologie                                  |
 | ------------- | -------------------------------------------- |
 | Jeu (host)    | Godot 4.4 · GDScript                         |
-| Serveur       | Node.js · Express · Socket.io · Child Process|
+| Serveur       | Node.js · Express · Socket.io                |
 | Tunnel        | Cloudflared (npx) / localhost.run            |
 | Manette       | HTML / CSS / JavaScript (Vanilla)            |
 | Communication | Socket.IO (Bidirectionnel Temps Réel)        |
@@ -81,12 +81,12 @@ maxiflop/
 
 ## Règles de scoring
 
-| Résultat  | Points | Condition               |
-| --------- | ------ | ----------------------- |
-| PERFECT   | 300    | Timing très précis      |
-| GOOD      | 100    | Timing correct          |
-| BAD       | 50     | Timing limite           |
-| MISS      | 0      | Note ratée              |
-| Clic vide | −400   | Aucune note à proximité |
+| Résultat         | Points    | Condition               |
+| ------------     | ------    | ----------------------- |
+| PERFECT          | 10        | Timing très précis      |
+| GOOD             | 5         | Timing correct          |
+| BAD              | 1         | Timing limite           |
+| MISS / Clic vide | -5        | Note ratée              |
 
+A noter : En enchaînant les PERFECT, on à +3 sur le score à chaque combo.
 Le score d'équipe est la somme des scores individuels. Maintenir le combo débloque des multiplicateurs.
