@@ -3,15 +3,11 @@ const { createServer } = require('node:http');
 const { join } = require('node:path');
 const { Server } = require('socket.io');
 const os = require('os');
-const { spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-
-
 const app = express();
 const server = createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 const port = 3000;
+const { spawn } = require('child_process');
 
 app.use(express.static(join(__dirname, '../maxiflop-smartphone')));
 app.get('/', (req, res) => res.sendFile(join(__dirname, '../maxiflop-smartphone/index.html')));
@@ -26,7 +22,7 @@ const gameState = {
 	players: {},
 	teamScores: { "Equipe1": 0, "Equipe2": 0, "Equipe3": 0 },
 	availableMusics: [],
-	playerVotes: {}, // socket.id -> songName
+	playerVotes: {},
 	gameMode: "NORMAL"
 };
 
@@ -43,10 +39,7 @@ function cleanupAndExit() {
 	process.exit(0);
 }
 
-// Gestion des signaux d'arrêt
-process.on('SIGINT', cleanupAndExit);
-process.on('SIGTERM', cleanupAndExit);
-
+// Envoyer le lobby (infos joueurs) à godot
 function sendLobbyToGodot() {
 	if (!godotHost) return;
 
@@ -61,6 +54,7 @@ function sendLobbyToGodot() {
 
 	const teamScores = { ...gameState.teamScores };
 
+	//on envoie - ici
 	godotHost.emit("lobby_update", {
 		players: playersArr,
 		teamScores: teamScores,
@@ -68,54 +62,39 @@ function sendLobbyToGodot() {
 	});
 }
 
-function remoteLog(msg) {
-	const timestamp = new Date().toISOString();
-	const logLine = `[${timestamp}] ${msg}\n`;
-	console.log(`[REMOTE] ${msg}`);
-	
-	// Écrire dans un fichier accessible par l'IA dans godot-src
-	try {
-		const logPath = path.join(__dirname, '../maxiflop-src/server_debug_log.txt');
-		fs.appendFileSync(logPath, logLine);
-	} catch (e) {
-		console.error("Erreur ecriture log:", e);
-	}
-
-	io.emit("server_debug", msg);
-}
-
-function sendVoteStatsToGodot() {
+function envoyerVotesAGodot() {
+	//Il faut voter
 	if (gameState.status !== "voting") return;
 
-	const tally = {};
+	const choix = {};
 	const totalVotes = Object.keys(gameState.playerVotes).length;
-	
+
 	if (totalVotes === 0) {
 		io.emit("vote_update", []);
 		return;
 	}
 
 	Object.values(gameState.playerVotes).forEach(song => {
-		tally[song] = (tally[song] || 0) + 1;
+		choix[song] = (choix[song] || 0) + 1;
 	});
 
-	const sortedStats = Object.keys(tally)
+	const statsTrie = Object.keys(choix)
 		.map(songName => ({
 			songName,
-			votes: tally[songName],
-			percentage: Math.round((tally[songName] / totalVotes) * 100)
+			votes: choix[songName],
+			percentage: Math.round((choix[songName] / totalVotes) * 100)
 		}))
 		.sort((a, b) => b.votes - a.votes)
 		.slice(0, 3); // Top 3
 
-	io.emit("vote_update", sortedStats);
+	io.emit("vote_update", statsTrie);
 }
 
-function sendPlayerLeftToGodot(id) {
+function envoyerJoueurRestantGodot(id) {
 	if (godotHost) godotHost.emit("player_left", { playerId: id });
 }
 
-function sendLobbyToClients() {
+function envoyerLobbyAClients() {
 	io.emit('update-lobby', gameState);
 }
 
@@ -145,71 +124,63 @@ io.on('connection', (socket) => {
 	socket.emit('update-lobby', gameState);
 
 	socket.on('host_join', () => {
-		console.log('Godot Host connecté via Socket.IO !');
+		console.log('Godot Host connecté via Socket.IO.');
 		godotHost = socket;
-		remoteLog("SYSTEM ONLINE - Ready to process votes.");
-		
-		// Si l'URL publique est déjà prête, on l'envoie tout de suite
+
+		// si l'URL publique est déjà prête, on l'envoie tout de suite
 		if (publicUrl) {
 			console.log("[Cloudflare] Envoi de l'URL publique existante à l'hôte Godot...");
 			godotHost.emit('public_url', { url: publicUrl });
 		}
-		
-		sendLobbyToGodot();
-	});
 
-	socket.onAny((event, ...args) => {
-		if (event !== "player_input") { // Éviter de logguer le spam de gameplay
-			console.log(`[RAW PACKET] from ${socket.id}: event=${event}, args=${JSON.stringify(args)}`);
-		}
+		sendLobbyToGodot();
 	});
 
 	// Écoute de Godot
 	socket.on('host_phase', (data) => {
 		// data: { phase: "lobby", "countdown", "playing", "ended", gameMode: "NORMAL" }
-		remoteLog(`Phase changed to: ${data.phase} (${data.gameMode || 'NORMAL'})`);
 
-		// CRITIQUE : On met à jour l'état INTERNE avant de broadcaster aux clients
+		// maj de l'état interne -> mettre en gamemode normal avant de broadcast
 		gameState.gameMode = data.gameMode || "NORMAL";
-		
+
 		if (gameState.status === "voting" && data.phase !== "voting") {
-			// Fin du vote, calculer le gagnant en agrégeant playerVotes
-			const tally = {};
+			// calculer le gagnant
+			const choix = {};
 			Object.values(gameState.playerVotes).forEach(song => {
-				tally[song] = (tally[song] || 0) + 1;
+				choix[song] = (choix[song] || 0) + 1;
 			});
 
 			let winner = "";
 			let maxVotes = -1;
-			Object.keys(tally).forEach(song => {
-				if (tally[song] > maxVotes) {
-					maxVotes = tally[song];
+			Object.keys(choix).forEach(song => {
+				if (choix[song] > maxVotes) {
+					maxVotes = choix[song];
 					winner = song;
 				}
 			});
-			// Si pas de vote, prendre une musique au hasard
+			// si pas de vote, prendre une musique au hasard
 			if (!winner && gameState.availableMusics.length > 0) {
 				winner = gameState.availableMusics[Math.floor(Math.random() * gameState.availableMusics.length)];
 			}
-			remoteLog(`VOTE Ended. Winner: ${winner}`);
+
+			//on envoie a godot
 			io.emit('vote_result', { winner });
+
 		} else if (data.phase === "voting") {
 			if (gameState.status !== "voting") {
 				gameState.status = "voting";
 				gameState.playerVotes = {};
-				remoteLog(`VOTE Started. Ready for ${gameState.availableMusics.length} musics.`);
-			} else {
-				remoteLog(`VOTE Phase re-broadcast (already voting). Keeping votes.`);
 			}
-			sendVoteStatsToGodot(); // Reset stats envoi []
+			envoyerVotesAGodot();
 		} else if (data.phase === "reveal" || data.phase === "countdown") {
 			gameState.status = data.phase;
 		} else if (data.phase === "lobby" || data.phase === "ended") {
+			//on réinitialise
 			gameState.status = "lobby";
 			gameState.playerVotes = {};
 		}
 
-		// Maintenant on prévient les clients
+		// on prévient les clients
 		io.emit('host_phase', data);
 	});
 
@@ -223,12 +194,12 @@ io.on('connection', (socket) => {
 
 	socket.on('join-game', (pseudo) => {
 		gameState.players[socket.id] = { pseudo, team: 'Equipe1', score: 0 };
-		sendLobbyToClients();
+		envoyerLobbyAClients();
 		sendLobbyToGodot();
 	});
 
-	// Envoyer l'état actuel uniformisé immédiatement à la connexion
-	sendLobbyToClients();
+	// envoyer l'état actuel immédiatement à la connexion
+	envoyerLobbyAClients();
 
 	socket.on('get_lobby', () => {
 		if (socket === godotHost) {
@@ -242,13 +213,15 @@ io.on('connection', (socket) => {
 		if (!player || !team) return;
 
 		if (player.team) {
-			const oldTeam = gameState.teams.find(t => t.name === player.team);
-			if (oldTeam) oldTeam.players = oldTeam.players.filter(id => id !== socket.id);
+			const ancienneTeam = gameState.teams.find(t => t.name === player.team);
+			if (ancienneTeam) ancienneTeam.players = ancienneTeam.players.filter(id => id !== socket.id);
 		}
 
 		player.team = teamName;
 		team.players.push(socket.id);
+		//au client
 		io.emit('update-lobby', gameState);
+		//godot
 		sendLobbyToGodot();
 	});
 
@@ -289,38 +262,25 @@ io.on('connection', (socket) => {
 
 	socket.on('vote', (data) => {
 		const songName = data.songName;
-		
-		if (gameState.status !== "voting") {
-			remoteLog(`VOTE REJECTED: Server is in status "${gameState.status}"`);
-			return;
-		}
 
-		if (!gameState.availableMusics || gameState.availableMusics.length === 0) {
-			remoteLog(`VOTE REJECTED: No musics loaded.`);
-			return;
-		}
-
-		// Validation relaxée et logging détaillé
 		const cleanVote = songName.trim();
 		const match = gameState.availableMusics.find(m => m.trim().toLowerCase() === cleanVote.toLowerCase());
 
 		if (match) {
 			gameState.playerVotes[socket.id] = match;
-			remoteLog(`VOTE SUCCESS from ${socket.id.substring(0,4)}: -> ${match}`);
-			sendVoteStatsToGodot();
+			envoyerVotesAGodot();
 		} else {
-			remoteLog(`VOTE FAILED: "${songName}" not in list.`);
-			// Fallback : on accepte quand même pour débloquer l'affichage si c'est un bug de nom
 			gameState.playerVotes[socket.id] = songName;
-			sendVoteStatsToGodot();
+			envoyerVotesAGodot();
 		}
 	});
 
+	//deconnexion
 	socket.on('disconnect', () => {
 		console.log('user disconnected :', socket.id);
 
 		if (godotHost === socket) {
-			console.log('Godot Host déconnecté, AUTO-DESTRUCTION du serveur Node.');
+			console.log('Godot Host déconnecté.');
 			godotHost = null;
 			cleanupAndExit();
 			return;
@@ -336,7 +296,7 @@ io.on('connection', (socket) => {
 
 		delete gameState.players[socket.id];
 		io.emit('update-lobby', gameState);
-		sendPlayerLeftToGodot(socket.id);
+		envoyerJoueurRestantGodot(socket.id);
 		sendLobbyToGodot();
 	});
 });
@@ -347,7 +307,7 @@ server.listen(port, "0.0.0.0", async () => {
 	console.log(`\nLocal: http://localhost:${port}`);
 	console.log("Système :", os.platform(), os.arch());
 	console.log("Node Executable :", process.execPath);
-	
+
 	const ifaces = os.networkInterfaces();
 	for (let dev in ifaces) {
 		ifaces[dev].forEach((d) => {
@@ -357,20 +317,20 @@ server.listen(port, "0.0.0.0", async () => {
 	console.log();
 
 	try {
-		console.log("Démarrage du tunnel Cloudflare (Binaire direct)...");
-		
+		console.log("Démarrage du tunnel Cloudflare...");
+
 		const bin = cloudflared.bin;
 		const tunnelArgs = ['tunnel', '--url', `http://127.0.0.1:${port}`];
-		
+
 		console.log(`[Cloudflare] Commande : ${bin} ${tunnelArgs.join(' ')}`);
-		
+
 		cloudflaredProcess = spawn(bin, tunnelArgs);
 
 		let outputBuffer = '';
 		const handleTunnelOutput = (data) => {
 			const str = data.toString();
 			outputBuffer += str;
-			
+
 			// Filtrage des logs pour la console
 			if (str.includes("INF") || str.includes("ERR") || str.includes("https://")) {
 				process.stdout.write("[Cloudflare] " + str);
@@ -380,7 +340,7 @@ server.listen(port, "0.0.0.0", async () => {
 			if (match && !publicUrl) {
 				publicUrl = match[0];
 				console.log(`\n=== TUNNEL PRÊT ===\nURL publique: ${publicUrl}\n===================\n`);
-				
+
 				if (godotHost) {
 					console.log("[Cloudflare] Envoi de l'URL à l'Hôte Godot.");
 					godotHost.emit('public_url', { url: publicUrl });

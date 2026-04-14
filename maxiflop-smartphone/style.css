@@ -38,7 +38,7 @@ html, body {
 
 body {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
     font-family: 'Press Start 2P', cursive;
     color: var(--color-light);
@@ -57,6 +57,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
+    z-index: -1;
     background-image: 
         url('./images/front.png'), 
         url('./images/buildings.png'), 
@@ -85,20 +86,18 @@ body {
     }
 }
 
-
 /* ============== ROTATION DU JEU ============== */
 @media (orientation: portrait) {
     body.playing {
         transform: rotate(90deg);
         transform-origin: center center;
-        width: 100vh;
-        height: 100vw;
+        width: 100dvh;
+        height: 100dvw;
         position: fixed;
-        top: calc((100vh - 100vw) / 2);
-        left: calc((100vw - 100vh) / 2);
+        top: calc((100dvh - 100dvw) / 2);
+        left: calc((100dvw - 100dvh) / 2);
     }
 }
-
 /* ============== SECTIONS (SCREENS) ============== */
 .screen {
     background: rgba(15, 15, 30, 0.8);
@@ -257,10 +256,9 @@ input:focus {
 
 /* ============== PAGE MANETTE (CONTROLLER) ============== */
 #controller {
-    /* Override de la box de base pour prendre tout l'écran */
     max-width: 900px;
     width: 96%;
-    height: 90vh;
+    height: 95%; 
     padding: 15px;
     justify-content: space-between;
     background: transparent;
@@ -280,6 +278,7 @@ input:focus {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    flex-shrink: 0;
 }
 
 #scoreText {
@@ -302,7 +301,10 @@ input:focus {
 }
 
 .buttons .btn {
+    flex: 1; /* Chaque bouton prendra 1/3 de la largeur disponible */
+    width: auto; /* Annule le width: 100% hérité */
     height: 100%;
+    aspect-ratio: auto; /* Désactive l'obligation d'être un carré parfait */
     border-radius: 12px;
 }
 
@@ -310,6 +312,8 @@ input:focus {
     font-size: 1rem;
     color: var(--color-cyan);
     text-transform: uppercase;
+    flex-shrink: 0; /* Empêche le texte "PRET ?" d'être écrasé */
+    padding-bottom: 5px; /* Ajoute un petit coussin de sécurité en bas */
 }
 
 /* ============== PAGE VOTE MUSIQUE ============== */
