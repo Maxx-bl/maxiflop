@@ -1,10 +1,14 @@
-[gd_scene load_steps=17 format=3 uid="uid://cfyaf4ikyente"]
+[gd_scene load_steps=24 format=3 uid="uid://cfyaf4ikyente"]
 
-[ext_resource type="Script" uid="uid://d34qiog5r04a8" path="res://scripts/GameScreen.gd" id="1"]
-[ext_resource type="Script" uid="uid://xbd1n2xwhom3" path="res://scripts/NoteSpawner.gd" id="2"]
-[ext_resource type="Script" uid="uid://dkacnraee3abq" path="res://scripts/HitZone.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/GameScreen.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/NoteSpawner.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/HitZone.gd" id="3"]
 [ext_resource type="PackedScene" uid="uid://dcwqtomkrgupn" path="res://scenes/Note.tscn" id="4"]
 [ext_resource type="AudioStream" uid="uid://dcf34i1jfenko" path="res://assets/test_kick_6s.wav" id="5_xpdqc"]
+[ext_resource type="FontFile" uid="uid://b4ve68u3poffy" path="res://assets/Ecriture/PixelifySans-VariableFont_wght.ttf" id="6_xvbay"]
+[ext_resource type="Texture2D" uid="uid://dyvouf8b51x5b" path="res://assets/GameScreenBack/Space Background.png" id="7_4j5qn"]
+[ext_resource type="Script" path="res://scenes/fond.gd" id="7_wswou"]
+[ext_resource type="Texture2D" uid="uid://dpw1hqbxawj7n" path="res://assets/GameScreenBack/star2.png" id="8_sk67e"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ring_blue"]
 bg_color = Color(0, 0, 0, 0)
@@ -120,6 +124,15 @@ corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 shadow_color = Color(0, 0, 0, 0.2)
 shadow_size = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_44tku"]
+bg_color = Color(0.372549, 0.803922, 0.894118, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cs1ym"]
+bg_color = Color(1, 0.439216, 0.505882, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k8mal"]
+bg_color = Color(0.748873, 0.643717, 0.263296, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_leaderboard"]
 content_margin_left = 16.0
@@ -239,6 +252,7 @@ stretch_mode = 5
 custom_minimum_size = Vector2(360, 70)
 layout_mode = 2
 size_flags_horizontal = 4
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 28
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
@@ -270,6 +284,7 @@ offset_top = 150.0
 offset_right = 840.0
 offset_bottom = 450.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 200
 text = "5"
 horizontal_alignment = 1
@@ -280,6 +295,7 @@ offset_top = 100.0
 offset_right = 840.0
 offset_bottom = 200.0
 theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 56
 text = "Salle d'attente"
 horizontal_alignment = 1
@@ -290,6 +306,7 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = 160.0
 offset_bottom = 70.0
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 20
 theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
@@ -307,6 +324,7 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_error_toast")
 [node name="Label" type="Label" parent="HUD/ErrorToast"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("6_xvbay")
 theme_override_font_sizes/font_size = 18
 text = "Pas assez de joueurs"
 horizontal_alignment = 1
@@ -349,66 +367,6 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 15
 horizontal_alignment = 1
 
-[node name="RacePanel" type="HBoxContainer" parent="HUD/RightPanel/VBox"]
-custom_minimum_size = Vector2(0, 170)
-layout_mode = 2
-theme_override_constants/separation = 28
-alignment = 1
-
-[node name="TeamATrack" type="VBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
-layout_mode = 2
-theme_override_constants/separation = 4
-alignment = 2
-
-[node name="TeamAProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamATrack"]
-custom_minimum_size = Vector2(10, 145)
-layout_mode = 2
-fill_mode = 3
-show_percentage = false
-
-[node name="TeamALabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamATrack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.373, 0.804, 0.894, 1)
-theme_override_font_sizes/font_size = 13
-text = "E1"
-horizontal_alignment = 1
-
-[node name="TeamBTrack" type="VBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
-layout_mode = 2
-theme_override_constants/separation = 4
-alignment = 2
-
-[node name="TeamBProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamBTrack"]
-custom_minimum_size = Vector2(10, 145)
-layout_mode = 2
-fill_mode = 3
-show_percentage = false
-
-[node name="TeamBLabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamBTrack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.439, 0.506, 1)
-theme_override_font_sizes/font_size = 13
-text = "E2"
-horizontal_alignment = 1
-
-[node name="TeamCTrack" type="VBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
-layout_mode = 2
-theme_override_constants/separation = 4
-alignment = 2
-
-[node name="TeamCProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamCTrack"]
-custom_minimum_size = Vector2(10, 145)
-layout_mode = 2
-fill_mode = 3
-show_percentage = false
-
-[node name="TeamCLabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamCTrack"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.941, 0.878, 0.251, 1)
-theme_override_font_sizes/font_size = 13
-text = "E3"
-horizontal_alignment = 1
-
 [node name="TeamAScore" type="Label" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.373, 0.804, 0.894, 1)
@@ -426,6 +384,66 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.941, 0.878, 0.251, 1)
 theme_override_font_sizes/font_size = 17
 text = "Equipe jaune: 0"
+
+[node name="RacePanel" type="VBoxContainer" parent="HUD/RightPanel/VBox"]
+custom_minimum_size = Vector2(0, 170)
+layout_mode = 2
+theme_override_constants/separation = 28
+alignment = 1
+
+[node name="TeamATrack" type="HBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="TeamALabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamATrack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.373, 0.804, 0.894, 1)
+theme_override_font_sizes/font_size = 13
+text = "E1"
+horizontal_alignment = 1
+
+[node name="TeamAProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamATrack"]
+custom_minimum_size = Vector2(350, 25)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_44tku")
+show_percentage = false
+
+[node name="TeamBTrack" type="HBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="TeamBLabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamBTrack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.439, 0.506, 1)
+theme_override_font_sizes/font_size = 13
+text = "E2"
+horizontal_alignment = 1
+
+[node name="TeamBProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamBTrack"]
+custom_minimum_size = Vector2(350, 25)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_cs1ym")
+show_percentage = false
+
+[node name="TeamCTrack" type="HBoxContainer" parent="HUD/RightPanel/VBox/RacePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 2
+
+[node name="TeamCLabel" type="Label" parent="HUD/RightPanel/VBox/RacePanel/TeamCTrack"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.941, 0.878, 0.251, 1)
+theme_override_font_sizes/font_size = 13
+text = "E3"
+horizontal_alignment = 1
+
+[node name="TeamCProgress" type="ProgressBar" parent="HUD/RightPanel/VBox/RacePanel/TeamCTrack"]
+custom_minimum_size = Vector2(350, 25)
+layout_mode = 2
+theme_override_styles/fill = SubResource("StyleBoxFlat_k8mal")
+show_percentage = false
 
 [node name="LeaderboardPanel" type="PanelContainer" parent="HUD/RightPanel/VBox"]
 layout_mode = 2
@@ -505,6 +523,27 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
 text = "≡  Retour Menu"
+
+[node name="Game_screen" type="ParallaxBackground" parent="."]
+script = ExtResource("7_wswou")
+
+[node name="CoucheBack" type="ParallaxLayer" parent="Game_screen"]
+motion_mirroring = Vector2(0, 721)
+
+[node name="SpriteBack" type="Sprite2D" parent="Game_screen/CoucheBack"]
+texture_filter = 1
+position = Vector2(754, 362.5)
+scale = Vector2(7.51, 3.605)
+texture = ExtResource("7_4j5qn")
+
+[node name="CoucheStars" type="ParallaxLayer" parent="Game_screen"]
+motion_mirroring = Vector2(0, 721)
+
+[node name="SpriteStars" type="Sprite2D" parent="Game_screen/CoucheStars"]
+texture_filter = 1
+position = Vector2(754, 363)
+scale = Vector2(7.52, 3.63)
+texture = ExtResource("8_sk67e")
 
 [connection signal="pressed" from="HUD/ResultPanel/VBox/ButtonsHBox/RestartButton" to="." method="_on_restart_pressed"]
 [connection signal="pressed" from="HUD/ResultPanel/VBox/ButtonsHBox/MenuButton" to="." method="_on_menu_pressed"]

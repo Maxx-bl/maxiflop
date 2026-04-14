@@ -157,6 +157,7 @@ alignment = 1
 [node name="NormalButton" type="Button" parent="ModeSelection"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_kklnh")
 theme_override_font_sizes/font_size = 28
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
@@ -165,6 +166,7 @@ text = "Mode Normal"
 [node name="BRButton" type="Button" parent="ModeSelection"]
 custom_minimum_size = Vector2(0, 70)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_kklnh")
 theme_override_font_sizes/font_size = 28
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
@@ -174,6 +176,7 @@ text = "Battle Royale"
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.8, 0.8, 1)
+theme_override_fonts/font = ExtResource("6_kklnh")
 theme_override_font_sizes/font_size = 20
 theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hover")
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
