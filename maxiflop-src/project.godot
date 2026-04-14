@@ -13,7 +13,7 @@ config_version=5
 config/name="Maxiflop"
 config/description="Jeu de rythme inspiré de Osu! Taiko"
 run/main_scene="res://scenes/MainMenu.tscn"
-config/features=PackedStringArray("4.3", "GL Compatibility")
+config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [audio]
