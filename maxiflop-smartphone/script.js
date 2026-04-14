@@ -12,7 +12,7 @@ const screens = {
 	controller: document.getElementById("controller"),
 	vote: document.getElementById("vote"),
 	rotate: document.getElementById("rotate"),
-	eliminated: document.getElementById("eliminated-screen")
+	eliminated: document.getElementById("eliminated")
 };
 
 const showScreen = (key) => {

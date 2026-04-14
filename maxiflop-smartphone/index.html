@@ -3,72 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="screen-orientation" content="landscape">
     <title>Maxiflop Controller</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <section id="login" class="screen">
-        <h1>MAXIFLOP</h1>
-        <p class="subtitle">Entrez votre pseudo pour rejoindre la partie</p>
-        <input type="text" id="nameInput" placeholder="Pseudo" maxlength="15" />
-        
-        <div id="teamSelection">
-            <p>Choisis ton équipe :</p>
-            <div class="team-btns">
-                <button class="join-team-btn blue" data-team="Equipe1">Bleue</button>
-                <button class="join-team-btn red" data-team="Equipe2">Rouge</button>
-                <button class="join-team-btn yellow" data-team="Equipe3">Jaune</button>
+
+    <div class="parallax-bg"></div>
+
+    <section id="login" class="screen active">
+        <div class="login-container">
+            <div class="title-section">
+                <h1 class="pixel-title dancing-title">MAXIFLOP</h1>
+                <p class="subtitle-text">Prêt pour le rythme ?</p>
             </div>
-            <button id="btn-join-br" class="hidden">JOUER (BATTLE ROYALE)</button>
+
+            <div class="login-box">
+                <div class="input-group">
+                    <label for="nameInput" class="input-label">TON PSEUDO</label>
+                    <input type="text" id="nameInput" placeholder="ENTRE TON NOM..." maxlength="15" class="pixel-input" />
+                    <span class="error-msg" id="errorMsg"></span>
+                </div>
+                
+                <div id="teamSelection">
+                    <label class="input-label team-label-choose">Choisis ton équipe :</label>
+                    <div class="team-button-group team-btns">
+                        <button class="team-btn-home team-btn-home-blue join-team-btn" data-team="Equipe1" data-id="1">BLEU</button>
+                        <button class="team-btn-home team-btn-home-yellow join-team-btn" data-team="Equipe2" data-id="2">JAUNE</button>
+                        <button class="team-btn-home team-btn-home-red join-team-btn" data-team="Equipe3" data-id="3">ROUGE</button>
+                    </div>
+                </div>
+                <p id="status" class="error-msg"></p>
+            </div>
         </div>
-        <p id="status" class="status"></p>
     </section>
 
     <section id="waiting" class="screen hidden">
-        <h2>En attente...</h2>
-        <p id="teamInfo">Affectation d'équipe en cours</p>
-        <br>
-        <h3 id="timerDisplay">En attente de joueurs...</h3>
+        <div class="login-box" style="text-align: center;">
+            <h2 class="pixel-title small">ATTENTE...</h2>
+            <p id="teamInfo" class="subtitle-text" style="margin: 20px 0;">Affectation en cours</p>
+            <div class="pixel-loader"></div> <p id="timerDisplay" class="subtitle-text" style="font-size: 0.6rem; margin-top: 20px;">En attente du host...</p>
+        </div>
     </section>
 
     <section id="vote" class="screen hidden">
-        <h2>Votez pour la musique !</h2>
-        <div class="diff-legend">
-            <span class="legend-item easy">Vert : Facile</span>
-            <span class="legend-item medium">Orange : Moyen</span>
-            <span class="legend-item hard">Rouge : Difficile</span>
-            <span class="legend-item extreme">Noir : Extreme</span>
-        </div>
-        <div id="musicList" class="music-list">
-            <!-- Dynamically populated -->
+        <div class="login-container">
+            <h2 class="pixel-title small">VOTE MUSIQUE</h2>
+            <div class="diff-legend" style="font-size: 0.5rem; margin-bottom: 10px; display: flex; gap: 5px; flex-wrap: wrap; justify-content: center;">
+                <span class="legend-item easy" style="color: #84FFC9;">Easy</span>
+                <span class="legend-item medium" style="color: #F0E040;">Med</span>
+                <span class="legend-item hard" style="color: #FF7081;">Hard</span>
+                <span class="legend-item extreme" style="color: #eca0ff;">Extreme</span>
+            </div>
+            <div id="musicList" class="login-box music-list" style="max-height: 300px; overflow-y: auto; padding: 1rem;">
+                </div>
         </div>
     </section>
 
     <section id="rotate" class="screen hidden">
-        <div class="rotate-icon">🔄</div>
-        <h2>C'est parti !</h2>
-        <p>Tournez votre téléphone à l'horizontal pour jouer</p>
+        <div class="login-box" style="text-align: center;">
+            <div class="rotate-icon" style="font-size: 3rem; margin-bottom: 20px;">🔄</div>
+            <h2 class="pixel-title small">TOURNEZ !</h2>
+            <p class="subtitle-text">Passez en paysage pour jouer</p>
+        </div>
     </section>
 
     <section id="controller" class="screen hidden">
-        <div class="scoreWrap">
-            <div id="scoreText">0</div>
-            <div id="rankText">Rang #1 - Équipe bleue</div>
+        <div class="score-board" style="position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-around; z-index: 10;">
+            <div>
+                <div class="input-label" style="font-size: 0.5rem;">SCORE</div>
+                <div id="scoreText" class="pixel-title small">0</div>
+            </div>
+            <div style="text-align: right;">
+                <div id="rankText" class="subtitle-text" style="font-size: 0.5rem;">RANG #1</div>
+                <div id="feedback" class="subtitle-text" style="color: var(--color-cyan);">PRET ?</div>
+            </div>
         </div>
-        <div class="buttons">
-            <button data-color="0" class="btn blue" aria-label="Bleu"></button>
-            <button data-color="1" class="btn yellow" aria-label="Jaune"></button>
-            <button data-color="2" class="btn red" aria-label="Rouge"></button>
+
+        <div class="team-button-group buttons" style="grid-template-columns: repeat(3, 1fr); height: 70vh; width: 95vw; gap: 10px; margin-top: 50px;">
+            <button data-color="0" class="team-btn-home team-btn-home-blue btn blue" style="height: 100%;"></button>
+            <button data-color="1" class="team-btn-home team-btn-home-yellow btn yellow" style="height: 100%;"></button>
+            <button data-color="2" class="team-btn-home team-btn-home-red btn red" style="height: 100%;"></button>
         </div>
-        <div id="feedback">Pret ?</div>
     </section>
 
-    <section id="eliminated-screen" class="screen hidden">
-        <div class="eliminated-content">
-            <h1 class="glitch-text">ÉLIMINÉ</h1>
-            <p>Un faux pas fatal...</p>
-            <p class="sub-text">Attendez la fin du round.</p>
+    <section id="eliminated" class="screen hidden">
+        <div class="login-box" style="text-align: center; border-color: var(--color-pink);">
+            <h1 class="pixel-title small" style="color: var(--color-pink);">ÉLIMINÉ</h1>
+            <p class="subtitle-text" style="margin-top: 20px;">DOMMAGE...</p>
+            <p class="subtitle-text" style="font-size: 0.5rem; margin-top: 10px;">Attends le prochain round</p>
         </div>
     </section>
 
