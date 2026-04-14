@@ -522,3 +522,92 @@
 [2026-04-13T19:47:02.615Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
 [2026-04-13T19:48:24.491Z] Phase changed to: ended (NORMAL)
 [2026-04-13T19:48:24.492Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-14T11:50:06.809Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T11:52:25.329Z] Phase changed to: voting (NORMAL)
+[2026-04-14T11:52:25.330Z] VOTE Started. Ready for 17 musics.
+[2026-04-14T11:52:31.805Z] VOTE SUCCESS from dXeg: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-14T11:52:32.535Z] VOTE SUCCESS from BUUM: -> Julius D. & Zeus C. - Invisible - HARD
+[2026-04-14T11:52:33.369Z] VOTE SUCCESS from BUUM: -> Jo C. & Sex Whales - We Are - HARD
+[2026-04-14T11:52:35.548Z] VOTE SUCCESS from BUUM: -> Julius D. & Zeus C. - Invisible - HARD
+[2026-04-14T11:52:36.192Z] VOTE SUCCESS from BUUM: -> Jo C. & Sex Whales - We Are - HARD
+[2026-04-14T11:52:38.099Z] VOTE SUCCESS from BUUM: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-14T11:52:40.211Z] Phase changed to: reveal (NORMAL)
+[2026-04-14T11:52:40.212Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-14T11:52:44.198Z] Phase changed to: countdown (NORMAL)
+[2026-04-14T11:52:44.198Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-14T11:52:49.622Z] Phase changed to: playing (NORMAL)
+[2026-04-14T11:52:49.631Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-14T11:54:18.816Z] Phase changed to: ended (NORMAL)
+[2026-04-14T11:54:18.817Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-14T11:54:31.528Z] Phase changed to: lobby (BATTLE_ROYALE)
+[2026-04-14T11:54:31.529Z] VOTE Ended. Winner: NO BATIDÃO - ZXKAI - EASY
+[2026-04-14T11:54:32.843Z] Phase changed to: voting (NORMAL)
+[2026-04-14T11:54:32.844Z] VOTE Phase re-broadcast (already voting). Keeping votes.
+[2026-04-14T11:54:37.649Z] VOTE SUCCESS from BUUM: -> OMFG - Hello - EASY
+[2026-04-14T11:54:39.084Z] VOTE SUCCESS from dXeg: -> OMFG - Hello - EASY
+[2026-04-14T11:54:47.727Z] Phase changed to: reveal (NORMAL)
+[2026-04-14T11:54:47.728Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-14T11:54:51.745Z] Phase changed to: countdown (NORMAL)
+[2026-04-14T11:54:51.746Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-14T11:54:57.160Z] Phase changed to: playing (BATTLE_ROYALE)
+[2026-04-14T11:54:57.160Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-14T11:55:24.807Z] Phase changed to: ended (NORMAL)
+[2026-04-14T11:55:24.808Z] VOTE Ended. Winner: OMFG - Hello - EASY
+[2026-04-14T12:05:00.483Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T12:40:17.850Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T12:41:25.278Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T12:42:18.218Z] Phase changed to: lobby (NORMAL)
+[2026-04-14T12:42:42.086Z] Phase changed to: voting (NORMAL)
+[2026-04-14T12:42:42.087Z] VOTE Started. Ready for 0 musics.
+[2026-04-14T12:44:21.854Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T12:45:10.296Z] Phase changed to: voting (NORMAL)
+[2026-04-14T12:45:10.296Z] VOTE Started. Ready for 0 musics.
+[2026-04-14T12:45:25.181Z] Phase changed to: reveal (NORMAL)
+[2026-04-14T12:45:25.181Z] VOTE Ended. Winner: 
+[2026-04-14T12:45:29.186Z] Phase changed to: countdown (NORMAL)
+[2026-04-14T12:45:29.186Z] VOTE Ended. Winner: 
+[2026-04-14T12:45:34.604Z] Phase changed to: playing (NORMAL)
+[2026-04-14T12:45:34.604Z] VOTE Ended. Winner: 
+[2026-04-14T12:45:44.613Z] Phase changed to: ended (NORMAL)
+[2026-04-14T12:45:44.614Z] VOTE Ended. Winner: 
+[2026-04-14T12:46:28.138Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T12:46:50.788Z] Phase changed to: voting (NORMAL)
+[2026-04-14T12:46:50.789Z] VOTE Started. Ready for 17 musics.
+[2026-04-14T12:46:53.867Z] VOTE SUCCESS from cImW: -> Warriyo - Mortals - EXTREME
+[2026-04-14T12:47:05.670Z] Phase changed to: reveal (NORMAL)
+[2026-04-14T12:47:05.671Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-14T12:47:09.687Z] Phase changed to: countdown (NORMAL)
+[2026-04-14T12:47:09.687Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-14T12:47:15.102Z] Phase changed to: playing (NORMAL)
+[2026-04-14T12:47:15.102Z] VOTE Ended. Winner: Warriyo - Mortals - EXTREME
+[2026-04-14T12:58:58.974Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T12:59:56.103Z] Phase changed to: voting (NORMAL)
+[2026-04-14T12:59:56.104Z] VOTE Started. Ready for 17 musics.
+[2026-04-14T13:00:01.844Z] VOTE SUCCESS from AdV6: -> OMFG - Hello - EASY
+[2026-04-14T13:00:02.408Z] VOTE SUCCESS from AdV6: -> NO BATIDÃO - ZXKAI - EASY
+[2026-04-14T13:00:02.426Z] VOTE SUCCESS from AdV6: -> Electro-Light - Symbolism - EASY
+[2026-04-14T13:00:02.733Z] VOTE SUCCESS from AdV6: -> OMFG - Hello - EASY
+[2026-04-14T13:00:02.990Z] VOTE SUCCESS from AdV6: -> Sub Urban - Cradles - EASY
+[2026-04-14T13:00:03.948Z] VOTE SUCCESS from AdV6: -> Disfigure - Blank - MEDIUM
+[2026-04-14T13:00:04.073Z] VOTE SUCCESS from AdV6: -> Sajanka - Jumpa Lumpa - MEDIUM
+[2026-04-14T13:00:04.705Z] VOTE SUCCESS from AdV6: -> Crushed Candy - Oh My Gawd - MEDIUM
+[2026-04-14T13:00:05.735Z] VOTE SUCCESS from AdV6: -> Spektrem - Shine - MEDIUM
+[2026-04-14T13:00:35.527Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T13:05:59.626Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T13:09:54.947Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T13:10:28.336Z] Phase changed to: voting (NORMAL)
+[2026-04-14T13:10:28.337Z] VOTE Started. Ready for 17 musics.
+[2026-04-14T13:10:43.217Z] Phase changed to: reveal (NORMAL)
+[2026-04-14T13:10:43.218Z] VOTE Ended. Winner: Electro-Light - Symbolism - EASY
+[2026-04-14T13:10:47.230Z] Phase changed to: countdown (NORMAL)
+[2026-04-14T13:10:47.230Z] VOTE Ended. Winner: Spektrem - Shine - MEDIUM
+[2026-04-14T13:11:03.304Z] SYSTEM ONLINE - Ready to process votes.
+[2026-04-14T13:11:20.529Z] Phase changed to: voting (NORMAL)
+[2026-04-14T13:11:20.530Z] VOTE Started. Ready for 17 musics.
+[2026-04-14T13:11:25.012Z] VOTE SUCCESS from D7br: -> Alan Walker - Fade - HARD
+[2026-04-14T13:11:35.407Z] Phase changed to: reveal (NORMAL)
+[2026-04-14T13:11:35.408Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-14T13:11:39.424Z] Phase changed to: countdown (NORMAL)
+[2026-04-14T13:11:39.425Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
+[2026-04-14T13:11:44.839Z] Phase changed to: playing (NORMAL)
+[2026-04-14T13:11:44.840Z] VOTE Ended. Winner: Alan Walker - Fade - HARD
