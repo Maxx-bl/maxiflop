@@ -5,7 +5,8 @@ const { Server } = require('socket.io');
 const os = require('os');
 const app = express();
 const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, { cors: {
+	origin: [/^http:\/\/localhost:\d+$/, /^https:\/\/.*\.trycloudflare\.com$/]	} });
 const port = 3000;
 const { spawn } = require('child_process');
 
@@ -31,7 +32,7 @@ let publicUrl = null;
 let cloudflaredProcess = null;
 
 function cleanupAndExit() {
-	console.log("\nArrêt du serveur et nettoyage...");
+	console.log("Arrêt du serveur et nettoyage...");
 	if (cloudflaredProcess) {
 		console.log("Fermeture du tunnel Cloudflare...");
 		cloudflaredProcess.kill();
@@ -124,6 +125,12 @@ io.on('connection', (socket) => {
 	socket.emit('update-lobby', gameState);
 
 	socket.on('host_join', () => {
+		//si un hote godot est deja connecte on rejette les autres
+		if (godotHost !== null){
+			console.log('connexion refusée');
+			//on arrete tout
+			return;
+		}
 		console.log('Godot Host connecté via Socket.IO.');
 		godotHost = socket;
 
